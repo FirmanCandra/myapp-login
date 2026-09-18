@@ -70,10 +70,6 @@ const LoginPage = () => {
             <line x1="6" y1="6" x2="18" y2="18" />
             <line x1="18" y1="6" x2="6" y2="18" />
           </svg>
-          <div className="brand-text">
-            <span className="brand-title">Ibrahim</span>
-            <span className="brand-sub">MEMON</span>
-          </div>
         </div>
         <div className="mobile-header-link">
           HAVE AN ACCOUNT? <span className="highlight-text">SIGN IN</span>
@@ -95,26 +91,6 @@ const LoginPage = () => {
 
           {/* Desktop Brand Header */}
           <div className="desktop-brand-header">
-            <div className="brand-badge">
-              <svg
-                className="brand-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polygon points="6 2 18 2 18 6 6 6" />
-                <polygon points="6 18 18 18 18 22 6 22" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-                <line x1="18" y1="6" x2="6" y2="18" />
-              </svg>
-              <div className="brand-text">
-                <span className="brand-title">Ibrahim</span>
-                <span className="brand-sub">MEMON</span>
-              </div>
-            </div>
           </div>
 
           {/* Hero Typography Overlay */}
@@ -185,16 +161,6 @@ const LoginPage = () => {
                   {isSigningIn ? 'Connecting...' : 'Google'}
                 </span>
               </button>
-
-              <button
-                type="button"
-                className="social-btn facebook-social-btn"
-                onClick={handleFacebookClick}
-                aria-label="Sign in with Facebook"
-              >
-                <FaFacebook className="social-icon fb-icon" />
-                <span className="social-label">Facebook</span>
-              </button>
             </div>
 
             {/* Terms Footer */}
@@ -207,9 +173,6 @@ const LoginPage = () => {
           </div>
 
           {/* Mobile bottom copyright */}
-          <footer className="auth-bottom-copyright">
-            COPYRIGHT BY IBRAHIM MEMON
-          </footer>
         </section>
       </div>
     </div>
