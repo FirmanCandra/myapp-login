@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
-import { FaFacebook } from 'react-icons/fa';
 import { FiMail } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -35,19 +34,13 @@ const LoginPage = () => {
     }
   };
 
-  const handleFacebookClick = () => {
-    setNotice('Login dengan Facebook akan segera hadir. Silakan gunakan Google.');
-    setTimeout(() => setNotice(null), 4000);
-  };
-
   const handleEmailSubmit = (e) => {
     e.preventDefault();
     if (!email) {
       setError('Silakan masukkan alamat email kamu.');
       return;
     }
-    // Instant helpful hint to use Google OAuth button
-    setNotice(`Email "${email}" dicatat! Untuk login instan & aman, silakan klik tombol Google di bawah.`);
+    setNotice(`Email "${email}" dicatat! Untuk login instan & aman, silakan klik tombol Masuk dengan Google di bawah.`);
     setTimeout(() => setNotice(null), 5000);
   };
 
@@ -55,22 +48,6 @@ const LoginPage = () => {
     <div className="login-wrapper">
       {/* Mobile Top Navigation */}
       <header className="mobile-header">
-        <div className="brand-badge">
-          <svg
-            className="brand-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polygon points="6 2 18 2 18 6 6 6" />
-            <polygon points="6 18 18 18 18 22 6 22" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-            <line x1="18" y1="6" x2="6" y2="18" />
-          </svg>
-        </div>
         <div className="mobile-header-link">
           HAVE AN ACCOUNT? <span className="highlight-text">SIGN IN</span>
         </div>
@@ -87,10 +64,6 @@ const LoginPage = () => {
               className="space-bg-image"
             />
             <div className="space-overlay-gradient"></div>
-          </div>
-
-          {/* Desktop Brand Header */}
-          <div className="desktop-brand-header">
           </div>
 
           {/* Hero Typography Overlay */}
@@ -146,19 +119,19 @@ const LoginPage = () => {
               <span className="divider-line"></span>
             </div>
 
-            {/* Social Logins */}
-            <div className="social-buttons-row">
+            {/* Google Login Button - Full Width & Centered */}
+            <div className="social-buttons-container">
               <button
                 type="button"
-                className={`social-btn google-social-btn ${isSigningIn ? 'loading' : ''}`}
+                className={`google-full-btn ${isSigningIn ? 'loading' : ''}`}
                 onClick={handleGoogleLogin}
                 disabled={isSigningIn}
                 id="google-login-btn"
                 aria-label="Sign in with Google"
               >
-                <FcGoogle className="social-icon" />
-                <span className="social-label">
-                  {isSigningIn ? 'Connecting...' : 'Google'}
+                <FcGoogle className="google-icon" />
+                <span className="google-label">
+                  {isSigningIn ? 'Connecting...' : 'Sign in with Google'}
                 </span>
               </button>
             </div>
@@ -171,8 +144,6 @@ const LoginPage = () => {
               </a>
             </p>
           </div>
-
-          {/* Mobile bottom copyright */}
         </section>
       </div>
     </div>
