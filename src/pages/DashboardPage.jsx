@@ -60,11 +60,7 @@ const DashboardPage = () => {
 
   return (
     <div className="dashboard-page">
-      {/* Background */}
-      <div className="dashboard-bg-orbs">
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-      </div>
+
 
       {/* Navbar */}
       <nav className="dashboard-nav">
@@ -115,7 +111,7 @@ const DashboardPage = () => {
 
         {/* Stats */}
         <div className="stats-grid">
-          <div className="stat-card glass-card">
+          <div className="stat-card clean-card">
             <div className="stat-icon purple">
               <HiOutlineUser />
             </div>
@@ -125,7 +121,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="stat-card glass-card">
+          <div className="stat-card clean-card">
             <div className="stat-icon green">
               <HiOutlineBadgeCheck />
             </div>
@@ -141,7 +137,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="stat-card glass-card">
+          <div className="stat-card clean-card">
             <div className="stat-icon pink">
               <HiOutlineClock />
             </div>
@@ -159,7 +155,7 @@ const DashboardPage = () => {
             Detail Profil
           </h2>
 
-          <div className="profile-card glass-card">
+          <div className="profile-card clean-card">
             <div className="profile-header">
               {avatarUrl ? (
                 <img
