@@ -10,11 +10,10 @@ import './IntroVideoSplash.css';
 
 const IntroVideoSplash = ({ onFinish }) => {
   const videoRef = useRef(null);
-  const [progress, setProgress] = useState(0);
+  const progressBarRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false); // Default sound is ON!
   const [isFading, setIsFading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isBuffering, setIsBuffering] = useState(false);
 
   const triggerFadeOut = useCallback(() => {
     if (isFading) return;
@@ -24,12 +23,12 @@ const IntroVideoSplash = ({ onFinish }) => {
     }, 700);
   }, [isFading, onFinish]);
 
-  // Video Autoplay & Sound Initialization (Default Sound ON)
+  // Video Autoplay & Sound Initialization
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Set mobile attributes
+    // Mobile hardware video attributes
     video.playsInline = true;
     video.setAttribute('playsinline', 'true');
     video.setAttribute('webkit-playsinline', 'true');
@@ -45,7 +44,6 @@ const IntroVideoSplash = ({ onFinish }) => {
       try {
         await video.play();
         setIsPaused(false);
-        setIsBuffering(false);
         setIsMuted(false);
       } catch (err) {
         // If mobile browser policy requires user touch before playing audio:
@@ -55,7 +53,6 @@ const IntroVideoSplash = ({ onFinish }) => {
         try {
           await video.play();
           setIsPaused(false);
-          setIsBuffering(false);
         } catch {
           setIsPaused(true);
         }
@@ -79,45 +76,24 @@ const IntroVideoSplash = ({ onFinish }) => {
 
     tryStartPlayback();
 
-    // Anti-stuck watchdog
-    let lastTime = 0;
-    let stuckCount = 0;
-    const progressWatchdog = setInterval(() => {
-      if (video && !video.paused && !video.ended) {
-        if (video.currentTime === lastTime && video.currentTime > 0) {
-          stuckCount += 1;
-          if (stuckCount >= 3) {
-            console.warn('Playback stalled, nudging video...');
-            video.play().catch(() => {});
-            stuckCount = 0;
-          }
-        } else {
-          stuckCount = 0;
-          lastTime = video.currentTime;
-          setIsBuffering(false);
-        }
-      }
-    }, 500);
-
-    // Safety timeout: transition to login if video is completely blocked after 5s
+    // Safety timeout: transition to login if video is completely blocked after 6s
     const initialSafetyTimeout = setTimeout(() => {
       if (video && video.currentTime === 0 && !video.ended) {
         console.warn('Video load safety fallback -> login');
         triggerFadeOut();
       }
-    }, 5000);
+    }, 6000);
 
     return () => {
-      clearInterval(progressWatchdog);
       clearTimeout(initialSafetyTimeout);
     };
   }, [triggerFadeOut]);
 
+  // Direct DOM update: 0 React re-renders on every frame!
   const handleTimeUpdate = () => {
-    if (videoRef.current && videoRef.current.duration) {
+    if (videoRef.current && videoRef.current.duration && progressBarRef.current) {
       const pct = (videoRef.current.currentTime / videoRef.current.duration) * 100;
-      setProgress(pct);
-      setIsBuffering(false);
+      progressBarRef.current.style.width = `${pct}%`;
     }
   };
 
@@ -179,12 +155,7 @@ const IntroVideoSplash = ({ onFinish }) => {
         preload="auto"
         onTimeUpdate={handleTimeUpdate}
         onEnded={triggerFadeOut}
-        onWaiting={() => setIsBuffering(true)}
-        onPlaying={() => {
-          setIsBuffering(false);
-          setIsPaused(false);
-        }}
-        onCanPlay={() => setIsBuffering(false)}
+        onPlaying={() => setIsPaused(false)}
         onError={() => {
           console.warn('Video element error, skipping to login');
           triggerFadeOut();
@@ -243,18 +214,12 @@ const IntroVideoSplash = ({ onFinish }) => {
             <HiOutlinePlay />
           </button>
         )}
-
-        {isBuffering && !isPaused && (
-          <div className="intro-buffering-indicator">
-            <div className="buffering-spinner" />
-          </div>
-        )}
       </div>
 
       {/* Bottom Progress Bar */}
       <div className="intro-bottom-bar" onClick={(e) => e.stopPropagation()}>
         <div className="intro-progress-track">
-          <div className="intro-progress-fill" style={{ width: `${progress}%` }} />
+          <div ref={progressBarRef} className="intro-progress-fill" style={{ width: '0%' }} />
         </div>
       </div>
     </div>
@@ -262,4 +227,5 @@ const IntroVideoSplash = ({ onFinish }) => {
 };
 
 export default IntroVideoSplash;
+
 
