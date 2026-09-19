@@ -12,6 +12,8 @@ import {
   HiOutlineUserGroup,
   HiOutlineAcademicCap,
   HiOutlineBookOpen,
+  HiOutlineRefresh,
+  HiOutlineChatAlt2,
 } from 'react-icons/hi';
 import confetti from 'canvas-confetti';
 import { askAiCfo, formatCurrency } from '../services/financeService';
@@ -25,15 +27,84 @@ const BUSINESS_QUICK_PROMPTS = [
 ];
 
 const STUDENT_QUICK_PROMPTS = [
-  'Tips bertahan di tanggal tua & makan hemat',
-  'Bagaimana cara konsisten menabung untuk bayar UKT?',
   'Berapa batas jajan harian aman saya saat ini?',
-  'Strategi cari cuan freelance desain / coding',
+  'Mau beli sepatu 300rb kira-kira aman ga?',
+  'Tips bertahan di tanggal tua & makan hemat',
+  'Pengeluaran terbesar saya apa?',
+  'Bagaimana cara konsisten menabung bayar UKT?',
 ];
+
+// Helper to format simple markdown (bold, lists, code) inside chat bubbles
+const FormattedMessage = ({ text }) => {
+  if (!text) return null;
+
+  const lines = text.split('\n');
+
+  return (
+    <div className="bubble-formatted-content">
+      {lines.map((line, idx) => {
+        if (!line.trim()) {
+          return <div key={idx} className="msg-empty-spacer" />;
+        }
+
+        // Render bullet point line
+        const isBullet = line.trim().startsWith('•') || line.trim().startsWith('-');
+        const isNumbered = /^\d+\.\s/.test(line.trim());
+
+        // Parse bold **text**
+        const parts = line.split(/(\*\*.*?\*\*)/g);
+
+        const renderedLine = parts.map((part, pIdx) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return (
+              <strong key={pIdx} className="msg-strong-highlight">
+                {part.slice(2, -2)}
+              </strong>
+            );
+          }
+          return part;
+        });
+
+        if (isBullet || isNumbered) {
+          return (
+            <div key={idx} className="msg-list-item">
+              <span className="msg-list-bullet">{isNumbered ? line.trim().match(/^\d+\./)[0] : '•'}</span>
+              <span className="msg-list-text">
+                {isNumbered
+                  ? parts.map((part, pIdx) => {
+                      const cleanPart = pIdx === 0 ? part.replace(/^\d+\.\s*/, '') : part;
+                      if (cleanPart.startsWith('**') && cleanPart.endsWith('**')) {
+                        return <strong key={pIdx} className="msg-strong-highlight">{cleanPart.slice(2, -2)}</strong>;
+                      }
+                      return cleanPart;
+                    })
+                  : parts.map((part, pIdx) => {
+                      const cleanPart = pIdx === 0 ? part.replace(/^[•\-]\s*/, '') : part;
+                      if (cleanPart.startsWith('**') && cleanPart.endsWith('**')) {
+                        return <strong key={pIdx} className="msg-strong-highlight">{cleanPart.slice(2, -2)}</strong>;
+                      }
+                      return cleanPart;
+                    })}
+              </span>
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="msg-paragraph">
+            {renderedLine}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
 
 const CfoAdvisorTab = ({ metrics, transactions, role = 'business', onNavigateTab }) => {
   const isStudent = role === 'student';
   const quickPrompts = isStudent ? STUDENT_QUICK_PROMPTS : BUSINESS_QUICK_PROMPTS;
+
+  const [mobileTab, setMobileTab] = useState('chat'); // 'chat' | 'cards'
 
   const buildInitialGreeting = () => ({
     id: `msg-init-${role}-${transactions.length}`,
@@ -77,7 +148,6 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
   });
 
   const [messages, setMessages] = useState(() => [buildInitialGreeting()]);
-
   const [inputQuery, setInputQuery] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [appliedSavings, setAppliedSavings] = useState([]);
@@ -91,8 +161,10 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
   }, [role, transactions.length, metrics.totalBalance, metrics.safeDailyAllowance, metrics.healthScore, metrics.daysRemaining, metrics.profitMargin, isStudent]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isThinking]);
+    if (mobileTab === 'chat') {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isThinking, mobileTab]);
 
   const handleSendMessage = async (textToSend) => {
     const q = textToSend || inputQuery;
@@ -126,6 +198,10 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
     } finally {
       setIsThinking(false);
     }
+  };
+
+  const handleResetChat = () => {
+    setMessages([buildInitialGreeting()]);
   };
 
   const handleApplySavingCard = (cardId) => {
@@ -170,10 +246,30 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
         </div>
       </div>
 
+      {/* Mobile Segmented Tab Switcher */}
+      <div className="cfo-mobile-switcher">
+        <button
+          className={`cfo-switcher-btn ${mobileTab === 'chat' ? 'active' : ''}`}
+          onClick={() => setMobileTab('chat')}
+        >
+          <HiOutlineChatAlt2 />
+          <span>Tanya Mentor AI</span>
+          <span className="active-dot-live" />
+        </button>
+        <button
+          className={`cfo-switcher-btn ${mobileTab === 'cards' ? 'active' : ''}`}
+          onClick={() => setMobileTab('cards')}
+        >
+          <HiOutlineLightBulb />
+          <span>Rekomendasi & Tips</span>
+          <span className="badge-count">3</span>
+        </button>
+      </div>
+
       {/* 2. Main Two Columns: Strategic Cards & AI Chat Assistant */}
-      <div className="cfo-main-grid">
+      <div className={`cfo-main-grid view-${mobileTab}`}>
         {/* Left Column: Actionable Anomaly & Optimization Cards */}
-        <div className="cfo-cards-column">
+        <div className={`cfo-cards-column ${mobileTab === 'cards' ? 'show-on-mobile' : 'hide-on-mobile'}`}>
           <div className="column-heading">
             <HiOutlineLightBulb className="icon-bulb" />
             <h3>{isStudent ? 'Rekomendasi & Life Hacks' : 'Rekomendasi & Temuan'}</h3>
@@ -381,7 +477,7 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
         </div>
 
         {/* Right Column: Interactive AI CFO / Mentor Chat */}
-        <div className="cfo-chat-column glass-panel">
+        <div className={`cfo-chat-column glass-panel ${mobileTab === 'chat' ? 'show-on-mobile' : 'hide-on-mobile'}`}>
           <div className="chat-header-bar">
             <div className="chat-title-info">
               <div className="cfo-status-dot" />
@@ -390,7 +486,13 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
                 <span>{isStudent ? 'Tersambung ke uang saku & pengeluaranmu' : 'Tersambung ke data pembukuan'}</span>
               </div>
             </div>
-            <span className={`glass-pill ${isStudent ? 'pill-primary' : 'pill-purple'}`}>Aktif</span>
+            <div className="chat-header-actions">
+              <button className="btn-reset-chat" onClick={handleResetChat} title="Mulai Obrolan Baru">
+                <HiOutlineRefresh />
+                <span>Reset Chat</span>
+              </button>
+              <span className={`glass-pill ${isStudent ? 'pill-primary' : 'pill-purple'}`}>Online</span>
+            </div>
           </div>
 
           {/* Chat Messages Viewport */}
@@ -405,18 +507,20 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
                     </div>
                   )}
                   <div className="chat-bubble">
-                    <div className="bubble-text" style={{ whiteSpace: 'pre-line' }}>
-                      {m.text}
-                    </div>
+                    <FormattedMessage text={m.text} />
 
                     {m.suggestedAction && (
                       <div className="bubble-action-row">
                         <button
                           className="btn-bubble-action"
                           onClick={() => {
-                            if (m.suggestedAction.includes('Simulator') || m.suggestedAction.includes('Nabung') || m.suggestedAction.includes('Freelance')) onNavigateTab('simulator');
+                            if (m.suggestedAction.includes('Simulator') || m.suggestedAction.includes('Nabung') || m.suggestedAction.includes('Freelance') || m.suggestedAction.includes('Survival') || m.suggestedAction.includes('Hiring')) onNavigateTab('simulator');
                             else if (m.suggestedAction.includes('Struk') || m.suggestedAction.includes('Scan') || m.suggestedAction.includes('Bon'))
                               onNavigateTab('scanner');
+                            else if (m.suggestedAction.includes('Catat'))
+                              onNavigateTab('ledger');
+                            else if (m.suggestedAction.includes('Buku Kas'))
+                              onNavigateTab('ledger');
                           }}
                         >
                           <HiOutlineArrowRight /> {m.suggestedAction}
@@ -468,13 +572,14 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSendMessage();
               }}
-              placeholder={isStudent ? 'Tanyakan tips hemat tanggal tua, nabung UKT, atau jajan aman...' : 'Tanyakan analisis keuangan, runway, atau strategi efisiensi...'}
+              placeholder={isStudent ? 'Tanya jajan aman, tips hemat, beli barang...' : 'Tanyakan analisis keuangan, runway, efisiensi...'}
               className="chat-input"
             />
             <button
               className="btn-send-chat"
               disabled={!inputQuery.trim() || isThinking}
               onClick={() => handleSendMessage()}
+              aria-label="Kirim pesan"
             >
               <HiOutlinePaperAirplane />
             </button>

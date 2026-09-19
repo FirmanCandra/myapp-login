@@ -336,12 +336,20 @@ export const saveTransaction = async (tx, userId, role = 'business') => {
 
   if (userId) {
     try {
+      const dbPayload = { ...newTx, user_id: userId, notes_role: role };
+      if (typeof dbPayload.id === 'string' && dbPayload.id.startsWith('tx-')) {
+        delete dbPayload.id;
+      }
       const { data, error } = await supabase
         .from('transactions')
-        .insert([{ ...newTx, user_id: userId, notes_role: role }])
+        .insert([dbPayload])
         .select();
       if (!error && data && data[0]) {
-        return data[0];
+        const savedFromDb = data[0];
+        const current = await getStoredTransactions(userId, role);
+        const updated = [savedFromDb, ...current.filter((t) => t.id !== savedFromDb.id)];
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+        return savedFromDb;
       }
     } catch (err) {
       console.warn('Supabase insert failed, fallback to local storage:', err.message);
@@ -774,83 +782,420 @@ export const generateCfoInsights = (transactions, metrics, role = 'business') =>
   return insights;
 };
 
-export const askAiCfo = async (query, metrics, transactions, role = 'business') => {
-  const q = query.toLowerCase();
-  await new Promise((resolve) => setTimeout(resolve, 750));
+// Helper to extract Indonesian currency amounts from user input
+export const parseIndonesianAmount = (text) => {
+  if (!text) return null;
+  const str = text.toLowerCase().replace(/,/g, '.');
 
+  // Match patterns like "1.5jt", "1.5 juta", "2.5 jt", "300rb", "300 k", "300.000", "500000"
+  const jtMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:jt|juta|million)/i);
+  if (jtMatch) {
+    return Math.round(parseFloat(jtMatch[1]) * 1000000);
+  }
+
+  const rbMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:rb|k|ribu|thousand)/i);
+  if (rbMatch) {
+    return Math.round(parseFloat(rbMatch[1]) * 1000);
+  }
+
+  const numMatch = str.match(/(?:rp\.?|rp\s*)?(\d{1,3}(?:\.\d{3})+)/i);
+  if (numMatch) {
+    const cleanNum = numMatch[1].replace(/\./g, '');
+    return parseInt(cleanNum, 10);
+  }
+
+  const plainNumMatch = str.match(/(?:rp\.?|rp\s*)?(\d{4,12})/i);
+  if (plainNumMatch) {
+    return parseInt(plainNumMatch[1], 10);
+  }
+
+  return null;
+};
+
+// Helper to extract item or subject from user query
+export const extractTargetItem = (text) => {
+  if (!text) return 'barang ini';
+  const str = text.toLowerCase();
+  const match = str.match(/(?:beli|bayar|jajan|ambil|sewa|order)\s+([a-zA-Z0-9\s]+?)(?:\s+(?:seharga|harga|senilai|\d+|rp|aman|boleh|bisa|cukup|buat|untuk)|$)/i);
+  if (match && match[1] && match[1].trim().length > 1) {
+    return match[1].trim();
+  }
+  return 'barang/keperluan ini';
+};
+
+export const askAiCfo = async (query, metrics, transactions, role = 'business') => {
+  const q = query.toLowerCase().trim();
+  const isStudent = role === 'student';
   const totalCashFormatted = formatCurrency(metrics.totalBalance);
   const burnFormatted = formatCurrency(metrics.avgMonthlyExpense);
   const incomeFormatted = formatCurrency(metrics.avgMonthlyIncome);
+  const safeDailyFormatted = formatCurrency(metrics.safeDailyAllowance);
+  const daysRemaining = metrics.daysRemaining || 15;
 
+  // 1. Try Gemini API if key is provided in environment
+  const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (geminiApiKey) {
+    try {
+      const topCatSummary = generateCategoryBreakdown(transactions)
+        .slice(0, 4)
+        .map((c) => `${c.name}: ${formatShortCurrency(c.value)} (${c.percentage}%)`)
+        .join(', ');
+
+      const systemPrompt = `Kamu adalah ${isStudent ? 'AI Financial Mentor khusus Mahasiswa & Anak Kost' : 'Autonomous AI CFO FinTech untuk SME & Bisnis'}.
+Data Keuangan Pengguna Saat Ini:
+- Mode: ${isStudent ? 'Mahasiswa & Anak Kost 🎓' : 'Perusahaan & Bisnis 🏢'}
+- Saldo Kas / Uang Saku: ${totalCashFormatted}
+- Total Pemasukan: ${incomeFormatted}
+- Total Pengeluaran: ${burnFormatted}
+- Sisa Hari Bulan Ini: ${daysRemaining} hari
+- Batas Jajan Harian Aman: ${safeDailyFormatted}/hari
+- Skor Kesehatan Keuangan: ${metrics.healthScore}/100
+- Total Transaksi Tercatat: ${transactions.length}
+- Pengeluaran Teratas: ${topCatSummary || 'Belum ada transaksi'}
+
+Instruksi:
+- Jawablah dengan ramah, cerdas, solutif, dan relevan dengan pertanyaan pengguna dalam Bahasa Indonesia yang santun dan modern.
+- Gunakan data keuangan riil di atas dalam kalkulasimu (jangan mengarang angka palsu).
+- Gunakan formatting Markdown yang rapi (bullet points, bold text). Jawab dengan padat dan to the point (maksimal 3-4 paragraf).`;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: `${systemPrompt}\n\nPertanyaan Pengguna: "${query}"` }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 600,
+            },
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const json = await response.json();
+        const replyText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (replyText) {
+          return {
+            text: replyText,
+            suggestedAction: isStudent ? 'Buka Simulator Mahasiswa' : 'Buka Simulator Skenario',
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('Gemini API call fallback to local reasoning engine:', err.message);
+    }
+  }
+
+  // Artificial natural thinking delay
+  await new Promise((resolve) => setTimeout(resolve, 600));
+
+  // Category breakdown
+  const categoryBreakdown = generateCategoryBreakdown(transactions);
+  const expenseTx = transactions.filter((t) => t.type === 'expense');
+  const incomeTx = transactions.filter((t) => t.type === 'income');
+
+  // =========================================================================
+  // Intent 1: Zero-State Handling
+  // =========================================================================
   if (transactions.length === 0 && metrics.totalBalance === 0) {
-    if (role === 'student') {
+    if (isStudent) {
       return {
-        text: `Halo sobat mahasiswa! 🎓 Buku kas uang sakumu saat ini masih kosong (**Rp 0**).\n\n💡 **Langkah Awal:**\n1. Klik tombol **+ Catat** untuk memasukkan uang saku dari orang tua atau gaji freelance.\n2. Atau foto struk/bon belanjaanmu menggunakan fitur **Scan Bon/Struk**.\n\nSetelah ada catatan mutasi, saya akan otomatis menghitung **Batas Jajan Harian Aman (Safe Daily Limit)** dan memberikan tips hemat untukmu!`,
+        text: `Halo sobat mahasiswa! 🎓 Buku kas uang sakumu saat ini masih bersih (**0 mutasi**, Saldo: **Rp 0**).\n\n💡 **Langkah Mudah Memulai:**\n1. **Catat Uang Masuk:** Klik tombol **+ Catat** lalu pilih *+ Pemasukan* (misal kiriman ortu atau honor freelance).\n2. **Catat Pengeluaran / Scan Bon:** Foto struk belanjaan Indomaret atau nota warteg.\n3. Begitu ada data mutasi masuk, aku akan otomatis menghitung **Batas Jajan Harian Aman** & **Skor Ketahanan Dompet** untukmu!`,
         suggestedAction: 'Catat Uang Saku',
       };
     }
     return {
-      text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu. Saat ini pembukuan kas dimulai bersih dari **Rp 0**.\n\nSilakan catat mutasi modal awal/transaksi pertamamu atau gunakan fitur **Scan Struk** untuk membaca invoice tagihan. Setelah data masuk, sistem AI akan langsung memproyeksikan arus kas dan menganalisis kesehatan finansial bisnismu!`,
+      text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu 🏢. Saat ini pembukuan kas dimulai bersih dari **Rp 0**.\n\n📊 **Langkah Awal:**\n1. Catat modal awal atau penerimaan omset pertama di tombol **+ Catat**.\n2. Scan struk/invoice pengeluaran operasional di menu **Scan Struk**.\n3. Sistem AI akan langsung mengalkulasi **Runway Kas**, **Analisis OPEX**, dan proyeksi arus kas secara real-time.`,
       suggestedAction: 'Catat Transaksi Pertama',
     };
   }
 
-  if (role === 'student') {
-    const dailySafeFormatted = formatCurrency(metrics.safeDailyAllowance);
+  // =========================================================================
+  // Intent 2: Purchase & Affordability Simulation ("Mau beli X harga Y, aman ga?")
+  // =========================================================================
+  const detectedAmount = parseIndonesianAmount(q);
+  const isAskingToBuy =
+    q.includes('beli') ||
+    q.includes('bayar') ||
+    q.includes('jajan') ||
+    q.includes('cukup ga') ||
+    q.includes('boleh ga') ||
+    q.includes('aman ga') ||
+    q.includes('bisa beli') ||
+    q.includes('mau beli') ||
+    q.includes('pengen beli');
 
-    if (q.includes('tanggal tua') || q.includes('hemat') || q.includes('makan') || q.includes('warteg') || q.includes('bertahan')) {
+  if (isAskingToBuy && detectedAmount) {
+    const item = extractTargetItem(query);
+    const itemCost = detectedAmount;
+    const currentBal = metrics.totalBalance;
+    const remainingAfter = currentBal - itemCost;
+    const currentSafeDaily = metrics.safeDailyAllowance;
+    const newSafeDaily = Math.round(remainingAfter / Math.max(1, daysRemaining));
+
+    if (itemCost > currentBal) {
+      const deficit = itemCost - currentBal;
       return {
-        text: `Halo sobat mahasiswa! Berikut **Life Hacks Survival Tanggal Tua** dari data uangmu:\n\n1. **Batas Jajan Harian:** Usahakan maksimal **${dailySafeFormatted}/hari** agar cukup sampai akhir bulan.\n2. **Makan Hemat & Bergizi:** Belanja telur, tahu, tempe di warung terdekat dan masak nasi di rice cooker kost (hemat ~Rp 18.000/hari).\n3. **Kopi & Nongkrong:** Beralih seduh kopi sendiri di kost sebelum berangkat kuliah.\n4. **Manfaatkan Fasilitas Kampus:** Gunakan dispenser air minum dan WiFi perpustakaan kampus.`,
-        suggestedAction: 'Buka Simulator Survival Tanggal Tua',
+        text: `❌ **Saldo Dompet Tidak Cukup!**\n\n- **Harga ${item}:** ${formatCurrency(itemCost)}\n- **Saldo Kamu Saat Ini:** ${totalCashFormatted}\n- **Kekurangan:** ${formatCurrency(deficit)}\n\n⚠️ **Saran Finansial:** Jangan memaksakan berhutang atau memakai paylater. Kamu bisa mulai menabung dengan menyisihkan uang kiriman atau mencari project freelance tambahan!`,
+        suggestedAction: isStudent ? 'Uji Target Nabung di Simulator' : 'Buka Simulator Kas',
       };
     }
 
-    if (q.includes('ukt') || q.includes('nabung') || q.includes('laptop') || q.includes('target')) {
+    if (isStudent) {
+      if (newSafeDaily < 20000) {
+        return {
+          text: `⚠️ **Sangat Riskan untuk Tanggal Tua!**\n\nJika kamu membeli **${item}** seharga **${formatCurrency(itemCost)}**:\n- **Sisa Saldo Dompet:** ${formatCurrency(remainingAfter)}\n- **Batas Jajan Harian Baru:** ${formatCurrency(newSafeDaily)}/hari (turun drastis dari ${formatCurrency(currentSafeDaily)}/hari untuk **${daysRemaining} hari** ke depan).\n\n💡 **Rekomendasi Mentor:**\nDengan jatah ${formatCurrency(newSafeDaily)}/hari, kamu akan kesulitan memenuhi biaya makan harian. Disarankan **menunda pembelian ini** sampai awal bulan depan saat kiriman baru masuk!`,
+          suggestedAction: 'Uji Survival Tanggal Tua di Simulator',
+        };
+      }
+
       return {
-        text: `Rencana yang keren! Menabung saat kuliah butuh strategi alokasi yang konsisten:\n\n- **Target Nabung UKT / Laptop:** Sisihkan minimal **20% dari setiap kiriman/gaji freelance** langsung di awal bulan ke rekening tabungan terpisah.\n- Jika uang saku Rp 2.5 Jt + freelance Rp 1 Jt, kamu bisa menyisihkan **Rp 700.000/bulan** (terkumpul Rp 4.2 Jt dalam 6 bulan untuk bayar UKT!).\n\n💡 Kamu bisa simulasikan target tabungan ini di tab **Simulator**!`,
-        suggestedAction: 'Simulasikan Target Nabung',
+        text: `✅ **Aman untuk Dibeli!**\n\nKalkulasi simulasi setelah membeli **${item}** (${formatCurrency(itemCost)}):\n- **Sisa Saldo Uang Saku:** ${formatCurrency(remainingAfter)}\n- **Batas Jajan Harian Baru:** ${formatCurrency(newSafeDaily)}/hari s/d akhir bulan (**${daysRemaining} hari lagi**).\n\n🎉 **Analisis:** Batas jajan harianmu masih di atas standar aman (> Rp 25.000/hari), jadi kamu tetap bisa makan nyaman tanpa khawatir kehabisan uang di akhir bulan!`,
+        suggestedAction: 'Catat Pengeluaran Ini',
+      };
+    } else {
+      // Business Purchase evaluation
+      const currentBurn = Math.max(1, metrics.avgMonthlyExpense);
+      const newRunway = remainingAfter / currentBurn;
+      return {
+        text: `📊 **Analisis Dampak Pengeluaran Bisnis:**\n\nPembelian **${item}** seharga **${formatCurrency(itemCost)}**:\n- **Sisa Cadangan Kas:** ${formatCurrency(remainingAfter)}\n- **Estimasi Runway Baru:** ${newRunway.toFixed(1)} bulan (dari baseline ${metrics.runwayMonths.toFixed(1)} bulan).\n\n${newRunway < 3 ? '⚠️ **Peringatan CFO:** Runway kas berada di bawah 3 bulan. Pertimbangkan skema cicilan vendor atau penundaan CAPEX.' : '✅ Posisi kas masih terjaga di batas aman operasional.'}`,
+        suggestedAction: 'Simulasikan di What-If Simulator',
       };
     }
-
-    if (q.includes('freelance') || q.includes('penghasilan') || q.includes('kerja') || q.includes('part-time')) {
-      return {
-        text: `Menambah pemasukan sampingan adalah cara tercepat meningkatkan saldo mahasiswa:\n\n- **Jasa Desain / UI/UX / Joki Koding:** Pasang portofolio di LinkedIn/Fastwork.\n- **Asisten Dosen / Lab:** Cari info lowongan asdos di fakultas (honor ~Rp 500rb - 800rb/bulan).\n- **Jualan Snack / Merchandise Kampus:** Potensi tambahan uang jajan mingguan.\n\nSetiap tambahan Rp 500rb/bulan akan meningkatkan batas jajan harianmu sebesar +Rp 16.500/hari!`,
-        suggestedAction: 'Uji Skenario Freelancer',
-      };
-    }
-
-    return {
-      text: `Halo! Saya **AI Financial Mentor** mahasiswa kamu 🎓.\n\nBerikut ringkasan kondisi dompetmu saat ini:\n- **Sisa Uang Saku & Saldo:** ${totalCashFormatted}\n- **Batas Jajan Aman Hari Ini:** ${dailySafeFormatted}/hari\n- **Skor Ketahanan Dompet:** ${metrics.healthScore}/100\n- **Sisa Waktu Menuju Akhir Bulan:** ${metrics.daysRemaining} hari lagi\n\nAda yang mau kamu tanyakan seputar jajan hemat, nabung UKT, atau tips anak kost?`,
-      suggestedAction: 'Buka Simulator Mahasiswa',
-    };
   }
 
-  // Business CFO Responses
-  const runwayFormatted = metrics.runwayMonths > 50 ? 'Stabil / Menguntungkan (Profitable)' : `${metrics.runwayMonths.toFixed(1)} bulan`;
+  // =========================================================================
+  // Intent 3: Balance & Overall Financial Health Status
+  // =========================================================================
+  if (
+    q.includes('saldo') ||
+    q.includes('uang saya') ||
+    q.includes('uang saku') ||
+    q.includes('kondisi') ||
+    q.includes('skor') ||
+    q.includes('keuangan saya') ||
+    q.includes('berapa uang') ||
+    q.includes('cek kas')
+  ) {
+    if (isStudent) {
+      return {
+        text: `📊 **Ringkasan Kondisi Dompet Mahasiswa:**\n\n- **Sisa Saldo & Tabungan:** ${totalCashFormatted}\n- **Batas Jajan Harian Aman:** ${safeDailyFormatted}/hari\n- **Sisa Waktu Bulan Ini:** ${daysRemaining} hari lagi\n- **Skor Ketahanan Dompet:** ${metrics.healthScore}/100 (${metrics.healthScore >= 70 ? '🟢 Sangat Sehat' : metrics.healthScore >= 40 ? '🟡 Waspada' : '🔴 Kritis'})\n- **Total Uang Masuk:** ${formatCurrency(metrics.totalIncome)}\n- **Total Pengeluaran:** ${formatCurrency(metrics.totalExpense)}\n\n💡 **Tips:** Selama kamu menjaga pengeluaran di bawah **${safeDailyFormatted}/hari**, uang sakumu dijamin aman sampai akhir bulan!`,
+        suggestedAction: 'Uji Skenario di Simulator',
+      };
+    }
 
-  if (q.includes('runway') || q.includes('bertahan') || q.includes('cash')) {
     return {
-      text: `Berdasarkan data kas saat ini sebesar **${totalCashFormatted}** dan pengeluaran bulanan rata-rata **${burnFormatted}**, estimasi **Runway bisnis kamu adalah ${runwayFormatted}**.\n\n💡 **Rekomendasi CFO:**\n1. Jika omset turun 20%, runway akan menyusut sekitar 1.8 bulan.\n2. Disarankan menjaga buffer kas minimal 6-12 bulan (${formatCurrency(metrics.avgMonthlyExpense * 6)}).\n3. Gunakan tab **What-If Simulator** untuk menguji skenario penurunan omset secara presisi.`,
+      text: `📊 **Executive Financial Overview:**\n\n- **Total Saldo Kas:** ${totalCashFormatted}\n- **Pemasukan Rata-rata:** ${incomeFormatted}/bulan\n- **Pengeluaran Operasional (OPEX):** ${burnFormatted}/bulan\n- **Arus Kas Bersih (Net Cashflow):** ${formatCurrency(metrics.avgMonthlyIncome - metrics.avgMonthlyExpense)}\n- **Daya Tahan Kas (Runway):** ${metrics.runwayMonths > 50 ? '∞ Menguntungkan (Profitable)' : `${metrics.runwayMonths.toFixed(1)} Bulan`}\n- **Financial Health Score:** ${metrics.healthScore}/100`,
       suggestedAction: 'Buka What-If Simulator',
     };
   }
 
-  if (q.includes('hire') || q.includes('rekrut') || q.includes('karyawan') || q.includes('gaji')) {
+  // =========================================================================
+  // Intent 4: Top Spending & Category Breakdown
+  // =========================================================================
+  if (
+    q.includes('paling boros') ||
+    q.includes('terbesar') ||
+    q.includes('paling banyak') ||
+    q.includes('kategori') ||
+    q.includes('pos pengeluaran') ||
+    q.includes('kemana uang') ||
+    q.includes('habis buat apa')
+  ) {
+    if (categoryBreakdown.length === 0) {
+      return {
+        text: `Saat ini belum ada pengeluaran yang tercatat di buku kas. Mulai catat transaksi atau scan struk belanja untuk melihat rincian pos pengeluaranmu!`,
+        suggestedAction: 'Catat Pengeluaran',
+      };
+    }
+
+    const topList = categoryBreakdown
+      .slice(0, 4)
+      .map((c, i) => `${i + 1}. **${c.name}:** ${formatCurrency(c.value)} (${c.percentage}% dari total keluar)`)
+      .join('\n');
+
+    const topOne = categoryBreakdown[0];
+
+    if (isStudent) {
+      return {
+        text: `🔍 **Rincian Pos Pengeluaran Mahasiswa:**\n\n${topList}\n\n💡 **Temuan Mentor:**\nPengeluaran terbesarmu ada di pos **${topOne.name}** (${formatCurrency(topOne.value)}). Jika ingin berhemat untuk menabung UKT, cobalah menekan pos ini sekitar 15-20%.`,
+        suggestedAction: 'Lihat Semua di Buku Kas',
+      };
+    }
+
     return {
-      text: `Biaya payroll saat ini menyumbang porsi terbesar pengeluaran (${formatCurrency(48000000)}/bulan).\n\nJika kamu merekrut **2 orang baru** dengan rata-rata gaji Rp 10 Juta/bulan:\n- Pengeluaran bulanan naik menjadi **${formatCurrency(metrics.avgMonthlyExpense + 20000000)}**\n- Runway akan berkurang sekitar **1.4 bulan** jika tidak diiringi kenaikan revenue.\n\n✨ **Saran CFO:** Waktu paling aman merekrut adalah ketika MRR / Retainer baru sudah terikat kontrak minimal 6 bulan ke depan.`,
-      suggestedAction: 'Simulasikan Perekrutan Tim',
+      text: `🔍 **Analisis Distribusi Biaya Operasional:**\n\n${topList}\n\n💡 **Rekomendasi CFO:**\nPos **${topOne.name}** menyerap porsi anggaran tertinggi (${topOne.percentage}%). Efisiensi 10-15% pada pos ini dapat memperpanjang runway kas secara signifikan.`,
+      suggestedAction: 'Buka Buku Kas',
     };
   }
 
-  if (q.includes('hemat') || q.includes('potong') || q.includes('kurang') || q.includes('cost')) {
+  // =========================================================================
+  // Intent 5: Recent Transactions / Mutasi Inquiry
+  // =========================================================================
+  if (
+    q.includes('transaksi terakhir') ||
+    q.includes('mutasi') ||
+    q.includes('catatan terakhir') ||
+    q.includes('riwayat') ||
+    q.includes('struk terakhir') ||
+    q.includes('baru catat')
+  ) {
+    if (transactions.length === 0) {
+      return {
+        text: `Buku kas masih kosong murni (0 catatan). Yuk catat uang masuk atau foto bon belanja pertamamu!`,
+        suggestedAction: 'Catat Transaksi',
+      };
+    }
+
+    const recentList = transactions
+      .slice(0, 5)
+      .map((t) => {
+        const isInc = t.type === 'income';
+        return `• **${t.title}** (${t.date}) — ${isInc ? '🟢 +' : '🔴 -'} ${formatCurrency(t.amount)} [${t.category}]`;
+      })
+      .join('\n');
+
     return {
-      text: `Dari analisis audit AI terhadap ${transactions.length} transaksi terakhir, berikut 3 pos pengeluaran yang paling mudah dioptimasi:\n\n1. **Cloud & AI Compute:** Rp 14.2 Jt ➔ Potensi hemat **Rp 3.5 Jt/bln** dengan reserved instances.\n2. **Software SaaS Subscriptions:** Rp 5.4 Jt ➔ Potensi hemat **Rp 1.2 Jt/bln** dari seat user yang tidak aktif.\n3. **Marketing Ads:** Rp 8.75 Jt ➔ Efisiensikan kampanye dengan ROAS terendah.\n\nTotal potensi penghematan: **~Rp 6.8 Juta/bulan** (+1.2 bulan runway tambahan).`,
-      suggestedAction: 'Terapkan Penghematan',
+      text: `📋 **${transactions.length > 5 ? '5' : transactions.length} Mutasi Transaksi Terakhir:**\n\n${recentList}\n\nTotal ada **${transactions.length} mutasi** tercatat di buku kas digitalmu.`,
+      suggestedAction: 'Buka Buku Kas Lengkap',
     };
   }
 
+  // =========================================================================
+  // Intent 6: Safe Daily Allowance / Batas Jajan Harian (Student specific)
+  // =========================================================================
+  if (
+    q.includes('batas jajan') ||
+    q.includes('safe daily') ||
+    q.includes('jatah harian') ||
+    q.includes('per hari') ||
+    q.includes('sisa hari')
+  ) {
+    return {
+      text: `⚡ **Batas Jajan Harian Aman (Safe Daily Limit):**\n\n- **Batas Aman:** **${safeDailyFormatted} / hari**\n- **Sisa Waktu Menuju Akhir Bulan:** ${daysRemaining} hari lagi\n- **Sisa Saldo Kas:** ${totalCashFormatted}\n\n💡 **Cara Menjaganya:**\nJika hari ini kamu jajan hemat (misal hanya Rp 15.000), sisa kelebihannya akan otomatis menambah jatah jajanmu di hari esok!`,
+      suggestedAction: 'Uji Skenario Survival',
+    };
+  }
+
+  // =========================================================================
+  // Intent 7: Survival Tanggal Tua & Life Hacks Anak Kost
+  // =========================================================================
+  if (
+    q.includes('tanggal tua') ||
+    q.includes('tips hemat') ||
+    q.includes('warteg') ||
+    q.includes('anak kost') ||
+    q.includes('makan hemat') ||
+    q.includes('bertahan')
+  ) {
+    return {
+      text: `🍜 **Panduan Survival Tanggal Tua Anak Kost:**\n\n1. **Kunci Batas Jajan:** Usahakan tidak mengeluarkan lebih dari **${safeDailyFormatted}/hari**.\n2. **Hack Rice Cooker:** Masak nasi sendiri di kamar kost dan beli lauk matang di warteg (hemat hingga Rp 20.000/hari).\n3. **Manfaatkan Air & WiFi Kampus:** Bawa tumbler air minum ke kampus dan download materi tugas via WiFi perpustakaan.\n4. **Hindari Kafe & Jajan Online:** Seduh kopi sachet sendiri di kost sebelum berangkat kuliah.\n\nDengan disiplin menerapkan 4 poin ini, dompetmu dijamin aman sampai kiriman bulan depan!`,
+      suggestedAction: 'Buka Simulator Survival Tanggal Tua',
+    };
+  }
+
+  // =========================================================================
+  // Intent 8: Target Tabungan & Bayar UKT
+  // =========================================================================
+  if (
+    q.includes('ukt') ||
+    q.includes('nabung') ||
+    q.includes('tabungan') ||
+    q.includes('laptop') ||
+    q.includes('target')
+  ) {
+    const targetAmt = detectedAmount || 3000000;
+    const monthlyNeeded = Math.round(targetAmt / 6);
+    const weeklyNeeded = Math.round(targetAmt / 24);
+
+    return {
+      text: `🎓 **Strategi Rencana Menabung (${formatCurrency(targetAmt)}):**\n\nUntuk mengumpulkan **${formatCurrency(targetAmt)}** dalam 1 semester (6 bulan):\n- **Nabung Bulanan:** ${formatCurrency(monthlyNeeded)}/bulan\n- **Nabung Mingguan:** ${formatCurrency(weeklyNeeded)}/minggu\n\n💡 **Trik Sukses:**\n1. Sisihkan ${formatCurrency(monthlyNeeded)} di hari pertama kiriman uang saku/gaji freelance masuk.\n2. Simpan di rekening digital terpisah / e-wallet terkunci agar tidak terpakai jajan.\n3. Uji target ini di tab **Simulator** untuk melihat proyeksi saldomu!`,
+      suggestedAction: 'Simulasikan Target Tabungan',
+    };
+  }
+
+  // =========================================================================
+  // Intent 9: Freelance & Extra Income Advice
+  // =========================================================================
+  if (
+    q.includes('freelance') ||
+    q.includes('penghasilan') ||
+    q.includes('cari cuan') ||
+    q.includes('part-time') ||
+    q.includes('kerja sampingan')
+  ) {
+    return {
+      text: `💼 **Ide Cuan Tambahan Mahasiswa:**\n\n1. **Jasa Digital:** Desain grafis (Canva/Figma), pembuatan website, joki tugas koding, atau editing video TikTok/Reels di Fastwork/Fiverr.\n2. **Asisten Dosen / Lab:** Cari lowongan asdos di kampus (honor rata-rata Rp 400rb - 800rb/bulan).\n3. **Tutor / Les Privat:** Mengajar anak SD/SMP mata pelajaran dasar atau bahasa Inggris.\n\nSetiap pemasukan freelance Rp 500.000 akan otomatis menaikkan batas jajan harianmu sebesar **+Rp 16.500/hari**!`,
+      suggestedAction: 'Simulasikan Pemasukan Freelance',
+    };
+  }
+
+  // =========================================================================
+  // Intent 10: Business Runway, Hiring & Cost Optimization
+  // =========================================================================
+  if (!isStudent) {
+    if (q.includes('runway') || q.includes('bertahan') || q.includes('cashflow') || q.includes('arus kas')) {
+      const runwayText = metrics.runwayMonths > 50 ? 'Stabil & Profitable' : `${metrics.runwayMonths.toFixed(1)} Bulan`;
+      return {
+        text: `📊 **Analisis Runway & Likuiditas Bisnis:**\n\n- **Saldo Kas Riil:** ${totalCashFormatted}\n- **Rata-rata Burn Rate / Bulan:** ${burnFormatted}\n- **Daya Tahan Kas (Runway):** ${runwayText}\n\n💡 **Evaluasi CFO:**\n${metrics.runwayMonths < 6 ? '⚠️ Cadangan kas berada di bawah 6 bulan operasional. Segera lakukan efisiensi pengeluaran atau akselerasi penagihan piutang client.' : '✅ Cadangan kas berada dalam batas aman. Kondisi sehat untuk merencanakan ekspansi terkontrol.'}`,
+        suggestedAction: 'Buka What-If Simulator',
+      };
+    }
+
+    if (q.includes('hire') || q.includes('rekrut') || q.includes('karyawan') || q.includes('gaji') || q.includes('tim')) {
+      return {
+        text: `👥 **Analisis Kelayakan Perekrutan Tim Baru:**\n\n- **Saldo Kas Saat Ini:** ${totalCashFormatted}\n- **Pengeluaran Bulanan:** ${burnFormatted}\n\n💡 **Rekomendasi CFO:**\nJika merekrut 1 karyawan baru (misal gaji Rp 8-10 Jt/bln), pastikan bisnis memiliki minimal **6 bulan buffer gaji cadangan** (Rp 60 Jt) atau kenaikan MRR terikat kontrak minimal Rp 12 Jt/bulan.`,
+        suggestedAction: 'Simulasikan Hiring di Simulator',
+      };
+    }
+
+    if (q.includes('hemat') || q.includes('potong') || q.includes('efisiensi') || q.includes('cost')) {
+      return {
+        text: `✂️ **Strategi Pemangkasan Biaya Operasional:**\n\n1. **Cloud & AI Infrastructure:** Beralih ke Reserved Instances (RI) dan matikan development environment di akhir pekan.\n2. **Software SaaS Seat Cleanup:** Audit akun tools software yang tidak aktif dipakai tim.\n3. **Marketing CAC:** Pindahkan budget ke channel akuisisi dengan Return on Ad Spend (ROAS) tertinggi.`,
+        suggestedAction: 'Buka Buku Kas',
+      };
+    }
+  }
+
+  // =========================================================================
+  // Intent 11: General Help & App Capabilities
+  // =========================================================================
+  if (
+    q.includes('siapa kamu') ||
+    q.includes('bisa apa') ||
+    q.includes('fitur') ||
+    q.includes('cara pakai') ||
+    q.includes('menu') ||
+    q.includes('bantuan') ||
+    q.includes('halo') ||
+    q.includes('hai') ||
+    q.includes('p')
+  ) {
+    if (isStudent) {
+      return {
+        text: `Halo sobat mahasiswa! 👋 Saya **AI Financial Mentor** dompetmu 🎓.\n\nKamu bisa menanyakan berbagai hal seputar keuangan anak kost:\n• *"Cek saldo & sisa jajan harian"* ⚡\n• *"Mau beli sepatu 300rb aman ga?"* 👟\n• *"Pengeluaran terbesar saya apa?"* 🔍\n• *"Tips hemat tanggal tua"* 🍜\n• *"Cara menabung bayar UKT 3 juta"* 🎓\n• *"Transaksi terakhir saya apa aja?"* 📋\n\nApa yang ingin kamu tanyakan hari ini?`,
+        suggestedAction: 'Buka Simulator Mahasiswa',
+      };
+    }
+
+    return {
+      text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu 🏢.\n\nSaya dapat membantu menganalisis:\n• **Kondisi Kas & Runway:** *"Berapa lama kas bertahan?"*\n• **Uji Kelayakan Belanja/Hiring:** *"Kapan waktu aman rekrut tim?"*\n• **Audit Pengeluaran:** *"Pos biaya mana yang paling besar?"*\n• **Simulasi Skenario:** *"Bagaimana jika omset turun 20%?"*\n\nSilakan ajukan pertanyaan seputar keuangan bisnismu!`,
+      suggestedAction: 'Buka What-If Simulator',
+    };
+  }
+
+  // =========================================================================
+  // Intent 12: Contextual Default Fallback
+  // =========================================================================
   return {
-    text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu. Berikut ringkasan eksekutif kesehatan finansial per hari ini:\n\n- **Total Kas Riil:** ${totalCashFormatted}\n- **Pemasukan Bulanan:** ${incomeFormatted}\n- **Pengeluaran Bulanan:** ${burnFormatted}\n- **Financial Health Score:** ${metrics.healthScore}/100\n- **Status Runway:** ${runwayFormatted}\n\nAda aspek keuangan tertentu yang ingin kita bedah bersama? (misal: simulasi hiring, strategi pemangkasan biaya, atau proyeksi ekspansi)`,
-    suggestedAction: 'Jalankan Simulasi Baru',
+    text: `Halo! Menjawab pertanyaanmu seputar "${query}":\n\nBerdasarkan data keuanganmu saat ini (Saldo: **${totalCashFormatted}**, ${isStudent ? `Batas Jajan: **${safeDailyFormatted}/hari**` : `Runway: **${metrics.runwayMonths.toFixed(1)} Bulan**`}):\n\nSemua keputusan pengeluaran sebaiknya dipertimbangkan terhadap sisa saldo dan ketahanan kasmu. Kamu bisa menguji langsung perubahan skenario atau menanyakan simulasi belanja spesifik (contoh: *"Mau beli jaket 250rb aman ga?"*).`,
+    suggestedAction: isStudent ? 'Uji di Simulator Mahasiswa' : 'Buka Simulator Skenario',
   };
 };

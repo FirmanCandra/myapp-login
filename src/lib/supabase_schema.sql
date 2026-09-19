@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   merchant TEXT,
   tax NUMERIC DEFAULT 0,
   notes TEXT,
+  notes_role TEXT DEFAULT 'business',
   is_recurring BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
