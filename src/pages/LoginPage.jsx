@@ -50,8 +50,8 @@ const LoginPage = () => {
       <div className="login-bg-glow blob-2" />
 
       <div className="login-split-card glass-panel">
-        {/* Left Side */}
-        <section className="login-showcase-panel">
+        {/* Left Side: Desktop Showcase */}
+        <section className="login-showcase-panel desktop-only">
           <div className="showcase-brand-header">
             <div className="showcase-logo-icon">
               <HiOutlineShieldCheck />
@@ -107,9 +107,18 @@ const LoginPage = () => {
           </div>
         </section>
 
-        {/* Right Side */}
+        {/* Right Side: Auth Form */}
         <section className="login-auth-panel">
           <div className="auth-card-inner">
+            {/* Mobile Brand Header */}
+            <div className="mobile-brand-banner mobile-only">
+              <div className="brand-mark">O</div>
+              <div>
+                <div className="mobile-brand-title">OmniLedger</div>
+                <div className="mobile-brand-sub">Autonomous Financial OS</div>
+              </div>
+            </div>
+
             <div className="auth-header-text">
               <h2>Masuk ke Dashboard</h2>
               <p>Akses data keuangan dan simulasi bisnis kamu</p>

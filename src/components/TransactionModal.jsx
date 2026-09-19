@@ -58,10 +58,16 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="receipt-modal-container glass-panel" style={{ maxWidth: '580px' }}>
+      <div className="receipt-modal-container glass-panel modal-narrow">
         <div className="modal-header-bar">
           <div className="modal-title-row">
-            <div className="modal-icon-badge" style={{ background: type === 'income' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)', color: type === 'income' ? '#10b981' : '#f43f5e' }}>
+            <div
+              className="modal-icon-badge"
+              style={{
+                background: type === 'income' ? 'var(--color-emerald-soft)' : 'var(--color-rose-soft)',
+                color: type === 'income' ? 'var(--color-emerald)' : 'var(--color-rose)',
+              }}
+            >
               <HiOutlinePlusCircle />
             </div>
             <div>
@@ -69,19 +75,18 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
               <p>Tambahkan mutasi pemasukan atau pengeluaran ke buku kas</p>
             </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>
+          <button className="modal-close-btn" onClick={onClose} aria-label="Tutup modal">
             <HiOutlineX />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '1.5rem 1.75rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={handleSubmit} className="modal-form-content">
           {/* Type Switcher */}
           <div className="form-row">
-            <div className="filter-pill-group" style={{ width: '100%', display: 'flex' }}>
+            <div className="filter-pill-group full-width-pill">
               <button
                 type="button"
                 className={`filter-pill ${type === 'expense' ? 'expense active' : ''}`}
-                style={{ flex: 1, padding: '0.6rem' }}
                 onClick={() => {
                   setType('expense');
                   setCategory('Office & Utilities');
@@ -92,7 +97,6 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
               <button
                 type="button"
                 className={`filter-pill ${type === 'income' ? 'income active' : ''}`}
-                style={{ flex: 1, padding: '0.6rem' }}
                 onClick={() => {
                   setType('income');
                   setCategory('Client Revenue');
@@ -195,7 +199,7 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
             </div>
           </div>
 
-          <div className="form-actions-bottom" style={{ marginTop: '1rem' }}>
+          <div className="form-actions-bottom">
             <button type="button" className="btn-cancel" onClick={onClose}>
               Batal
             </button>

@@ -365,7 +365,7 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
                   onClick={handleSaveToLedger}
                 >
                   <HiOutlineSparkles />
-                  <span>Simpan ke Smart Ledger</span>
+                  <span>Simpan ke Buku Kas</span>
                 </button>
               </div>
             </div>

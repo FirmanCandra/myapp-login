@@ -1,4 +1,6 @@
-.gauge-card { padding: 1.5rem; }
+.gauge-card {
+  padding: 1.5rem;
+}
 
 .gauge-body {
   display: flex;
@@ -13,7 +15,10 @@
   max-width: 190px;
 }
 
-.gauge-svg { width: 100%; overflow: visible; }
+.gauge-svg {
+  width: 100%;
+  overflow: visible;
+}
 
 .gauge-center {
   position: absolute;
@@ -73,4 +78,11 @@
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--color-text);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .gauge-card {
+    padding: 1.15rem 1rem;
+  }
 }

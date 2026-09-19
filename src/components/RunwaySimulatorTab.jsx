@@ -4,7 +4,6 @@ import {
   HiOutlineTrendingUp,
   HiOutlineTrendingDown,
   HiOutlineUserGroup,
-  HiOutlineSparkles,
   HiOutlineRefresh,
   HiOutlineSave,
   HiOutlineCheckCircle,
@@ -31,25 +30,25 @@ import './RunwaySimulator.css';
 const PRESETS = [
   {
     id: 'survival',
-    name: '🛡️ Survival / Lean Mode',
+    name: '🛡️ Mode Bertahan',
     desc: 'Pangkas biaya operasional 25%, freeze hiring, amankan kas',
     params: { revenueDeltaPct: -5, opexDeltaPct: -25, newHiresCount: 0, newHiresAvgSalary: 10000000, capexAmount: 0, capexMonth: 1, capitalInjection: 0 },
   },
   {
     id: 'aggressive',
-    name: '🚀 Aggressive Expansion',
-    desc: 'Target revenue naik 35%, rekrut 2 engineer, upgrade server',
+    name: '🚀 Ekspansi Agresif',
+    desc: 'Target omset naik 35%, rekrut 2 anggota baru, upgrade server',
     params: { revenueDeltaPct: 35, opexDeltaPct: 10, newHiresCount: 2, newHiresAvgSalary: 12000000, capexAmount: 25000000, capexMonth: 2, capitalInjection: 0 },
   },
   {
     id: 'recession',
-    name: '📉 Recession Shock Test',
-    desc: 'Uji ketahanan jika revenue anjlok 30% tanpa efisiensi biaya',
+    name: '📉 Uji Resesi (-30%)',
+    desc: 'Uji ketahanan jika omset anjlok 30% tanpa efisiensi biaya',
     params: { revenueDeltaPct: -30, opexDeltaPct: 0, newHiresCount: 0, newHiresAvgSalary: 10000000, capexAmount: 0, capexMonth: 1, capitalInjection: 0 },
   },
   {
     id: 'fundraise',
-    name: '💰 Capital Injection',
+    name: '💰 Injeksi Modal Rp 150 Jt',
     desc: 'Suntikan modal investor Rp 150 Jt + ekspansi pemasaran',
     params: { revenueDeltaPct: 20, opexDeltaPct: 15, newHiresCount: 1, newHiresAvgSalary: 10000000, capexAmount: 0, capexMonth: 1, capitalInjection: 150000000 },
   },
@@ -182,7 +181,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
 
         {/* Preset Selector */}
         <div className="preset-selector-group">
-          <span className="preset-label">Preset:</span>
+          <span className="preset-label">Pilihan Preset:</span>
           <div className="preset-buttons-wrap">
             {PRESETS.map((p) => (
               <button
@@ -207,14 +206,14 @@ const RunwaySimulatorTab = ({ metrics }) => {
         <div className="sim-controls-panel glass-panel">
           <div className="panel-subheading">
             <HiOutlineLightningBolt className="icon-bolt" />
-            <h3>Parameter</h3>
+            <h3>Parameter Simulasi</h3>
           </div>
 
           <div className="controls-form">
             {/* 1. Revenue Delta Slider */}
             <div className="control-group">
               <div className="control-label-row">
-                <span>Fluktuasi Pendapatan (Revenue)</span>
+                <span>Fluktuasi Pendapatan (Omset)</span>
                 <span className={`slider-badge ${revenueDeltaPct >= 0 ? 'positive' : 'negative'}`}>
                   {revenueDeltaPct >= 0 ? `+${revenueDeltaPct}%` : `${revenueDeltaPct}%`}
                 </span>
@@ -232,16 +231,16 @@ const RunwaySimulatorTab = ({ metrics }) => {
                 className="sim-range-slider"
               />
               <div className="slider-sub-info">
-                <span>-50% (Krisis)</span>
+                <span>-50%</span>
                 <span className="highlight-val">Est: {formatShortCurrency(simulatedMonthlyIncome)}/bln</span>
-                <span>+100% (Scale)</span>
+                <span>+100%</span>
               </div>
             </div>
 
             {/* 2. OPEX Delta Slider */}
             <div className="control-group">
               <div className="control-label-row">
-                <span>Penyesuaian Biaya Operasional (OPEX)</span>
+                <span>Biaya Operasional (OPEX)</span>
                 <span className={`slider-badge ${opexDeltaPct <= 0 ? 'positive' : 'negative'}`}>
                   {opexDeltaPct >= 0 ? `+${opexDeltaPct}%` : `${opexDeltaPct}%`}
                 </span>
@@ -259,9 +258,9 @@ const RunwaySimulatorTab = ({ metrics }) => {
                 className="sim-range-slider"
               />
               <div className="slider-sub-info">
-                <span>-40% (Lean)</span>
+                <span>-40% (Hemat)</span>
                 <span className="highlight-val">Est: {formatShortCurrency(simulatedMonthlyExpense)}/bln</span>
-                <span>+60% (Exp)</span>
+                <span>+60% (Ekspansi)</span>
               </div>
             </div>
 
@@ -269,7 +268,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
             <div className="control-group hiring-box">
               <div className="control-label-row">
                 <span className="flex-center gap-1">
-                  <HiOutlineUserGroup /> Rencana Rekrut Tim Baru
+                  <HiOutlineUserGroup /> Rencana Rekrut Karyawan Baru
                 </span>
                 <span className="slider-badge neutral">{newHiresCount} Orang</span>
               </div>
@@ -281,6 +280,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
                     setNewHiresCount(Math.max(0, newHiresCount - 1));
                   }}
                   disabled={newHiresCount === 0}
+                  aria-label="Kurangi 1 karyawan"
                 >
                   -
                 </button>
@@ -291,6 +291,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
                     setActivePreset(null);
                     setNewHiresCount(newHiresCount + 1);
                   }}
+                  aria-label="Tambah 1 karyawan"
                 >
                   +
                 </button>
@@ -333,8 +334,8 @@ const RunwaySimulatorTab = ({ metrics }) => {
                 >
                   <option value={0}>Tidak Ada (Rp 0)</option>
                   <option value={15000000}>Upgrade Hardware (Rp 15 Jt)</option>
-                  <option value={30000000}>Mesin / Server Cluster (Rp 30 Jt)</option>
-                  <option value={60000000}>Renovasi & Lisensi Besar (Rp 60 Jt)</option>
+                  <option value={30000000}>Mesin / Server (Rp 30 Jt)</option>
+                  <option value={60000000}>Renovasi & Lisensi (Rp 60 Jt)</option>
                   <option value={100000000}>Ekspansi Cabang (Rp 100 Jt)</option>
                 </select>
 
@@ -342,8 +343,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
                   <select
                     value={capexMonth}
                     onChange={(e) => setCapexMonth(Number(e.target.value))}
-                    className="sim-select"
-                    style={{ width: '130px' }}
+                    className="sim-select capex-month-select"
                   >
                     <option value={1}>di Bulan +1</option>
                     <option value={2}>di Bulan +2</option>
@@ -357,7 +357,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
             {/* 5. Capital Injection */}
             <div className="control-group">
               <div className="control-label-row">
-                <span>Suntikan Dana / Pinjaman (Injeksi Kas)</span>
+                <span>Suntikan Modal / Dana Segar</span>
                 <span className="slider-badge positive">{formatShortCurrency(capitalInjection)}</span>
               </div>
               <select
@@ -386,7 +386,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
               <div className="outcome-val baseline">
                 {baselineRunway >= 24 ? '∞ 24+ Bln' : `${baselineRunway.toFixed(1)} Bulan`}
               </div>
-              <span className="outcome-sub">Skenario saat ini</span>
+              <span className="outcome-sub">Kondisi riil saat ini</span>
             </div>
 
             <div className="outcome-card highlight">
@@ -402,7 +402,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
                   <span>Tidak ada perubahan</span>
                 ) : runwayGain ? (
                   <span className="gain">
-                    <HiOutlineTrendingUp /> +{runwayDelta.toFixed(1)} Bulan Lifeline
+                    <HiOutlineTrendingUp /> +{runwayDelta.toFixed(1)} Bulan Lebih Lama
                   </span>
                 ) : (
                   <span className="loss">
@@ -413,17 +413,17 @@ const RunwaySimulatorTab = ({ metrics }) => {
             </div>
 
             <div className="outcome-card">
-              <span className="outcome-label">Simulated Net Cashflow</span>
+              <span className="outcome-label">Simulated Net Arus Kas</span>
               <div
                 className="outcome-val"
-                style={{ color: simulatedNetBurn <= 0 ? '#10b981' : '#f59e0b', fontSize: '1.25rem' }}
+                style={{ color: simulatedNetBurn <= 0 ? '#10b981' : '#f59e0b' }}
               >
                 {simulatedNetBurn <= 0
                   ? `+${formatShortCurrency(Math.abs(simulatedNetBurn))}/bln`
                   : `-${formatShortCurrency(simulatedNetBurn)}/bln`}
               </div>
               <span className="outcome-sub">
-                {simulatedNetBurn <= 0 ? 'Surplus / Menguntungkan' : 'Net Monthly Burn'}
+                {simulatedNetBurn <= 0 ? 'Surplus Operasional' : 'Net Monthly Defisit'}
               </span>
             </div>
           </div>
@@ -439,23 +439,23 @@ const RunwaySimulatorTab = ({ metrics }) => {
                 </div>
                 <div className="legend-chip simulated">
                   <span className="chip-line simulated" />
-                  <span>Skenario Simulasi</span>
+                  <span>Skenario</span>
                 </div>
               </div>
             </div>
 
-            <div style={{ width: '100%', height: 280 }}>
+            <div className="sim-chart-container">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={forecastPoints} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" vertical={false} />
-                  <XAxis dataKey="monthLabel" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                <LineChart data={forecastPoints} margin={{ top: 15, right: 10, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                  <XAxis dataKey="monthLabel" stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }} />
                   <YAxis
-                    stroke="#64748b"
-                    tick={{ fill: '#94a3b8', fontSize: 11 }}
+                    stroke="var(--color-text-muted)"
+                    tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }}
                     tickFormatter={(v) => formatShortCurrency(v)}
                   />
                   <Tooltip content={<SimulatorTooltip />} />
-                  <ReferenceLine y={0} stroke="#f43f5e" strokeDasharray="4 4" label={{ value: 'Cash 0 (Cliff)', fill: '#fb7185', fontSize: 11, position: 'insideBottomRight' }} />
+                  <ReferenceLine y={0} stroke="#f43f5e" strokeDasharray="4 4" label={{ value: 'Kas 0 (Cliff)', fill: '#fb7185', fontSize: 10, position: 'insideBottomRight' }} />
                   <Line
                     type="monotone"
                     dataKey="baselineCash"
@@ -463,16 +463,16 @@ const RunwaySimulatorTab = ({ metrics }) => {
                     stroke="#64748b"
                     strokeWidth={2}
                     strokeDasharray="4 4"
-                    dot={{ r: 3, fill: '#64748b' }}
+                    dot={{ r: 2.5, fill: '#64748b' }}
                   />
                   <Line
                     type="monotone"
                     dataKey="simulatedCash"
                     name="Simulated Cash"
-                    stroke="#38bdf8"
-                    strokeWidth={3.5}
-                    dot={{ r: 4, fill: '#38bdf8' }}
-                    activeDot={{ r: 7, fill: '#38bdf8', stroke: '#fff' }}
+                    stroke="var(--color-primary)"
+                    strokeWidth={3}
+                    dot={{ r: 3.5, fill: 'var(--color-primary)' }}
+                    activeDot={{ r: 6, fill: 'var(--color-primary)', stroke: '#fff' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -482,16 +482,14 @@ const RunwaySimulatorTab = ({ metrics }) => {
           {/* AI Executive Takeaway & Save Action */}
           <div className="sim-footer-takeaway">
             <div className="takeaway-text-box">
-              <div>
-                <span className="takeaway-heading">Kesimpulan:</span>
-                <p>
-                  {isInfiniteRunway
-                    ? 'Skenario ini menghasilkan arus kas positif berkelanjutan. Posisi stabil untuk mempertimbangkan ekspansi.'
-                    : simulatedRunway < 6
-                    ? 'Peringatan: Skenario ini memproyeksikan kas habis dalam kurang dari 6 bulan. Pertimbangkan untuk memperkecil pengeluaran atau mencari pendanaan tambahan.'
-                    : `Cadangan kas diproyeksikan bertahan selama ${simulatedRunway.toFixed(1)} bulan. Keseimbangan yang cukup baik antara pertumbuhan dan keamanan.`}
-                </p>
-              </div>
+              <span className="takeaway-heading">Kesimpulan:</span>
+              <p>
+                {isInfiniteRunway
+                  ? 'Skenario ini menghasilkan arus kas positif berkelanjutan. Posisi stabil untuk ekspansi.'
+                  : simulatedRunway < 6
+                  ? 'Peringatan: Skenario ini memproyeksikan kas habis dalam kurang dari 6 bulan. Pertimbangkan efisiensi biaya.'
+                  : `Cadangan kas diproyeksikan bertahan selama ${simulatedRunway.toFixed(1)} bulan. Posisi seimbang antara pertumbuhan dan keamanan.`}
+              </p>
             </div>
 
             <button className={`btn-save-scenario ${isSaved ? 'saved' : ''}`} onClick={handleSaveScenario}>

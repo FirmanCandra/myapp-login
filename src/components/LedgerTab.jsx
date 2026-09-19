@@ -97,7 +97,7 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
         <div className="ledger-header-actions">
           <button className="btn-secondary-glass" onClick={handleExportCSV}>
             <HiOutlineDownload />
-            <span>{copiedNotification ? 'CSV Diexport!' : 'Export CSV'}</span>
+            <span>{copiedNotification ? 'Terekspor!' : 'Export CSV'}</span>
           </button>
           <button className="btn-secondary-glass" onClick={onOpenScanner}>
             <HiOutlineDocumentSearch />
@@ -116,7 +116,7 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
           <HiOutlineSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Cari transaksi, merchant, vendor, catatan..."
+            placeholder="Cari transaksi, merchant, catatan..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="ledger-search-input"
@@ -146,129 +146,188 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
             </button>
           </div>
 
-          {/* Category Dropdown */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="ledger-select"
-          >
-            {categories.map((c) => (
-              <option key={c} value={c}>
-                {c === 'all' ? 'Semua Kategori' : c}
-              </option>
-            ))}
-          </select>
+          {/* Dropdown Filters Row */}
+          <div className="filter-dropdowns-row">
+            {/* Category Dropdown */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="ledger-select"
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c === 'all' ? 'Semua Kategori' : c}
+                </option>
+              ))}
+            </select>
 
-          {/* Sorting Dropdown */}
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="ledger-select">
-            <option value="date-desc">Tanggal Terkini</option>
-            <option value="date-asc">Tanggal Terlama</option>
-            <option value="amount-desc">Nominal Tertinggi</option>
-            <option value="amount-asc">Nominal Terendah</option>
-          </select>
+            {/* Sorting Dropdown */}
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="ledger-select">
+              <option value="date-desc">Tanggal Baru</option>
+              <option value="date-asc">Tanggal Lama</option>
+              <option value="amount-desc">Nominal Besar</option>
+              <option value="amount-asc">Nominal Kecil</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* 3. Summary Aggregate Bar */}
       <div className="ledger-summary-strip">
         <div className="strip-item">
-          <span className="strip-label">Menampilkan:</span>
-          <strong>{filteredTransactions.length} Transaksi</strong>
+          <span className="strip-label">Transaksi:</span>
+          <strong>{filteredTransactions.length} Data</strong>
         </div>
         <div className="strip-item">
-          <span className="strip-label">Pemasukan Terfilter:</span>
-          <strong style={{ color: '#34d399' }}>+{formatCurrency(totalIncome)}</strong>
+          <span className="strip-label">Masuk:</span>
+          <strong style={{ color: 'var(--color-emerald)' }}>+{formatCurrency(totalIncome)}</strong>
         </div>
         <div className="strip-item">
-          <span className="strip-label">Pengeluaran Terfilter:</span>
-          <strong style={{ color: '#fb7185' }}>-{formatCurrency(totalExpense)}</strong>
+          <span className="strip-label">Keluar:</span>
+          <strong style={{ color: 'var(--color-rose)' }}>-{formatCurrency(totalExpense)}</strong>
         </div>
         <div className="strip-item">
-          <span className="strip-label">Net Filtered:</span>
-          <strong style={{ color: totalIncome - totalExpense >= 0 ? '#38bdf8' : '#fbbf24' }}>
+          <span className="strip-label">Net:</span>
+          <strong style={{ color: totalIncome - totalExpense >= 0 ? 'var(--color-primary)' : 'var(--color-amber)' }}>
             {formatCurrency(totalIncome - totalExpense)}
           </strong>
         </div>
       </div>
 
-      {/* 4. Ledger Table */}
+      {/* 4. Ledger Table & Mobile Cards */}
       <div className="ledger-table-card glass-panel">
-        <div className="table-responsive">
-          <table className="omniledger-table full-table">
-            <thead>
-              <tr>
-                <th>Deskripsi & Merchant</th>
-                <th>Kategori</th>
-                <th>Tanggal</th>
-                <th>Metode Bayar</th>
-                <th>Catatan</th>
-                <th style={{ textAlign: 'right' }}>Nominal</th>
-                <th style={{ textAlign: 'center' }}>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.length === 0 ? (
-                <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-                    <div className="empty-ledger-state">
-                      <HiOutlineDocumentSearch style={{ fontSize: '2.5rem', color: '#64748b' }} />
-                      <p>Tidak ada transaksi yang cocok dengan filter pencarian.</p>
-                      <button className="btn-secondary-glass" onClick={() => { setSearchTerm(''); setTypeFilter('all'); setCategoryFilter('all'); }}>
-                        Reset Filter
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredTransactions.map((tx) => {
-                  const isIncome = tx.type === 'income';
-                  return (
-                    <tr key={tx.id}>
-                      <td>
-                        <div className="tx-title-cell">
-                          <div className={`tx-type-dot ${isIncome ? 'income' : 'expense'}`} />
-                          <div>
-                            <div className="tx-main-title">{tx.title}</div>
-                            <div className="tx-sub-merchant">{tx.merchant || 'General Vendor'}</div>
+        {filteredTransactions.length === 0 ? (
+          <div className="empty-ledger-state">
+            <HiOutlineDocumentSearch style={{ fontSize: '2.5rem', color: 'var(--color-text-muted)' }} />
+            <p>Tidak ada transaksi yang cocok dengan filter pencarian.</p>
+            <button
+              className="btn-secondary-glass"
+              onClick={() => {
+                setSearchTerm('');
+                setTypeFilter('all');
+                setCategoryFilter('all');
+              }}
+            >
+              Reset Filter
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="table-responsive desktop-ledger-table">
+              <table className="omniledger-table full-table">
+                <thead>
+                  <tr>
+                    <th>Deskripsi & Merchant</th>
+                    <th>Kategori</th>
+                    <th>Tanggal</th>
+                    <th>Metode Bayar</th>
+                    <th>Catatan</th>
+                    <th style={{ textAlign: 'right' }}>Nominal</th>
+                    <th style={{ textAlign: 'center' }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTransactions.map((tx) => {
+                    const isIncome = tx.type === 'income';
+                    return (
+                      <tr key={tx.id}>
+                        <td>
+                          <div className="tx-title-cell">
+                            <div className={`tx-type-dot ${isIncome ? 'income' : 'expense'}`} />
+                            <div>
+                              <div className="tx-main-title">{tx.title}</div>
+                              <div className="tx-sub-merchant">{tx.merchant || '-'}</div>
+                            </div>
                           </div>
+                        </td>
+                        <td>
+                          <span className="tx-category-badge">{tx.category}</span>
+                        </td>
+                        <td className="tx-date-cell">{tx.date}</td>
+                        <td>
+                          <div className="tx-method-cell">
+                            <HiOutlineCreditCard />
+                            <span>{tx.payment_method || 'Bank Transfer'}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="tx-notes-cell" title={tx.notes || '-'}>
+                            {tx.notes || '-'}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <span className={`tx-amount-value ${isIncome ? 'income' : 'expense'}`}>
+                            {isIncome ? '+' : '-'} {formatCurrency(tx.amount)}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <button
+                            className="btn-delete-tx"
+                            onClick={() => onDeleteTx(tx.id)}
+                            title="Hapus Transaksi"
+                          >
+                            <HiOutlineTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="mobile-ledger-cards">
+              {filteredTransactions.map((tx) => {
+                const isIncome = tx.type === 'income';
+                return (
+                  <div key={tx.id} className="ledger-card-item">
+                    <div className="ledger-card-top">
+                      <div className="ledger-card-title-wrap">
+                        <div className={`tx-type-dot ${isIncome ? 'income' : 'expense'}`} />
+                        <div>
+                          <div className="ledger-card-title">{tx.title}</div>
+                          <div className="ledger-card-merchant">{tx.merchant || '-'}</div>
                         </div>
-                      </td>
-                      <td>
-                        <span className="tx-category-badge">{tx.category}</span>
-                      </td>
-                      <td className="tx-date-cell">{tx.date}</td>
-                      <td>
-                        <div className="tx-method-cell">
-                          <HiOutlineCreditCard />
-                          <span>{tx.payment_method || 'Bank Transfer'}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="tx-notes-cell" title={tx.notes || '-'}>
-                          {tx.notes || '-'}
-                        </div>
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
+                      </div>
+                      <div className="ledger-card-amount-wrap">
                         <span className={`tx-amount-value ${isIncome ? 'income' : 'expense'}`}>
                           {isIncome ? '+' : '-'} {formatCurrency(tx.amount)}
                         </span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <button
-                          className="btn-delete-tx"
-                          onClick={() => onDeleteTx(tx.id)}
-                          title="Hapus Transaksi"
-                        >
-                          <HiOutlineTrash />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                      </div>
+                    </div>
+
+                    <div className="ledger-card-bottom">
+                      <div className="ledger-card-meta">
+                        <span className="tx-category-badge">{tx.category}</span>
+                        <span className="ledger-card-date">{tx.date}</span>
+                        <span className="ledger-card-method">
+                          <HiOutlineCreditCard /> {tx.payment_method || 'Transfer'}
+                        </span>
+                      </div>
+
+                      <button
+                        className="btn-delete-tx-mobile"
+                        onClick={() => onDeleteTx(tx.id)}
+                        title="Hapus Transaksi"
+                        aria-label="Hapus Transaksi"
+                      >
+                        <HiOutlineTrash />
+                      </button>
+                    </div>
+
+                    {tx.notes && (
+                      <div className="ledger-card-notes">
+                        <span>{tx.notes}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

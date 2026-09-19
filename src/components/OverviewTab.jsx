@@ -8,6 +8,7 @@ import {
   HiOutlineDocumentSearch,
   HiOutlinePlus,
   HiOutlineCreditCard,
+  HiOutlineSparkles,
 } from 'react-icons/hi';
 import {
   ResponsiveContainer,
@@ -68,7 +69,7 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
           </div>
           <span className="kpi-label">Saldo Kas</span>
           <span className="kpi-value">{formatCurrency(metrics.totalBalance)}</span>
-          <span className="kpi-sub">Modal awal: {formatShortCurrency(startingCash)}</span>
+          <span className="kpi-sub">Modal: {formatShortCurrency(startingCash)}</span>
         </div>
 
         <div className="kpi-card glass-panel">
@@ -76,9 +77,9 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
             <div className="kpi-icon rose"><HiOutlineTrendingDown /></div>
             <span className="glass-pill pill-rose">Pengeluaran</span>
           </div>
-          <span className="kpi-label">Rata-rata Pengeluaran / Bulan</span>
+          <span className="kpi-label">Rata-rata Keluar / Bulan</span>
           <span className="kpi-value">{formatCurrency(metrics.avgMonthlyExpense)}</span>
-          <span className="kpi-sub">Biaya operasional bulanan</span>
+          <span className="kpi-sub">Operasional bulanan</span>
         </div>
 
         <div className="kpi-card glass-panel">
@@ -102,7 +103,7 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
             <div className="kpi-icon purple"><HiOutlineClock /></div>
             <span className="glass-pill pill-purple">Runway</span>
           </div>
-          <span className="kpi-label">Proyeksi Daya Tahan</span>
+          <span className="kpi-label">Daya Tahan Kas</span>
           <span className="kpi-value">
             {metrics.runwayMonths > 50 ? '∞ Sehat' : `${metrics.runwayMonths.toFixed(1)} Bulan`}
           </span>
@@ -121,19 +122,25 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
               <p className="section-sub">Perbandingan pemasukan dan pengeluaran per bulan</p>
             </div>
             <div className="chart-toggles">
-              <button className={`toggle-btn ${chartView === 'cashflow' ? 'active' : ''}`} onClick={() => setChartView('cashflow')}>
-                Pemasukan vs Pengeluaran
+              <button
+                className={`toggle-btn ${chartView === 'cashflow' ? 'active' : ''}`}
+                onClick={() => setChartView('cashflow')}
+              >
+                Pemasukan vs Keluar
               </button>
-              <button className={`toggle-btn ${chartView === 'balance' ? 'active' : ''}`} onClick={() => setChartView('balance')}>
-                Saldo Kumulatif
+              <button
+                className={`toggle-btn ${chartView === 'balance' ? 'active' : ''}`}
+                onClick={() => setChartView('balance')}
+              >
+                Saldo Kas
               </button>
             </div>
           </div>
 
-          <div style={{ width: '100%', height: 310 }}>
+          <div className="overview-chart-container">
             <ResponsiveContainer width="100%" height="100%">
               {chartView === 'cashflow' ? (
-                <AreaChart data={trendData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
+                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="gIncome" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--color-emerald)" stopOpacity={0.3} />
@@ -145,14 +152,14 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="month" stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
-                  <YAxis stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} tickFormatter={formatShortCurrency} />
+                  <XAxis dataKey="month" stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }} />
+                  <YAxis stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }} tickFormatter={formatShortCurrency} />
                   <Tooltip content={<ChartTooltip />} />
                   <Area type="monotone" dataKey="income" name="Pemasukan" stroke="var(--color-emerald)" strokeWidth={2} fill="url(#gIncome)" />
                   <Area type="monotone" dataKey="expense" name="Pengeluaran" stroke="var(--color-rose)" strokeWidth={2} fill="url(#gExpense)" />
                 </AreaChart>
               ) : (
-                <AreaChart data={trendData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
+                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="gBalance" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
@@ -160,8 +167,8 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="month" stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
-                  <YAxis stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} tickFormatter={formatShortCurrency} />
+                  <XAxis dataKey="month" stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }} />
+                  <YAxis stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }} tickFormatter={formatShortCurrency} />
                   <Tooltip content={<ChartTooltip />} />
                   <Area type="monotone" dataKey="balance" name="Saldo Kas" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#gBalance)" />
                 </AreaChart>
@@ -172,8 +179,8 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
           <div className="chart-legend">
             {chartView === 'cashflow' ? (
               <>
-                <span className="legend"><span className="dot emerald" /> Pemasukan: {formatShortCurrency(metrics.totalIncome)}</span>
-                <span className="legend"><span className="dot rose" /> Pengeluaran: {formatShortCurrency(metrics.totalExpense)}</span>
+                <span className="legend"><span className="dot emerald" /> Masuk: {formatShortCurrency(metrics.totalIncome)}</span>
+                <span className="legend"><span className="dot rose" /> Keluar: {formatShortCurrency(metrics.totalExpense)}</span>
               </>
             ) : (
               <span className="legend"><span className="dot primary" /> Saldo saat ini: {formatShortCurrency(metrics.totalBalance)}</span>
@@ -197,7 +204,7 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
             <button className="shortcut-card" onClick={() => onNavigateTab('simulator')}>
               <div className="sc-icon sim"><HiOutlineTrendingDown /></div>
               <div className="sc-text">
-                <strong>Simulator What-If</strong>
+                <strong>Simulator Skenario</strong>
                 <span>Uji dampak perubahan omset & biaya</span>
               </div>
             </button>
@@ -222,10 +229,10 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
             <span className="glass-pill">{categoryData.length} Kategori</span>
           </div>
           <div className="category-body">
-            <div style={{ width: 130, height: 130 }}>
+            <div className="category-pie-container">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={categoryData} innerRadius={42} outerRadius={60} paddingAngle={3} dataKey="value">
+                  <Pie data={categoryData} innerRadius={36} outerRadius={54} paddingAngle={3} dataKey="value">
                     {categoryData.map((entry, i) => (
                       <Cell key={i} fill={entry.color} stroke="var(--color-bg)" strokeWidth={2} />
                     ))}
@@ -238,7 +245,7 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
                 <div key={i} className="cat-row">
                   <div className="cat-label">
                     <span className="cat-dot" style={{ background: cat.color }} />
-                    <span>{cat.name}</span>
+                    <span className="cat-name">{cat.name}</span>
                   </div>
                   <div className="cat-val">
                     <span>{formatShortCurrency(cat.value)}</span>
@@ -264,10 +271,13 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
                   )}
                 </div>
                 <p className="alert-desc">{ins.description}</p>
-                <button className="alert-action" onClick={() => {
-                  if (ins.actionPrompt.includes('Survival') || ins.actionPrompt.includes('Simulasi')) onNavigateTab('simulator');
-                  else onNavigateTab('cfo');
-                }}>
+                <button
+                  className="alert-action"
+                  onClick={() => {
+                    if (ins.actionPrompt.includes('Survival') || ins.actionPrompt.includes('Simulasi')) onNavigateTab('simulator');
+                    else onNavigateTab('cfo');
+                  }}
+                >
                   {ins.actionPrompt} <HiOutlineArrowRight />
                 </button>
               </div>
@@ -289,7 +299,8 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
           </div>
         </div>
 
-        <div className="table-wrap">
+        {/* Desktop Table View */}
+        <div className="table-wrap recent-table-desktop">
           <table className="data-table">
             <thead>
               <tr>
@@ -327,6 +338,33 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card List View */}
+        <div className="recent-cards-mobile">
+          {transactions.slice(0, 5).map((tx) => {
+            const inc = tx.type === 'income';
+            return (
+              <div key={tx.id} className="mobile-tx-card">
+                <div className="mobile-tx-left">
+                  <div className={`tx-dot ${inc ? 'emerald' : 'rose'}`} />
+                  <div className="mobile-tx-info">
+                    <div className="mobile-tx-title">{tx.title}</div>
+                    <div className="mobile-tx-sub">
+                      <span className="tx-cat">{tx.category}</span>
+                      <span className="mobile-tx-date">{tx.date}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mobile-tx-right">
+                  <span className={`tx-amount ${inc ? 'income' : 'expense'}`}>
+                    {inc ? '+' : '-'} {formatCurrency(tx.amount)}
+                  </span>
+                  <span className="mobile-tx-method">{tx.payment_method || 'Transfer'}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>

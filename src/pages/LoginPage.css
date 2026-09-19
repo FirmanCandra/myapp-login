@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   position: relative;
   overflow: hidden;
   background: var(--color-bg);
@@ -85,7 +85,7 @@
 .showcase-hero-content h1 {
   font-size: 1.65rem;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--color-text);
   margin-top: 0.35rem;
 }
@@ -173,6 +173,27 @@
   gap: 1.25rem;
 }
 
+/* Mobile Brand Banner */
+.mobile-brand-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-brand-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.mobile-brand-sub {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
 .auth-header-text h2 {
   font-size: 1.3rem;
   font-weight: 800;
@@ -207,7 +228,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  padding: 0.65rem 1rem;
+  padding: 0.7rem 1rem;
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -244,7 +265,7 @@
 }
 
 .btn-demo-guest {
-  padding: 0.65rem 1rem;
+  padding: 0.7rem 1rem;
   border-radius: var(--radius-sm);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
@@ -308,7 +329,27 @@
   line-height: 1.5;
 }
 
-@media (max-width: 768px) {
-  .login-split-card { grid-template-columns: 1fr; }
-  .login-showcase-panel { display: none; }
+@media (max-width: 960px) {
+  .login-page-wrapper {
+    padding: 1.5rem 1rem;
+  }
+  .login-split-card {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+  }
+  .login-auth-panel {
+    padding: 1.75rem 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page-wrapper {
+    padding: 1rem 0.75rem;
+  }
+  .login-auth-panel {
+    padding: 1.5rem 1rem;
+  }
+  .auth-header-text h2 {
+    font-size: 1.2rem;
+  }
 }

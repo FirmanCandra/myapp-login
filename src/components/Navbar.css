@@ -1,3 +1,6 @@
+/* ============================
+   Top Navbar
+   ============================ */
 .app-navbar {
   position: sticky;
   top: 0;
@@ -6,6 +9,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--color-border);
+  transition: background var(--transition-smooth), border-color var(--transition-smooth);
 }
 
 .nav-container {
@@ -16,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 /* Brand */
@@ -38,12 +42,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }
 
 .brand-name {
   font-size: 1rem;
   font-weight: 800;
   color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
 .brand-sub {
@@ -54,7 +60,7 @@
   margin-top: -1px;
 }
 
-/* Tabs */
+/* Desktop Tabs */
 .nav-tabs {
   display: flex;
   align-items: center;
@@ -99,6 +105,7 @@
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 700;
+  padding: 3px 9px;
 }
 
 .btn-add-tx {
@@ -112,6 +119,7 @@
   font-size: 0.78rem;
   font-weight: 700;
   transition: var(--transition-smooth);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }
 
 .btn-add-tx:hover {
@@ -131,6 +139,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   transition: var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .btn-theme-toggle:hover {
@@ -148,6 +157,9 @@
   overflow: hidden;
   border: 2px solid var(--color-border);
   transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profile-btn:hover { border-color: var(--color-primary); }
@@ -174,7 +186,7 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 210px;
+  width: 220px;
   padding: 0.75rem;
   z-index: 110;
   animation: fadeInDown 0.15s ease-out;
@@ -207,9 +219,9 @@
   align-items: center;
   gap: 0.4rem;
   width: 100%;
-  padding: 0.4rem 0.5rem;
+  padding: 0.5rem;
   border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: var(--transition-fast);
 }
@@ -222,6 +234,134 @@
   background: var(--color-rose-soft);
 }
 
+/* ============================
+   Mobile Bottom Navigation Bar
+   ============================ */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: var(--bottom-nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--color-border);
+  display: none;
+  align-items: center;
+  justify-content: space-around;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  padding: 4px 2px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.mobile-nav-icon {
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.mobile-nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.mobile-nav-item.active {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.mobile-nav-item.active .mobile-nav-icon {
+  transform: translateY(-2px);
+}
+
+/* Center Floating Action Button (FAB) */
+.mobile-center-action-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.mobile-fab-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--gradient-btn);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transition: transform var(--transition-bounce), background var(--transition-fast);
+  margin-top: -12px;
+  border: 3px solid var(--color-bg);
+}
+
+.mobile-fab-btn:active {
+  transform: scale(0.92);
+}
+
+/* ============================
+   Mobile Media Queries
+   ============================ */
 @media (max-width: 960px) {
-  .nav-tabs { display: none; }
+  .nav-container {
+    padding: 0 1rem;
+    height: 52px;
+  }
+
+  .nav-brand .brand-name {
+    font-size: 0.95rem;
+  }
+
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 0 0.75rem;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .score-pill {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+  }
+
+  .btn-theme-toggle {
+    width: 32px;
+    height: 32px;
+    font-size: 1.05rem;
+  }
+
+  .profile-btn {
+    width: 32px;
+    height: 32px;
+  }
 }
