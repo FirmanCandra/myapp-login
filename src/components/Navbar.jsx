@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   HiOutlineViewGrid,
   HiOutlineCalculator,
@@ -33,6 +33,18 @@ const Navbar = ({
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolled(scrollPosition > 12);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const metadata = user?.user_metadata || {};
   const fullName = metadata.full_name || metadata.name || (role === 'student' ? 'Mahasiswa' : 'Founder');
@@ -57,7 +69,7 @@ const Navbar = ({
   return (
     <>
       {/* Top Navbar */}
-      <header className="app-navbar">
+      <header className={`app-navbar ${isScrolled ? 'is-scrolled' : ''}`}>
         <div className="nav-container">
           {/* Brand */}
           <div className="nav-brand" onClick={() => setActiveTab(NAV_TABS.OVERVIEW)} style={{ cursor: 'pointer' }}>
