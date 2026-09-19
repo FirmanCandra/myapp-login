@@ -173,17 +173,16 @@ const RunwaySimulatorTab = ({ metrics }) => {
             <HiOutlineCalculator />
           </div>
           <div>
-            <h2>Interactive "What-If" Runway Simulator</h2>
+            <h2>Simulator Skenario Keuangan</h2>
             <p>
-              Uji ketahanan finansial, proyeksi cash cliff, dan keputusan strategis (hiring, belanja modal, fluktuasi
-              omset) secara real-time.
+              Uji dampak perubahan omset, biaya operasional, dan keputusan strategis terhadap daya tahan kas.
             </p>
           </div>
         </div>
 
         {/* Preset Selector */}
         <div className="preset-selector-group">
-          <span className="preset-label">Preset Cepat:</span>
+          <span className="preset-label">Preset:</span>
           <div className="preset-buttons-wrap">
             {PRESETS.map((p) => (
               <button
@@ -208,7 +207,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
         <div className="sim-controls-panel glass-panel">
           <div className="panel-subheading">
             <HiOutlineLightningBolt className="icon-bolt" />
-            <h3>Parameter Simulasi</h3>
+            <h3>Parameter</h3>
           </div>
 
           <div className="controls-form">
@@ -432,7 +431,7 @@ const RunwaySimulatorTab = ({ metrics }) => {
           {/* Dual-Curve Line Chart */}
           <div className="sim-chart-area">
             <div className="sim-chart-header">
-              <h4>Proyeksi Kas 12 Bulan ke Depan</h4>
+              <h4>Proyeksi Kas 12 Bulan</h4>
               <div className="sim-legend-row">
                 <div className="legend-chip baseline">
                   <span className="chip-line baseline" />
@@ -483,15 +482,14 @@ const RunwaySimulatorTab = ({ metrics }) => {
           {/* AI Executive Takeaway & Save Action */}
           <div className="sim-footer-takeaway">
             <div className="takeaway-text-box">
-              <HiOutlineSparkles className="takeaway-icon" />
               <div>
-                <span className="takeaway-heading">AI CFO Verdict:</span>
+                <span className="takeaway-heading">Kesimpulan:</span>
                 <p>
                   {isInfiniteRunway
-                    ? 'Skenario ini menghasilkan arus kas positif yang berkelanjutan. Bisnis memiliki stabilitas tinggi untuk ekspansi.'
+                    ? 'Skenario ini menghasilkan arus kas positif berkelanjutan. Posisi stabil untuk mempertimbangkan ekspansi.'
                     : simulatedRunway < 6
-                    ? '⚠️ AWAS: Skenario ini memicu kehabisan kas dalam waktu kurang dari 6 bulan. Disarankan memperkecil ekspansi atau mencari pendanaan tambahan.'
-                    : `Skenario ini memproyeksikan cadangan kas bertahan selama ${simulatedRunway.toFixed(1)} bulan. Strategi yang cukup seimbang antara pertumbuhan dan keamanan.`}
+                    ? 'Peringatan: Skenario ini memproyeksikan kas habis dalam kurang dari 6 bulan. Pertimbangkan untuk memperkecil pengeluaran atau mencari pendanaan tambahan.'
+                    : `Cadangan kas diproyeksikan bertahan selama ${simulatedRunway.toFixed(1)} bulan. Keseimbangan yang cukup baik antara pertumbuhan dan keamanan.`}
                 </p>
               </div>
             </div>

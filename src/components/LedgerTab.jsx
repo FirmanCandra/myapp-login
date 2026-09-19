@@ -90,8 +90,8 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
       {/* 1. Header & Quick Summary */}
       <div className="ledger-header-card glass-panel">
         <div className="ledger-header-left">
-          <h2>Smart Financial Ledger</h2>
-          <p>Buku kas digital dengan auto-kategorisasi AI, tagging struk, dan rekonsiliasi realtime</p>
+          <h2>Buku Kas</h2>
+          <p>Catatan pemasukan dan pengeluaran lengkap dengan kategori dan filter</p>
         </div>
 
         <div className="ledger-header-actions">

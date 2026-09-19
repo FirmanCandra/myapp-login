@@ -27,16 +27,14 @@ const CfoAdvisorTab = ({ metrics, transactions, onNavigateTab }) => {
     {
       id: 'msg-init',
       sender: 'cfo',
-      text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu. 
+      text: `Halo! Ini ringkasan kondisi keuangan kamu berdasarkan **${transactions.length} transaksi** yang tercatat.
 
-Saya telah memindai seluruh **${transactions.length} transaksi pembukuan** dan posisi kas saat ini senilai **${formatCurrency(metrics.totalBalance)}**.
+**Saldo kas:** ${formatCurrency(metrics.totalBalance)}
+**Status arus kas:** ${metrics.profitMargin >= 0 ? 'Surplus (+)' : 'Pengeluaran lebih besar (-)'}
+**Skor kesehatan:** ${metrics.healthScore}/100
+**Potensi penghematan:** ~Rp 6.8 Juta/bulan
 
-✨ **Ringkasan Analisis AI:**
-- **Status Arus Kas:** ${metrics.profitMargin >= 0 ? 'Surplus (+)' : 'Burn Terkendali (-)'}
-- **Financial Health Score:** ${metrics.healthScore}/100
-- **Potensi Penghematan Teridentifikasi:** ~Rp 6.8 Juta/bulan
-
-Silakan tanyakan skenario keuangan apa pun atau pilih prompt cepat di bawah!`,
+Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
       time: 'Baru saja',
     },
   ]);
@@ -101,24 +99,23 @@ Silakan tanyakan skenario keuangan apa pun atau pilih prompt cepat di bawah!`,
           </div>
           <div>
             <div className="cfo-badge-row">
-              <span className="glass-pill pill-purple">Autonomous AI Advisor</span>
-              <span className="glass-pill pill-emerald">Active Real-Time Audit</span>
+              <span className="glass-pill pill-purple">Konsultan Keuangan</span>
             </div>
-            <h2>Financial Intelligence & Strategic CFO Engine</h2>
+            <h2>Analisis & Rekomendasi Keuangan</h2>
             <p>
-              Mendeteksi inefisiensi pengeluaran, memprediksi titik kritis kas, dan menyusun strategi alokasi modal
-              berdasarkan pembukuan nyata.
+              Temuan inefisiensi pengeluaran, prediksi titik kritis kas, dan rekomendasi alokasi modal
+              berdasarkan data pembukuan.
             </p>
           </div>
         </div>
 
         <div className="cfo-banner-stats">
           <div className="stat-pill-box">
-            <span className="label">Total Audited Cash</span>
+            <span className="label">Total Kas</span>
             <span className="val">{formatCurrency(metrics.totalBalance)}</span>
           </div>
           <div className="stat-pill-box">
-            <span className="label">Identified Savings</span>
+            <span className="label">Potensi Hemat</span>
             <span className="val" style={{ color: '#34d399' }}>
               +Rp 6.8 Jt / bln
             </span>
@@ -132,7 +129,7 @@ Silakan tanyakan skenario keuangan apa pun atau pilih prompt cepat di bawah!`,
         <div className="cfo-cards-column">
           <div className="column-heading">
             <HiOutlineLightBulb className="icon-bulb" />
-            <h3>Rekomendasi Taktis & Audit AI</h3>
+            <h3>Rekomendasi & Temuan</h3>
           </div>
 
           {/* Card 1: Cloud Optimization */}
@@ -239,11 +236,11 @@ Silakan tanyakan skenario keuangan apa pun atau pilih prompt cepat di bawah!`,
             <div className="chat-title-info">
               <div className="cfo-status-dot" />
               <div>
-                <h4>Autonomous AI CFO Live Console</h4>
-                <span>Tersambung ke dataset pembukuan realtime</span>
+                <h4>Konsultan Keuangan</h4>
+                <span>Tersambung ke data pembukuan</span>
               </div>
             </div>
-            <span className="glass-pill pill-purple">AI Model Active</span>
+            <span className="glass-pill pill-purple">Aktif</span>
           </div>
 
           {/* Chat Messages Viewport */}

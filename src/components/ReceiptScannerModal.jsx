@@ -131,8 +131,8 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
               <HiOutlineDocumentSearch />
             </div>
             <div>
-              <h3>Smart OCR & Vision Receipt Scanner</h3>
-              <p>Ekstraksi otomatis nama merchant, item, pajak, dan nominal dari struk atau invoice</p>
+              <h3>Pemindai Struk & Invoice</h3>
+              <p>Ekstraksi otomatis nama merchant, item, pajak, dan nominal dari foto struk</p>
             </div>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
@@ -165,7 +165,7 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
                 <div className="preset-sample-section">
                   <div className="preset-header-text">
                     <HiOutlineSparkles style={{ color: '#38bdf8' }} />
-                    <span>Atau Coba Preset Struk Instan (AI Demo):</span>
+                  <span>Atau coba contoh struk:</span>
                   </div>
 
                   <div className="preset-cards-list">
@@ -194,8 +194,8 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
 
                 <div className="scanning-feedback">
                   <div className="spinner-hud" />
-                  <h4>Memindai & Menganalisis Dokumen...</h4>
-                  <p>Mengekstrak karakter OCR, OCR Vision bounding box, dan pos kategori pajak</p>
+                  <h4>Memindai Dokumen...</h4>
+                  <p>Mengekstrak informasi dari struk atau invoice</p>
                   <div className="progress-bar-hud">
                     <div className="progress-fill-hud" style={{ width: `${progress}%` }} />
                   </div>
@@ -209,8 +209,8 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
                 <div className="verified-success-banner">
                   <HiOutlineCheckCircle style={{ color: '#34d399', fontSize: '1.25rem' }} />
                   <div>
-                    <strong>Ekstraksi OCR Berhasil!</strong>
-                    <span>Tingkat keyakinan AI: {(confidence * 100).toFixed(1)}%</span>
+                    <strong>Ekstraksi berhasil!</strong>
+                    <span>Tingkat keyakinan: {(confidence * 100).toFixed(1)}%</span>
                   </div>
                 </div>
 

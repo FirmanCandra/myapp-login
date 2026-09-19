@@ -3,24 +3,26 @@ import {
   HiOutlineViewGrid,
   HiOutlineCalculator,
   HiOutlineDocumentSearch,
-  HiOutlineSparkles,
+  HiOutlineChatAlt2,
   HiOutlineBookOpen,
   HiOutlineLogout,
-  HiOutlineShieldCheck,
-  HiOutlineDatabase,
   HiOutlinePlus,
+  HiOutlineSun,
+  HiOutlineMoon,
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { NAV_TABS } from '../constants/tabs';
 import './Navbar.css';
 
 const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScanner }) => {
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const metadata = user?.user_metadata || {};
-  const fullName = metadata.full_name || metadata.name || 'Founder / CFO';
-  const email = user?.email || 'admin@omniledger.ai';
+  const fullName = metadata.full_name || metadata.name || 'User';
+  const email = user?.email || '';
   const avatarUrl = metadata.avatar_url || metadata.picture || null;
   const initials = fullName
     .split(' ')
@@ -37,130 +39,90 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
   };
 
   return (
-    <header className="omniledger-navbar">
+    <header className="app-navbar">
       <div className="nav-container">
         {/* Brand */}
-        <div className="nav-brand-section">
-          <div className="brand-logo-container">
-            <div className="brand-logo-glow" />
-            <div className="brand-logo-icon">
-              <HiOutlineShieldCheck />
-            </div>
-          </div>
+        <div className="nav-brand">
+          <div className="brand-mark">O</div>
           <div className="brand-text">
-            <div className="brand-title">
-              OmniLedger <span className="ai-badge">AI</span>
-            </div>
-            <div className="brand-subtitle">Autonomous Financial OS</div>
+            <span className="brand-name">OmniLedger</span>
+            <span className="brand-sub">Financial OS</span>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="nav-tabs-wrapper">
+        {/* Tabs */}
+        <nav className="nav-tabs">
           <button
-            className={`nav-tab-btn ${activeTab === NAV_TABS.OVERVIEW ? 'active' : ''}`}
+            className={`nav-tab ${activeTab === NAV_TABS.OVERVIEW ? 'active' : ''}`}
             onClick={() => setActiveTab(NAV_TABS.OVERVIEW)}
-            id="tab-overview"
           >
-            <HiOutlineViewGrid className="tab-icon" />
-            <span>Overview</span>
+            <HiOutlineViewGrid />
+            <span>Ringkasan</span>
           </button>
-
           <button
-            className={`nav-tab-btn ${activeTab === NAV_TABS.SIMULATOR ? 'active' : ''}`}
+            className={`nav-tab ${activeTab === NAV_TABS.SIMULATOR ? 'active' : ''}`}
             onClick={() => setActiveTab(NAV_TABS.SIMULATOR)}
-            id="tab-simulator"
           >
-            <HiOutlineCalculator className="tab-icon" />
-            <span>What-If Simulator</span>
-            <span className="tab-hot-badge">PRO</span>
+            <HiOutlineCalculator />
+            <span>Simulator</span>
           </button>
-
           <button
-            className={`nav-tab-btn ${activeTab === NAV_TABS.SCANNER ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab(NAV_TABS.SCANNER);
-              if (onOpenScanner) onOpenScanner();
-            }}
-            id="tab-scanner"
+            className={`nav-tab ${activeTab === NAV_TABS.SCANNER ? 'active' : ''}`}
+            onClick={() => { setActiveTab(NAV_TABS.SCANNER); if (onOpenScanner) onOpenScanner(); }}
           >
-            <HiOutlineDocumentSearch className="tab-icon" />
-            <span>OCR Scanner</span>
+            <HiOutlineDocumentSearch />
+            <span>Scan Struk</span>
           </button>
-
           <button
-            className={`nav-tab-btn ${activeTab === NAV_TABS.CFO ? 'active' : ''}`}
+            className={`nav-tab ${activeTab === NAV_TABS.CFO ? 'active' : ''}`}
             onClick={() => setActiveTab(NAV_TABS.CFO)}
-            id="tab-cfo"
           >
-            <HiOutlineSparkles className="tab-icon" />
-            <span>AI CFO Advisor</span>
-            <span className="tab-pulse-dot" />
+            <HiOutlineChatAlt2 />
+            <span>Konsultan</span>
           </button>
-
           <button
-            className={`nav-tab-btn ${activeTab === NAV_TABS.LEDGER ? 'active' : ''}`}
+            className={`nav-tab ${activeTab === NAV_TABS.LEDGER ? 'active' : ''}`}
             onClick={() => setActiveTab(NAV_TABS.LEDGER)}
-            id="tab-ledger"
           >
-            <HiOutlineBookOpen className="tab-icon" />
-            <span>Smart Ledger</span>
+            <HiOutlineBookOpen />
+            <span>Buku Kas</span>
           </button>
         </nav>
 
-        {/* Action & User Bar */}
-        <div className="nav-actions-section">
-          {/* Health Score Pill */}
-          <div className={`glass-pill ${getScoreBadgeClass(healthScore)} score-pill`} title="Financial Health Score">
-            <span className="pulse-indicator" />
-            <span>Health: {healthScore}/100</span>
+        {/* Actions */}
+        <div className="nav-actions">
+          <div className={`glass-pill ${getScoreBadgeClass(healthScore)} score-pill`}>
+            Skor: {healthScore}
           </div>
 
-          {/* Quick Add Button */}
-          <button className="btn-quick-add" onClick={onOpenNewTx} title="Tambah Transaksi Baru">
+          <button className="btn-add-tx" onClick={onOpenNewTx}>
             <HiOutlinePlus />
-            <span>Catat Transaksi</span>
+            <span>Transaksi</span>
           </button>
 
-          {/* User Profile */}
-          <div className="user-profile-menu-container">
-            <button
-              className="user-profile-btn"
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              aria-label="User profile menu"
-            >
+          <button className="btn-theme-toggle" onClick={toggleTheme} title="Ganti tema">
+            {theme === 'dark' ? <HiOutlineSun /> : <HiOutlineMoon />}
+          </button>
+
+          {/* Profile */}
+          <div className="profile-wrap">
+            <button className="profile-btn" onClick={() => setShowUserMenu(!showUserMenu)}>
               {avatarUrl ? (
-                <img src={avatarUrl} alt={fullName} className="user-avatar-img" referrerPolicy="no-referrer" />
+                <img src={avatarUrl} alt={fullName} className="profile-img" referrerPolicy="no-referrer" />
               ) : (
-                <div className="user-avatar-placeholder">{initials}</div>
+                <div className="profile-placeholder">{initials}</div>
               )}
             </button>
 
             {showUserMenu && (
-              <div className="user-dropdown-glass glass-panel">
-                <div className="dropdown-user-header">
+              <div className="profile-dropdown glass-panel">
+                <div className="dropdown-header">
                   <div className="dropdown-name">{fullName}</div>
-                  <div className="dropdown-email">{email}</div>
+                  {email && <div className="dropdown-email">{email}</div>}
                 </div>
-
                 <div className="dropdown-divider" />
-
-                <div className="dropdown-info-row">
-                  <HiOutlineDatabase className="dropdown-row-icon" />
-                  <span>Supabase: Connected</span>
-                </div>
-
-                <div className="dropdown-divider" />
-
-                <button
-                  className="dropdown-logout-btn"
-                  onClick={async () => {
-                    setShowUserMenu(false);
-                    await signOut();
-                  }}
-                >
-                  <HiOutlineLogout />
-                  <span>Sign Out</span>
+                <button className="dropdown-action logout" onClick={async () => { setShowUserMenu(false); await signOut(); }}>
+                  <HiOutlineLogout /> Keluar
                 </button>
               </div>
             )}
