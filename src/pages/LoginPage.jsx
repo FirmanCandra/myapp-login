@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
 import {
@@ -10,6 +10,7 @@ import {
   HiOutlinePlay,
   HiOutlineBriefcase,
   HiOutlineAcademicCap,
+  HiOutlineSparkles,
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -23,9 +24,24 @@ const LoginPage = () => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [isMascotFlying, setIsMascotFlying] = useState(false);
+  const [hasLanded, setHasLanded] = useState(false);
   const [selectedRole, setSelectedRole] = useState(
     () => localStorage.getItem('omniledger_user_role') || 'business'
   );
+
+  const triggerMascotFlight = useCallback(() => {
+    setIsMascotFlying(false);
+    setHasLanded(false);
+    setTimeout(() => {
+      setIsMascotFlying(true);
+      setTimeout(() => {
+        setIsMascotFlying(false);
+        setHasLanded(true);
+        setTimeout(() => setHasLanded(false), 1400);
+      }, 3800);
+    }, 40);
+  }, []);
 
   if (loading) {
     return <LoadingSpinner message="Memuat FINORA..." />;
@@ -61,7 +77,37 @@ const LoginPage = () => {
   return (
     <div className={`login-page-wrapper mode-${selectedRole}`}>
       {showIntro && (
-        <IntroVideoSplash onFinish={() => setShowIntro(false)} />
+        <IntroVideoSplash
+          onFinish={() => {
+            setShowIntro(false);
+            triggerMascotFlight();
+          }}
+        />
+      )}
+
+      {/* Fullscreen Flying Mascot Aerial Loop Overlay */}
+      {isMascotFlying && (
+        <div className="fullscreen-mascot-flight-layer" aria-hidden="true">
+          <div className="flying-mascot-trajectory">
+            <div className="flying-mascot-vehicle">
+              <img
+                src="/MASKOT-FINORA.png"
+                alt="Flying FINORA Mascot"
+                className="flying-mascot-img"
+              />
+              <div className="flight-energy-ring" />
+              <div className="flight-jet-sparkles">
+                <span className="jet-star js1">✦</span>
+                <span className="jet-star js2">★</span>
+                <span className="jet-star js3">✦</span>
+                <span className="jet-star js4">✨</span>
+              </div>
+              <div className="flight-speech-bubble">
+                <span>Finora AI Meluncur! 🚀</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="login-split-card login-fade-in">
@@ -82,12 +128,19 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="mascot-visual-container">
+          <div
+            className={`mascot-visual-container interactive-mascot ${hasLanded ? 'mascot-landed-burst' : ''} ${isMascotFlying ? 'is-ghosted' : ''}`}
+            onClick={triggerMascotFlight}
+            title="Ketuk untuk menerbangkan robot Finora!"
+          >
             <img
               src="/MASKOT-FINORA.png"
               alt="FINORA Mascot Robot"
               className="mascot-character-img"
             />
+            <span className="mascot-fly-trigger-pill">
+              <HiOutlineSparkles /> Ketuk untuk terbang!
+            </span>
           </div>
         </section>
 
@@ -114,12 +167,19 @@ const LoginPage = () => {
               </p>
             </div>
 
-            <div className="hero-mascot-desktop-badge">
+            <div
+              className={`hero-mascot-desktop-badge interactive-mascot ${hasLanded ? 'mascot-landed-burst' : ''} ${isMascotFlying ? 'is-ghosted' : ''}`}
+              onClick={triggerMascotFlight}
+              title="Klik untuk menerbangkan robot Finora!"
+            >
               <img
                 src="/MASKOT-FINORA.png"
                 alt="FINORA AI Assistant"
                 className="hero-mascot-desktop-img"
               />
+              <span className="mascot-desktop-fly-hint">
+                <HiOutlineSparkles /> Klik robot untuk terbang 🚀
+              </span>
             </div>
           </div>
 
