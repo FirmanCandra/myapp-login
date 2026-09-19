@@ -43,7 +43,7 @@
   }
 }
 
-/* Background Video */
+/* Background Video (Hardware GPU Layer Accelerated) */
 .intro-video-element {
   position: absolute;
   inset: 0;
@@ -52,6 +52,12 @@
   object-fit: cover;
   z-index: 1;
   pointer-events: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: strict;
 }
 
 /* Cinematic Gradient Overlays */
@@ -317,10 +323,22 @@
   box-shadow: 0 6px 28px rgba(6, 182, 212, 0.55);
 }
 
-/* Responsive */
+/* Responsive & Mobile GPU Pipeline Optimization */
 @media (max-width: 768px) {
+  .intro-top-bar,
+  .intro-bottom-bar,
+  .intro-glass-btn {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   .intro-top-bar {
     padding: 1rem 1.25rem;
+    background: rgba(7, 9, 19, 0.85);
+  }
+
+  .intro-glass-btn {
+    background: rgba(255, 255, 255, 0.16);
   }
 
   .intro-tagline-hero {
@@ -333,6 +351,7 @@
 
   .intro-bottom-bar {
     padding: 1rem 1.25rem 1.5rem;
+    background: rgba(7, 9, 19, 0.88);
   }
 
   .intro-footer-row {
