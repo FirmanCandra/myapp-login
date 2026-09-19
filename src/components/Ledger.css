@@ -1,0 +1,194 @@
+.ledger-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* 1. Header */
+.ledger-header-card {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.ledger-header-left h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ledger-header-left p {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.ledger-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* 2. Filter Bar */
+.ledger-filter-bar {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-box-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(7, 9, 19, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.85rem;
+  flex: 1;
+  min-width: 260px;
+}
+
+.search-icon {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+.ledger-search-input {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 0.82rem;
+  width: 100%;
+}
+
+.filter-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-pill-group {
+  display: flex;
+  background: rgba(7, 9, 19, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+}
+
+.filter-pill {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-secondary);
+  transition: var(--transition-fast);
+}
+
+.filter-pill:hover {
+  color: #fff;
+}
+
+.filter-pill.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.filter-pill.income.active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.filter-pill.expense.active {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+}
+
+.ledger-select {
+  background: rgba(7, 9, 19, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* 3. Summary Strip */
+.ledger-summary-strip {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(14, 18, 34, 0.5);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+
+.strip-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+}
+
+.strip-label {
+  color: var(--color-text-muted);
+  font-family: var(--font-main);
+}
+
+/* 4. Table Card */
+.ledger-table-card {
+  padding: 0.5rem;
+}
+
+.full-table td {
+  padding: 1rem;
+}
+
+.tx-notes-cell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.btn-delete-tx {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition: var(--transition-fast);
+}
+
+.btn-delete-tx:hover {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.empty-ledger-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.empty-ledger-state p {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
