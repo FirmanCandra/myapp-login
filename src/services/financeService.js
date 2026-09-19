@@ -1,11 +1,43 @@
 import { supabase } from '../lib/supabase';
 
-// Sample Seed Data (Realistic SME / Startup data in IDR)
-const DEFAULT_STARTING_CASH = 185000000; // Rp 185 Juta
+// ==========================================
+// 1. Seed & Default Data for Business & Student
+// ==========================================
 
-export const INITIAL_TRANSACTIONS = [
+export const DEFAULT_BUSINESS_STARTING_CASH = 185000000; // Rp 185 Juta
+export const DEFAULT_STUDENT_STARTING_CASH = 3750000; // Rp 3.75 Juta
+
+export const BUSINESS_CATEGORIES = [
+  'Client Revenue',
+  'Subscription MRR',
+  'Cloud Infrastructure',
+  'Payroll',
+  'Marketing & Ads',
+  'Office & Utilities',
+  'Software & Tools',
+  'Equipment & Capex',
+  'Legal & Accounting',
+  'Miscellaneous',
+];
+
+export const STUDENT_CATEGORIES = [
+  'Uang Saku & Kiriman Ortu',
+  'Gaji Part-time & Freelance',
+  'Beasiswa & Kampus',
+  'Makan & Minum (Warteg/Kantin)',
+  'Sewa Kost & Listrik',
+  'Kebutuhan Kost & Harian',
+  'Nongkrong, Kafe & Lifestyle',
+  'Akademik, Buku & Print Tugas',
+  'Kuota Internet & Langganan',
+  'Transportasi & Bensin',
+  'Tabungan UKT / Wishlist',
+  'Lain-lain',
+];
+
+export const INITIAL_BUSINESS_TRANSACTIONS = [
   {
-    id: 'tx-01',
+    id: 'biz-01',
     title: 'Enterprise Client Retainer Q3',
     type: 'income',
     category: 'Client Revenue',
@@ -16,7 +48,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Pembayaran termin 1 pengembangan sistem',
   },
   {
-    id: 'tx-02',
+    id: 'biz-02',
     title: 'AWS Cloud Hosting & AI GPU Cluster',
     type: 'expense',
     category: 'Cloud Infrastructure',
@@ -27,7 +59,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Penggunaan EC2, S3 & Bedrock Claude API',
   },
   {
-    id: 'tx-03',
+    id: 'biz-03',
     title: 'Gaji Tim Engineering & Design (6 Orang)',
     type: 'expense',
     category: 'Payroll',
@@ -38,7 +70,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Gaji pokok + tunjangan BPJS & kesehatan',
   },
   {
-    id: 'tx-04',
+    id: 'biz-04',
     title: 'SaaS Subscription Revenue (MRR)',
     type: 'income',
     category: 'Subscription MRR',
@@ -49,7 +81,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Total 142 active pro subscribers',
   },
   {
-    id: 'tx-05',
+    id: 'biz-05',
     title: 'Meta & Google Ads Campaign Acquisition',
     type: 'expense',
     category: 'Marketing & Ads',
@@ -60,7 +92,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Campaign promo Q3 B2B lead gen',
   },
   {
-    id: 'tx-06',
+    id: 'biz-06',
     title: 'Sewa Co-Working Space & Dedicated Internet',
     type: 'expense',
     category: 'Office & Utilities',
@@ -71,7 +103,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Biaya sewa ruang private office 6 pax',
   },
   {
-    id: 'tx-07',
+    id: 'biz-07',
     title: 'Software Tooling (GitHub, Figma, OpenAI, Linear)',
     type: 'expense',
     category: 'Software & Tools',
@@ -82,7 +114,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Biaya lisensi tools bulanan tim',
   },
   {
-    id: 'tx-08',
+    id: 'biz-08',
     title: 'Custom Feature Development Fee',
     type: 'income',
     category: 'Client Revenue',
@@ -93,7 +125,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Integrasi API WhatsApp & Payment Gateway',
   },
   {
-    id: 'tx-09',
+    id: 'biz-09',
     title: 'Pengadaan Hardware (MacBook M3 & Monitor 4K)',
     type: 'expense',
     category: 'Equipment & Capex',
@@ -104,7 +136,7 @@ export const INITIAL_TRANSACTIONS = [
     notes: 'Laptop lead developer baru',
   },
   {
-    id: 'tx-10',
+    id: 'biz-10',
     title: 'Konsultasi Legal & Pajak Semester 1',
     type: 'expense',
     category: 'Legal & Accounting',
@@ -114,460 +146,123 @@ export const INITIAL_TRANSACTIONS = [
     merchant: 'Kantor Konsultan Pajak Mitra',
     notes: 'Review SPT Badan & PPh 21/23',
   },
+];
+
+export const INITIAL_STUDENT_TRANSACTIONS = [
   {
-    id: 'tx-11',
-    title: 'Enterprise Client Retainer Q2',
+    id: 'stu-01',
+    title: 'Kiriman Uang Saku Bulanan dari Ortu',
     type: 'income',
-    category: 'Client Revenue',
-    amount: 55000000,
-    date: '2026-07-02',
-    payment_method: 'Bank Transfer (BCA)',
-    merchant: 'PT Solusi Digital Nusantara',
-    notes: 'Retainer maintenance Q2',
+    category: 'Uang Saku & Kiriman Ortu',
+    amount: 2500000,
+    date: '2026-09-01',
+    payment_method: 'Transfer BCA Mobile',
+    merchant: 'Orang Tua',
+    notes: 'Uang saku rutin awal bulan September',
   },
   {
-    id: 'tx-12',
-    title: 'SaaS Subscription Revenue (MRR)',
+    id: 'stu-02',
+    title: 'Honor Jasa Desain UI/UX Landing Page',
     type: 'income',
-    category: 'Subscription MRR',
-    amount: 24000000,
-    date: '2026-07-25',
-    payment_method: 'Midtrans Payment Gateway',
-    merchant: 'Online Subscribers',
-    notes: '120 subscribers',
+    category: 'Gaji Part-time & Freelance',
+    amount: 1200000,
+    date: '2026-09-03',
+    payment_method: 'Transfer Bank Mandiri',
+    merchant: 'Klien Startup Lokal',
+    notes: 'Project freelance desain web 3 halaman',
+  },
+  {
+    id: 'stu-03',
+    title: 'Bayar Sewa Kost Bulanan + Listrik & WiFi',
+    type: 'expense',
+    category: 'Sewa Kost & Listrik',
+    amount: 950000,
+    date: '2026-09-02',
+    payment_method: 'Transfer BCA',
+    merchant: 'Ibu Kost Wisma Melati',
+    notes: 'Kamar lantai 2 + listrik token',
+  },
+  {
+    id: 'stu-04',
+    title: 'Belanja Bulanan Sabun, Odol, & Snack Kost',
+    type: 'expense',
+    category: 'Kebutuhan Kost & Harian',
+    amount: 185000,
+    date: '2026-09-05',
+    payment_method: 'QRIS BCA',
+    merchant: 'Indomaret Point Kampus',
+    notes: 'Kebutuhan mandi, deterjen, & air galon',
+  },
+  {
+    id: 'stu-05',
+    title: 'Makan Siang Nasi Ayam Warteg Bahari',
+    type: 'expense',
+    category: 'Makan & Minum (Warteg/Kantin)',
+    amount: 22000,
+    date: '2026-09-06',
+    payment_method: 'Tunai (Cash)',
+    merchant: 'Warteg Bahari Kampus',
+    notes: 'Nasi + ayam balado + tempe orek + es teh',
+  },
+  {
+    id: 'stu-06',
+    title: 'Paket Data Internet 35GB & Spotify Student',
+    type: 'expense',
+    category: 'Kuota Internet & Langganan',
+    amount: 79000,
+    date: '2026-09-07',
+    payment_method: 'GoPay / E-Wallet',
+    merchant: 'Telkomsel & Spotify',
+    notes: 'Kuota nugas skripsi & musik',
+  },
+  {
+    id: 'stu-07',
+    title: 'Print Makalah 40 Halaman + Jilid Spiral',
+    type: 'expense',
+    category: 'Akademik, Buku & Print Tugas',
+    amount: 38000,
+    date: '2026-09-09',
+    payment_method: 'QRIS GoPay',
+    merchant: 'Percetakan & Fotokopi Berkah',
+    notes: 'Tugas besar mata kuliah Manajemen Keuangan',
+  },
+  {
+    id: 'stu-08',
+    title: 'Kopi Susu & Nongkrong Nugas Bareng Kelompok',
+    type: 'expense',
+    category: 'Nongkrong, Kafe & Lifestyle',
+    amount: 45000,
+    date: '2026-09-12',
+    payment_method: 'QRIS BCA',
+    merchant: 'Kopi Kenangan Kampus',
+    notes: 'Nongkrong nugas kelompok sampai sore',
+  },
+  {
+    id: 'stu-09',
+    title: 'Honor Asisten Laboratorium Komputer',
+    type: 'income',
+    category: 'Beasiswa & Kampus',
+    amount: 600000,
+    date: '2026-09-14',
+    payment_method: 'Transfer Bank BNI',
+    merchant: 'Fakultas Ilmu Komputer',
+    notes: 'Gaji asdos praktikum basis data',
+  },
+  {
+    id: 'stu-10',
+    title: 'Isi Bensin Motor Vario Mingguan',
+    type: 'expense',
+    category: 'Transportasi & Bensin',
+    amount: 40000,
+    date: '2026-09-15',
+    payment_method: 'Tunai (Cash)',
+    merchant: 'SPBU Pertamina',
+    notes: 'Pertalite full tank buat pp kampus',
   },
 ];
 
-const LOCAL_STORAGE_KEY = 'omniledger_transactions_v1';
-const STARTING_CASH_KEY = 'omniledger_starting_cash_v1';
-
-// Formatter Helpers
-export const formatCurrency = (val) => {
-  if (val === null || val === undefined || isNaN(val)) return 'Rp 0';
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val);
-};
-
-export const formatShortCurrency = (val) => {
-  if (!val && val !== 0) return '0';
-  const abs = Math.abs(val);
-  const sign = val < 0 ? '-' : '';
-  if (abs >= 1000000000) {
-    return `${sign}Rp ${(abs / 1000000000).toFixed(1)} M`;
-  }
-  if (abs >= 1000000) {
-    return `${sign}Rp ${(abs / 1000000).toFixed(1)} Jt`;
-  }
-  if (abs >= 1000) {
-    return `${sign}Rp ${(abs / 1000).toFixed(0)} Rb`;
-  }
-  return `${sign}Rp ${abs}`;
-};
-
-// Data Management Functions (Hybrid: Supabase + LocalStorage Fallback)
-export const getStoredTransactions = async (userId) => {
-  if (userId) {
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .order('date', { ascending: false });
-
-      if (!error && data && data.length > 0) {
-        return data;
-      }
-    } catch (e) {
-      console.warn('Supabase fetch fallback to local:', e.message);
-    }
-  }
-
-  const local = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (local) {
-    try {
-      return JSON.parse(local);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(INITIAL_TRANSACTIONS));
-  return INITIAL_TRANSACTIONS;
-};
-
-export const saveTransaction = async (tx, userId) => {
-  const newTx = {
-    ...tx,
-    id: tx.id || `tx-${Date.now()}`,
-    amount: Number(tx.amount) || 0,
-    created_at: new Date().toISOString(),
-  };
-
-  // 1. Try Supabase
-  if (userId) {
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert([{ ...newTx, user_id: userId }])
-        .select();
-      if (!error && data && data[0]) {
-        return data[0];
-      }
-    } catch (err) {
-      console.warn('Supabase insert failed, fallback to local storage:', err.message);
-    }
-  }
-
-  // 2. Local Fallback
-  const current = await getStoredTransactions();
-  const updated = [newTx, ...current];
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-  return newTx;
-};
-
-export const deleteTransaction = async (id, userId) => {
-  if (userId) {
-    try {
-      await supabase.from('transactions').delete().eq('id', id);
-    } catch (e) {
-      console.warn('Supabase delete failed:', e.message);
-    }
-  }
-  const current = await getStoredTransactions();
-  const updated = current.filter((t) => t.id !== id);
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-  return updated;
-};
-
-export const getStartingCash = () => {
-  const saved = localStorage.getItem(STARTING_CASH_KEY);
-  return saved ? Number(saved) : DEFAULT_STARTING_CASH;
-};
-
-export const setStartingCash = (amount) => {
-  localStorage.setItem(STARTING_CASH_KEY, String(amount));
-};
-
-// Analytics & Math Calculators
-export const calculateFinancialMetrics = (transactions, startingCash = DEFAULT_STARTING_CASH) => {
-  let totalIncome = 0;
-  let totalExpense = 0;
-
-  // Calculate past 30 days & total
-  const now = new Date();
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(now.getDate() - 30);
-
-  let recentIncome = 0;
-  let recentExpense = 0;
-
-  transactions.forEach((tx) => {
-    const amt = Number(tx.amount) || 0;
-    const txDate = new Date(tx.date);
-
-    if (tx.type === 'income') {
-      totalIncome += amt;
-      if (txDate >= thirtyDaysAgo) recentIncome += amt;
-    } else {
-      totalExpense += amt;
-      if (txDate >= thirtyDaysAgo) recentExpense += amt;
-    }
-  });
-
-  const totalBalance = startingCash + totalIncome - totalExpense;
-  const avgMonthlyExpense = recentExpense > 0 ? recentExpense : totalExpense / 3 || 60000000;
-  const avgMonthlyIncome = recentIncome > 0 ? recentIncome : totalIncome / 3 || 75000000;
-  const netBurnRate = avgMonthlyExpense - avgMonthlyIncome;
-
-  let runwayMonths = 999; // Profitable / Infinite
-  if (netBurnRate > 0) {
-    runwayMonths = Math.max(0, totalBalance / netBurnRate);
-  }
-
-  const profitMargin = avgMonthlyIncome > 0 ? ((avgMonthlyIncome - avgMonthlyExpense) / avgMonthlyIncome) * 100 : 0;
-
-  // Financial Health Score algorithm (0 - 100)
-  let healthScore = 50;
-  if (runwayMonths >= 18 || netBurnRate <= 0) healthScore += 25;
-  else if (runwayMonths >= 12) healthScore += 18;
-  else if (runwayMonths >= 6) healthScore += 8;
-  else healthScore -= 20;
-
-  if (profitMargin > 20) healthScore += 20;
-  else if (profitMargin > 0) healthScore += 10;
-  else if (profitMargin > -20) healthScore -= 5;
-  else healthScore -= 20;
-
-  if (totalBalance > 100000000) healthScore += 10;
-  else if (totalBalance < 20000000) healthScore -= 15;
-
-  healthScore = Math.min(100, Math.max(10, Math.round(healthScore)));
-
-  return {
-    totalBalance,
-    totalIncome,
-    totalExpense,
-    avgMonthlyIncome,
-    avgMonthlyExpense,
-    netBurnRate,
-    runwayMonths,
-    profitMargin,
-    healthScore,
-  };
-};
-
-// Historical Monthly Trend Generator for Charts
-export const generateHistoricalTrend = (transactions, startingCash = DEFAULT_STARTING_CASH) => {
-  const monthsMap = {};
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
-  // Initialize last 6 months
-  const now = new Date('2026-09-19');
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${monthNames[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
-    monthsMap[key] = { month: key, income: 0, expense: 0, net: 0, balance: 0 };
-  }
-
-  // Aggregate
-  transactions.forEach((tx) => {
-    const d = new Date(tx.date);
-    const key = `${monthNames[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
-    if (monthsMap[key]) {
-      const amt = Number(tx.amount) || 0;
-      if (tx.type === 'income') {
-        monthsMap[key].income += amt;
-      } else {
-        monthsMap[key].expense += amt;
-      }
-    }
-  });
-
-  let runningBalance = startingCash;
-  const result = Object.values(monthsMap).map((item) => {
-    item.net = item.income - item.expense;
-    runningBalance += item.net;
-    item.balance = runningBalance;
-    return item;
-  });
-
-  return result;
-};
-
-// Category Breakdown Generator
-export const generateCategoryBreakdown = (transactions) => {
-  const expenseMap = {};
-  let totalExpense = 0;
-
-  transactions.forEach((tx) => {
-    if (tx.type === 'expense') {
-      const amt = Number(tx.amount) || 0;
-      totalExpense += amt;
-      expenseMap[tx.category] = (expenseMap[tx.category] || 0) + amt;
-    }
-  });
-
-  const colors = ['#38bdf8', '#818cf8', '#a855f7', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#64748b'];
-  let colorIdx = 0;
-
-  return Object.entries(expenseMap).map(([name, value]) => ({
-    name,
-    value,
-    percentage: totalExpense > 0 ? Math.round((value / totalExpense) * 100) : 0,
-    color: colors[colorIdx++ % colors.length],
-  })).sort((a, b) => b.value - a.value);
-};
-
-// Simulation Engine for "What-If" Runway
-export const simulateRunwayScenario = (
-  currentMetrics,
-  {
-    revenueDeltaPct = 0, // e.g. -20% or +30%
-    opexDeltaPct = 0, // e.g. -15% or +25%
-    newHiresCount = 0,
-    newHiresAvgSalary = 10000000,
-    capexAmount = 0,
-    capexMonth = 2,
-    capitalInjection = 0,
-    forecastMonths = 12,
-  }
-) => {
-  const baselineMonthlyIncome = currentMetrics.avgMonthlyIncome;
-  const baselineMonthlyExpense = currentMetrics.avgMonthlyExpense;
-  const initialCash = currentMetrics.totalBalance + capitalInjection;
-
-  const simulatedMonthlyIncome = baselineMonthlyIncome * (1 + revenueDeltaPct / 100);
-  const additionalPayroll = newHiresCount * newHiresAvgSalary;
-  const simulatedMonthlyExpense = baselineMonthlyExpense * (1 + opexDeltaPct / 100) + additionalPayroll;
-
-  const points = [];
-  let currentBaselineCash = currentMetrics.totalBalance;
-  let currentSimulatedCash = initialCash;
-
-  let baselineZeroMonth = null;
-  let simulatedZeroMonth = null;
-
-  for (let m = 0; m <= forecastMonths; m++) {
-    const label = m === 0 ? 'Bulan 0 (Sekarang)' : `Bulan +${m}`;
-
-    if (m > 0) {
-      // Baseline
-      currentBaselineCash += (baselineMonthlyIncome - baselineMonthlyExpense);
-      if (currentBaselineCash <= 0 && baselineZeroMonth === null) {
-        baselineZeroMonth = m;
-      }
-
-      // Simulated
-      let simExpenseThisMonth = simulatedMonthlyExpense;
-      if (m === capexMonth) {
-        simExpenseThisMonth += capexAmount;
-      }
-
-      currentSimulatedCash += (simulatedMonthlyIncome - simExpenseThisMonth);
-      if (currentSimulatedCash <= 0 && simulatedZeroMonth === null) {
-        simulatedZeroMonth = m;
-      }
-    }
-
-    points.push({
-      monthLabel: label,
-      monthIndex: m,
-      baselineCash: Math.round(currentBaselineCash),
-      simulatedCash: Math.round(currentSimulatedCash),
-      isNegative: currentSimulatedCash < 0,
-    });
-  }
-
-  const baselineRunway = baselineZeroMonth ?? (currentMetrics.netBurnRate <= 0 ? 99 : 24);
-  const simulatedRunway = simulatedZeroMonth ?? (simulatedMonthlyExpense <= simulatedMonthlyIncome ? 99 : 24);
-  const runwayDelta = simulatedRunway - baselineRunway;
-
-  return {
-    forecastPoints: points,
-    baselineRunway,
-    simulatedRunway,
-    runwayDelta,
-    simulatedMonthlyIncome,
-    simulatedMonthlyExpense,
-    simulatedNetBurn: simulatedMonthlyExpense - simulatedMonthlyIncome,
-    initialCash,
-  };
-};
-
-// AI CFO Anomaly Detector & Insights
-export const generateCfoInsights = (transactions, metrics) => {
-  const insights = [];
-
-  // Anomaly 1: Cloud or SaaS Spike
-  const cloudTx = transactions.filter((t) => t.category === 'Cloud Infrastructure');
-  const cloudTotal = cloudTx.reduce((acc, t) => acc + Number(t.amount), 0);
-  if (cloudTotal > 10000000) {
-    insights.push({
-      id: 'ins-1',
-      severity: 'warning',
-      category: 'Cloud Infrastructure',
-      title: 'Lonjakan Biaya AI & Cloud Hosting (+28%)',
-      description: 'Pengeluaran AWS & GPU cluster bulan ini mencapai Rp 14.2jt. Ada potensi penghematan 25% dengan menerapkan auto-scaling dan Reserved Instances.',
-      potentialSavingsMonthly: 3500000,
-      runwayExtensionMonths: 0.8,
-      actionPrompt: 'Optimasi AWS & GPU Nodes',
-    });
-  }
-
-  // Anomaly 2: Marketing CAC Efficiency
-  const adsTx = transactions.filter((t) => t.category === 'Marketing & Ads');
-  const adsTotal = adsTx.reduce((acc, t) => acc + Number(t.amount), 0);
-  if (adsTotal > 5000000) {
-    insights.push({
-      id: 'ins-2',
-      severity: 'info',
-      category: 'Marketing Efficiency',
-      title: 'Analisis CAC: Meta vs Google Ads ROI',
-      description: 'Pengeluaran ads Rp 8.75jt menghasilkan 42 trial baru. Disarankan re-alokasi 40% budget ke Google Search Ads yang memiliki rasio konversi 2.4x lebih tinggi.',
-      potentialSavingsMonthly: 2100000,
-      runwayExtensionMonths: 0.5,
-      actionPrompt: 'Re-alokasi Budget Kampanye Ads',
-    });
-  }
-
-  // Anomaly 3: Runway Health
-  if (metrics.runwayMonths < 8 && metrics.runwayMonths > 0) {
-    insights.push({
-      id: 'ins-3',
-      severity: 'danger',
-      category: 'Runway Alert',
-      title: 'Runway Mendekati Batas Kritis (< 8 Bulan)',
-      description: `Runway saat ini diproyeksikan ${metrics.runwayMonths.toFixed(1)} bulan. Segera pertimbangkan pemangkasan OPEX non-esensial atau akselerasi penagihan invoice tertunda.`,
-      potentialSavingsMonthly: 8000000,
-      runwayExtensionMonths: 2.3,
-      actionPrompt: 'Buka Skenario Survival Mode',
-    });
-  } else {
-    insights.push({
-      id: 'ins-3',
-      severity: 'success',
-      category: 'Growth Opportunity',
-      title: 'Arus Kas Stabil: Waktu Tepat untuk Ekspansi Bertahap',
-      description: 'Stabilitas kas memungkinkan perekrutan 1-2 key hires atau investasi software tooling tanpa mengorbankan buffer keamanan 12 bulan.',
-      potentialSavingsMonthly: 0,
-      runwayExtensionMonths: 0,
-      actionPrompt: 'Simulasikan Perekrutan Tim',
-    });
-  }
-
-  return insights;
-};
-
-// AI CFO Chat Consultant Engine (Local Contextual AI)
-export const askAiCfo = async (query, metrics, transactions) => {
-  const q = query.toLowerCase();
-
-  // Simulate AI Thinking Delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  const totalCashFormatted = formatCurrency(metrics.totalBalance);
-  const burnFormatted = formatCurrency(metrics.avgMonthlyExpense);
-  const incomeFormatted = formatCurrency(metrics.avgMonthlyIncome);
-  const runwayFormatted = metrics.runwayMonths > 50 ? 'Stabil / Menguntungkan (Profitable)' : `${metrics.runwayMonths.toFixed(1)} bulan`;
-
-  if (q.includes('runway') || q.includes('bertahan') || q.includes('cash')) {
-    return {
-      text: `Berdasarkan data kas saat ini sebesar **${totalCashFormatted}** dan pengeluaran bulanan rata-rata **${burnFormatted}**, estimasi **Runway bisnis kamu adalah ${runwayFormatted}**.\n\n💡 **Rekomendasi CFO:**\n1. Jika omset turun 20%, runway akan menyusut sekitar 1.8 bulan.\n2. Disarankan menjaga buffer kas minimal 6-12 bulan (${formatCurrency(metrics.avgMonthlyExpense * 6)}).\n3. Gunakan tab **What-If Simulator** untuk menguji skenario penurunan omset secara presisi.`,
-      suggestedAction: 'Buka What-If Simulator',
-    };
-  }
-
-  if (q.includes('hire') || q.includes('rekrut') || q.includes('karyawan') || q.includes('gaji')) {
-    return {
-      text: `Biaya payroll saat ini menyumbang porsi terbesar pengeluaran (${formatCurrency(48000000)}/bulan).\n\nJika kamu merekrut **2 orang baru** dengan rata-rata gaji Rp 10 Juta/bulan:\n- Pengeluaran bulanan naik menjadi **${formatCurrency(metrics.avgMonthlyExpense + 20000000)}**\n- Runway akan berkurang sekitar **1.4 bulan** jika tidak diiringi kenaikan revenue.\n\n✨ **Saran CFO:** Waktu paling aman merekrut adalah ketika MRR / Retainer baru sudah terikat kontrak minimal 6 bulan ke depan.`,
-      suggestedAction: 'Simulasikan Perekrutan Tim',
-    };
-  }
-
-  if (q.includes('hemat') || q.includes('potong') || q.includes('kurang') || q.includes('cost')) {
-    return {
-      text: `Dari analisis audit AI terhadap ${transactions.length} transaksi terakhir, berikut 3 pos pengeluaran yang paling mudah dioptimasi:\n\n1. **Cloud & AI Compute:** Rp 14.2 Jt ➔ Potensi hemat **Rp 3.5 Jt/bln** dengan reserved instances.\n2. **Software SaaS Subscriptions:** Rp 5.4 Jt ➔ Potensi hemat **Rp 1.2 Jt/bln** dari seat user yang tidak aktif.\n3. **Marketing Ads:** Rp 8.75 Jt ➔ Efisiensikan kampanye dengan ROAS terendah.\n\nTotal potensi penghematan: **~Rp 6.8 Juta/bulan** (+1.2 bulan runway tambahan).`,
-      suggestedAction: 'Terapkan Penghematan',
-    };
-  }
-
-  if (q.includes('struk') || q.includes('ocr') || q.includes('invoice') || q.includes('scan')) {
-    return {
-      text: `Fitur **Smart OCR & Vision Receipt Scanner** siap digunakan! Kamu bisa mengambil foto struk atau upload file PDF/gambar invoice. Sistem akan otomatis mengekstrak merchant, pajak, total belanja, dan mengkategorisasikannya langsung ke buku kas tanpa input manual.`,
-      suggestedAction: 'Scan Struk Baru',
-    };
-  }
-
-  // Default smart financial overview response
-  return {
-    text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu. Berikut ringkasan eksekutif kesehatan finansial per hari ini:\n\n- **Total Kas Riil:** ${totalCashFormatted}\n- **Pemasukan Bulanan:** ${incomeFormatted}\n- **Pengeluaran Bulanan:** ${burnFormatted}\n- **Financial Health Score:** ${metrics.healthScore}/100\n- **Status Runway:** ${runwayFormatted}\n\nAda aspek keuangan tertentu yang ingin kita bedah bersama? (misal: simulasi hiring, strategi pemangkasan biaya, atau proyeksi ekspansi)`,
-    suggestedAction: 'Jalankan Simulasi Baru',
-  };
-};
-
-// Preset Sample Receipts for One-Click Scanner Demo
-export const SAMPLE_RECEIPTS = [
+// Sample Receipts by Role
+export const BUSINESS_SAMPLE_RECEIPTS = [
   {
     id: 'sample-aws',
     name: 'Invoice AWS Cloud & AI Hosting',
@@ -635,3 +330,693 @@ export const SAMPLE_RECEIPTS = [
     ],
   },
 ];
+
+export const STUDENT_SAMPLE_RECEIPTS = [
+  {
+    id: 'sample-indomaret',
+    name: 'Struk Belanja Kebutuhan Kost Indomaret',
+    merchant: 'Indomaret Point Kampus',
+    category: 'Kebutuhan Kost & Harian',
+    total: 124500,
+    tax: 12300,
+    date: '2026-09-18',
+    paymentMethod: 'QRIS BCA',
+    confidence: 0.97,
+    items: [
+      { desc: '5x Indomie Goreng Spesial', amount: 17500 },
+      { desc: '1x Sabun Mandi Cair Dettol 450ml', amount: 32000 },
+      { desc: '1x Shampoo Pantene Anti Dandruff', amount: 28500 },
+      { desc: '1x Air Mineral Aqua Galon Isi Ulang', amount: 22000 },
+      { desc: '2x Roti Sobek Coklat Keju', amount: 24500 },
+    ],
+  },
+  {
+    id: 'sample-warteg',
+    name: 'Nota Makan Siang Warteg Bahari',
+    merchant: 'Warteg Bahari Cabang Kampus',
+    category: 'Makan & Minum (Warteg/Kantin)',
+    total: 26000,
+    tax: 0,
+    date: '2026-09-17',
+    paymentMethod: 'Tunai (Cash)',
+    confidence: 0.95,
+    items: [
+      { desc: 'Nasi Putih Porsi Penuh', amount: 6000 },
+      { desc: 'Ayam Goreng Lengkuas', amount: 12000 },
+      { desc: 'Sayur Sop & Tempe Orek', amount: 5000 },
+      { desc: 'Es Teh Manis Jumbo', amount: 3000 },
+    ],
+  },
+  {
+    id: 'sample-kost',
+    name: 'Kwitansi Pembayaran Sewa Kost September',
+    merchant: 'Wisma Melati Kost Mahasiswa',
+    category: 'Sewa Kost & Listrik',
+    total: 950000,
+    tax: 0,
+    date: '2026-09-02',
+    paymentMethod: 'Transfer BCA Mobile',
+    confidence: 0.98,
+    items: [
+      { desc: 'Sewa Kamar Kost Tipe Standar (Bulan September)', amount: 850000 },
+      { desc: 'Iuran Listrik, Air & WiFi Unlimited', amount: 100000 },
+    ],
+  },
+  {
+    id: 'sample-print',
+    name: 'Struk Fotokopi & Jilid Skripsi / Makalah',
+    merchant: 'Percetakan Digital Berkah Kampus',
+    category: 'Akademik, Buku & Print Tugas',
+    total: 38000,
+    tax: 0,
+    date: '2026-09-10',
+    paymentMethod: 'QRIS GoPay',
+    confidence: 0.96,
+    items: [
+      { desc: 'Print Dokumen Warna 40 Lembar', amount: 30000 },
+      { desc: 'Jilid Mika Spiral Kawat', amount: 8000 },
+    ],
+  },
+  {
+    id: 'sample-spotify',
+    name: 'Invoice Spotify Premium Student & Kuota',
+    merchant: 'Spotify AB & MyTelkomsel',
+    category: 'Kuota Internet & Langganan',
+    total: 79000,
+    tax: 7800,
+    date: '2026-09-08',
+    paymentMethod: 'DANA / E-Wallet',
+    confidence: 0.99,
+    items: [
+      { desc: 'Spotify Premium Student Plan (1 Bulan)', amount: 27500 },
+      { desc: 'Paket Internet Kampus Edu 35GB', amount: 51500 },
+    ],
+  },
+];
+
+// Presets by Role
+export const BUSINESS_PRESETS = [
+  {
+    id: 'survival',
+    name: '🛡️ Mode Bertahan',
+    desc: 'Pangkas biaya operasional 25%, freeze hiring, amankan kas',
+    params: { revenueDeltaPct: -5, opexDeltaPct: -25, newHiresCount: 0, newHiresAvgSalary: 10000000, capexAmount: 0, capexMonth: 1, capitalInjection: 0 },
+  },
+  {
+    id: 'aggressive',
+    name: '🚀 Ekspansi Agresif',
+    desc: 'Target omset naik 35%, rekrut 2 anggota baru, upgrade server',
+    params: { revenueDeltaPct: 35, opexDeltaPct: 10, newHiresCount: 2, newHiresAvgSalary: 12000000, capexAmount: 25000000, capexMonth: 2, capitalInjection: 0 },
+  },
+  {
+    id: 'recession',
+    name: '📉 Uji Resesi (-30%)',
+    desc: 'Uji ketahanan jika omset anjlok 30% tanpa efisiensi biaya',
+    params: { revenueDeltaPct: -30, opexDeltaPct: 0, newHiresCount: 0, newHiresAvgSalary: 10000000, capexAmount: 0, capexMonth: 1, capitalInjection: 0 },
+  },
+  {
+    id: 'fundraise',
+    name: '💰 Injeksi Modal Rp 150 Jt',
+    desc: 'Suntikan modal investor Rp 150 Jt + ekspansi pemasaran',
+    params: { revenueDeltaPct: 20, opexDeltaPct: 15, newHiresCount: 1, newHiresAvgSalary: 10000000, capexAmount: 0, capexMonth: 1, capitalInjection: 150000000 },
+  },
+];
+
+export const STUDENT_PRESETS = [
+  {
+    id: 'student-survival',
+    name: '🍜 Survival Tanggal Tua',
+    desc: 'Pangkas jajan kafe 40%, makan warteg/masak, amankan uang saku',
+    params: { revenueDeltaPct: -10, opexDeltaPct: -35, newHiresCount: 0, newHiresAvgSalary: 0, capexAmount: 0, capexMonth: 1, capitalInjection: 0 },
+  },
+  {
+    id: 'student-chill',
+    name: '☕ Santai Awal Bulan',
+    desc: 'Uang kiriman baru masuk, alokasi nongkrong & beli kebutuhan kost',
+    params: { revenueDeltaPct: 15, opexDeltaPct: 20, newHiresCount: 0, newHiresAvgSalary: 0, capexAmount: 150000, capexMonth: 1, capitalInjection: 0 },
+  },
+  {
+    id: 'student-ukt',
+    name: '🎓 Target Nabung UKT / Laptop',
+    desc: 'Simulasi alokasi tabungan disiplin Rp 500rb/bln untuk bayar semesteran',
+    params: { revenueDeltaPct: 25, opexDeltaPct: -20, newHiresCount: 0, newHiresAvgSalary: 0, capexAmount: 2500000, capexMonth: 4, capitalInjection: 500000 },
+  },
+  {
+    id: 'student-freelance',
+    name: '💼 Mahasiswa Freelancer',
+    desc: 'Omset project freelance desain/coding naik +50% untuk nambah tabungan',
+    params: { revenueDeltaPct: 50, opexDeltaPct: 10, newHiresCount: 0, newHiresAvgSalary: 0, capexAmount: 750000, capexMonth: 2, capitalInjection: 300000 },
+  },
+];
+
+// ==========================================
+// 2. Formatters
+// ==========================================
+
+export const formatCurrency = (val) => {
+  if (val === null || val === undefined || isNaN(val)) return 'Rp 0';
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(val);
+};
+
+export const formatShortCurrency = (val) => {
+  if (!val && val !== 0) return '0';
+  const abs = Math.abs(val);
+  const sign = val < 0 ? '-' : '';
+  if (abs >= 1000000000) {
+    return `${sign}Rp ${(abs / 1000000000).toFixed(1)} M`;
+  }
+  if (abs >= 1000000) {
+    return `${sign}Rp ${(abs / 1000000).toFixed(1)} Jt`;
+  }
+  if (abs >= 1000) {
+    return `${sign}Rp ${(abs / 1000).toFixed(0)} Rb`;
+  }
+  return `${sign}Rp ${abs}`;
+};
+
+// ==========================================
+// 3. Storage & Data Management (Role Aware)
+// ==========================================
+
+const getStorageKey = (role = 'business') => `omniledger_transactions_${role}_v2`;
+const getStartingCashKey = (role = 'business') => `omniledger_starting_cash_${role}_v2`;
+
+export const getStoredTransactions = async (userId, role = 'business') => {
+  const initialData = role === 'student' ? INITIAL_STUDENT_TRANSACTIONS : INITIAL_BUSINESS_TRANSACTIONS;
+  const storageKey = getStorageKey(role);
+
+  if (userId) {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('notes_role', role)
+        .order('date', { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        return data;
+      }
+    } catch (e) {
+      console.warn('Supabase fetch fallback to local:', e.message);
+    }
+  }
+
+  const local = localStorage.getItem(storageKey);
+  if (local) {
+    try {
+      return JSON.parse(local);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  localStorage.setItem(storageKey, JSON.stringify(initialData));
+  return initialData;
+};
+
+export const saveTransaction = async (tx, userId, role = 'business') => {
+  const storageKey = getStorageKey(role);
+  const newTx = {
+    ...tx,
+    id: tx.id || `tx-${Date.now()}`,
+    amount: Number(tx.amount) || 0,
+    created_at: new Date().toISOString(),
+  };
+
+  if (userId) {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert([{ ...newTx, user_id: userId, notes_role: role }])
+        .select();
+      if (!error && data && data[0]) {
+        return data[0];
+      }
+    } catch (err) {
+      console.warn('Supabase insert failed, fallback to local storage:', err.message);
+    }
+  }
+
+  const current = await getStoredTransactions(userId, role);
+  const updated = [newTx, ...current];
+  localStorage.setItem(storageKey, JSON.stringify(updated));
+  return newTx;
+};
+
+export const deleteTransaction = async (id, userId, role = 'business') => {
+  const storageKey = getStorageKey(role);
+  if (userId) {
+    try {
+      await supabase.from('transactions').delete().eq('id', id);
+    } catch (e) {
+      console.warn('Supabase delete failed:', e.message);
+    }
+  }
+  const current = await getStoredTransactions(userId, role);
+  const updated = current.filter((t) => t.id !== id);
+  localStorage.setItem(storageKey, JSON.stringify(updated));
+  return updated;
+};
+
+export const getStartingCash = (role = 'business') => {
+  const key = getStartingCashKey(role);
+  const defaultCash = role === 'student' ? DEFAULT_STUDENT_STARTING_CASH : DEFAULT_BUSINESS_STARTING_CASH;
+  const saved = localStorage.getItem(key);
+  return saved ? Number(saved) : defaultCash;
+};
+
+export const setStartingCash = (amount, role = 'business') => {
+  const key = getStartingCashKey(role);
+  localStorage.setItem(key, String(amount));
+};
+
+// ==========================================
+// 4. Analytics & Health Calculation
+// ==========================================
+
+export const calculateFinancialMetrics = (
+  transactions,
+  startingCash = DEFAULT_BUSINESS_STARTING_CASH,
+  role = 'business'
+) => {
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
+  let recentIncome = 0;
+  let recentExpense = 0;
+
+  transactions.forEach((tx) => {
+    const amt = Number(tx.amount) || 0;
+    const txDate = new Date(tx.date);
+
+    if (tx.type === 'income') {
+      totalIncome += amt;
+      if (txDate >= thirtyDaysAgo) recentIncome += amt;
+    } else {
+      totalExpense += amt;
+      if (txDate >= thirtyDaysAgo) recentExpense += amt;
+    }
+  });
+
+  const totalBalance = startingCash + totalIncome - totalExpense;
+  const defaultMonthlyExp = role === 'student' ? 1800000 : 60000000;
+  const defaultMonthlyInc = role === 'student' ? 2500000 : 75000000;
+
+  const avgMonthlyExpense = recentExpense > 0 ? recentExpense : totalExpense / 3 || defaultMonthlyExp;
+  const avgMonthlyIncome = recentIncome > 0 ? recentIncome : totalIncome / 3 || defaultMonthlyInc;
+  const netBurnRate = avgMonthlyExpense - avgMonthlyIncome;
+
+  let runwayMonths = 999;
+  if (netBurnRate > 0) {
+    runwayMonths = Math.max(0, totalBalance / netBurnRate);
+  }
+
+  const profitMargin = avgMonthlyIncome > 0 ? ((avgMonthlyIncome - avgMonthlyExpense) / avgMonthlyIncome) * 100 : 0;
+
+  // Days remaining in month for student daily allowance
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+  const daysRemaining = Math.max(1, daysInMonth - currentDay);
+  const safeDailyAllowance = Math.max(0, Math.round(totalBalance / daysRemaining));
+
+  // Health score calculation
+  let healthScore = 50;
+
+  if (role === 'student') {
+    if (safeDailyAllowance >= 50000) healthScore += 25;
+    else if (safeDailyAllowance >= 30000) healthScore += 15;
+    else if (safeDailyAllowance >= 15000) healthScore += 5;
+    else healthScore -= 25;
+
+    if (totalBalance >= 1500000) healthScore += 15;
+    else if (totalBalance < 300000) healthScore -= 20;
+
+    if (profitMargin >= 0) healthScore += 10;
+    else healthScore -= 10;
+  } else {
+    if (runwayMonths >= 18 || netBurnRate <= 0) healthScore += 25;
+    else if (runwayMonths >= 12) healthScore += 18;
+    else if (runwayMonths >= 6) healthScore += 8;
+    else healthScore -= 20;
+
+    if (profitMargin > 20) healthScore += 20;
+    else if (profitMargin > 0) healthScore += 10;
+    else if (profitMargin > -20) healthScore -= 5;
+    else healthScore -= 20;
+
+    if (totalBalance > 100000000) healthScore += 10;
+    else if (totalBalance < 20000000) healthScore -= 15;
+  }
+
+  healthScore = Math.min(100, Math.max(10, Math.round(healthScore)));
+
+  return {
+    totalBalance,
+    totalIncome,
+    totalExpense,
+    avgMonthlyIncome,
+    avgMonthlyExpense,
+    netBurnRate,
+    runwayMonths,
+    profitMargin,
+    healthScore,
+    safeDailyAllowance,
+    daysRemaining,
+  };
+};
+
+export const generateHistoricalTrend = (transactions, startingCash = DEFAULT_BUSINESS_STARTING_CASH) => {
+  const monthsMap = {};
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+  const now = new Date('2026-09-19');
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${monthNames[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
+    monthsMap[key] = { month: key, income: 0, expense: 0, net: 0, balance: 0 };
+  }
+
+  transactions.forEach((tx) => {
+    const d = new Date(tx.date);
+    const key = `${monthNames[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
+    if (monthsMap[key]) {
+      const amt = Number(tx.amount) || 0;
+      if (tx.type === 'income') {
+        monthsMap[key].income += amt;
+      } else {
+        monthsMap[key].expense += amt;
+      }
+    }
+  });
+
+  let runningBalance = startingCash;
+  const result = Object.values(monthsMap).map((item) => {
+    item.net = item.income - item.expense;
+    runningBalance += item.net;
+    item.balance = runningBalance;
+    return item;
+  });
+
+  return result;
+};
+
+export const generateCategoryBreakdown = (transactions) => {
+  const expenseMap = {};
+  let totalExpense = 0;
+
+  transactions.forEach((tx) => {
+    if (tx.type === 'expense') {
+      const amt = Number(tx.amount) || 0;
+      totalExpense += amt;
+      expenseMap[tx.category] = (expenseMap[tx.category] || 0) + amt;
+    }
+  });
+
+  const colors = ['#38bdf8', '#818cf8', '#a855f7', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#64748b'];
+  let colorIdx = 0;
+
+  return Object.entries(expenseMap).map(([name, value]) => ({
+    name,
+    value,
+    percentage: totalExpense > 0 ? Math.round((value / totalExpense) * 100) : 0,
+    color: colors[colorIdx++ % colors.length],
+  })).sort((a, b) => b.value - a.value);
+};
+
+// ==========================================
+// 5. Simulator Engine
+// ==========================================
+
+export const simulateRunwayScenario = (
+  currentMetrics,
+  {
+    revenueDeltaPct = 0,
+    opexDeltaPct = 0,
+    newHiresCount = 0,
+    newHiresAvgSalary = 10000000,
+    capexAmount = 0,
+    capexMonth = 2,
+    capitalInjection = 0,
+    forecastMonths = 12,
+  }
+) => {
+  const baselineMonthlyIncome = currentMetrics.avgMonthlyIncome;
+  const baselineMonthlyExpense = currentMetrics.avgMonthlyExpense;
+  const initialCash = currentMetrics.totalBalance + capitalInjection;
+
+  const simulatedMonthlyIncome = baselineMonthlyIncome * (1 + revenueDeltaPct / 100);
+  const additionalPayroll = newHiresCount * newHiresAvgSalary;
+  const simulatedMonthlyExpense = baselineMonthlyExpense * (1 + opexDeltaPct / 100) + additionalPayroll;
+
+  const points = [];
+  let currentBaselineCash = currentMetrics.totalBalance;
+  let currentSimulatedCash = initialCash;
+
+  let baselineZeroMonth = null;
+  let simulatedZeroMonth = null;
+
+  for (let m = 0; m <= forecastMonths; m++) {
+    const label = m === 0 ? 'Bulan 0 (Sekarang)' : `Bulan +${m}`;
+
+    if (m > 0) {
+      currentBaselineCash += (baselineMonthlyIncome - baselineMonthlyExpense);
+      if (currentBaselineCash <= 0 && baselineZeroMonth === null) {
+        baselineZeroMonth = m;
+      }
+
+      let simExpenseThisMonth = simulatedMonthlyExpense;
+      if (m === capexMonth) {
+        simExpenseThisMonth += capexAmount;
+      }
+
+      currentSimulatedCash += (simulatedMonthlyIncome - simExpenseThisMonth);
+      if (currentSimulatedCash <= 0 && simulatedZeroMonth === null) {
+        simulatedZeroMonth = m;
+      }
+    }
+
+    points.push({
+      monthLabel: label,
+      monthIndex: m,
+      baselineCash: Math.round(currentBaselineCash),
+      simulatedCash: Math.round(currentSimulatedCash),
+      isNegative: currentSimulatedCash < 0,
+    });
+  }
+
+  const baselineRunway = baselineZeroMonth ?? (currentMetrics.netBurnRate <= 0 ? 99 : 24);
+  const simulatedRunway = simulatedZeroMonth ?? (simulatedMonthlyExpense <= simulatedMonthlyIncome ? 99 : 24);
+  const runwayDelta = simulatedRunway - baselineRunway;
+
+  return {
+    forecastPoints: points,
+    baselineRunway,
+    simulatedRunway,
+    runwayDelta,
+    simulatedMonthlyIncome,
+    simulatedMonthlyExpense,
+    simulatedNetBurn: simulatedMonthlyExpense - simulatedMonthlyIncome,
+    initialCash,
+  };
+};
+
+// ==========================================
+// 6. Insights & AI Advisor
+// ==========================================
+
+export const generateCfoInsights = (transactions, metrics, role = 'business') => {
+  const insights = [];
+
+  if (role === 'student') {
+    // 1. Nongkrong & Kopi Check
+    const cafeTx = transactions.filter((t) => t.category === 'Nongkrong, Kafe & Lifestyle');
+    const cafeTotal = cafeTx.reduce((acc, t) => acc + Number(t.amount), 0);
+    if (cafeTotal > 150000) {
+      insights.push({
+        id: 'ins-stu-1',
+        severity: 'warning',
+        category: 'Lifestyle & Kafe',
+        title: 'Pengeluaran Kopi & Nongkrong Cukup Tinggi',
+        description: `Bulan ini kamu menghabiskan ${formatCurrency(cafeTotal)} untuk kafe/nongkrong. Kurangi 2x nongkrong per minggu untuk menghemat hingga Rp 350rb/bln.`,
+        potentialSavingsMonthly: 350000,
+        runwayExtensionMonths: 1.2,
+        actionPrompt: 'Uji Mode Survival Tanggal Tua',
+      });
+    }
+
+    // 2. Safe Daily Allowance
+    if (metrics.safeDailyAllowance < 30000) {
+      insights.push({
+        id: 'ins-stu-2',
+        severity: 'danger',
+        category: 'Tanggal Tua Alert',
+        title: 'Batas Jajan Harian Kritis (< Rp 30.000/hari)',
+        description: `Sisa saldo kas ${formatCurrency(metrics.totalBalance)} untuk ${metrics.daysRemaining} hari ke depan. Disarankan masak nasi sendiri dan prioritaskan warteg hemat.`,
+        potentialSavingsMonthly: 250000,
+        runwayExtensionMonths: 1.5,
+        actionPrompt: 'Buka Simulator Survival',
+      });
+    } else {
+      insights.push({
+        id: 'ins-stu-2',
+        severity: 'success',
+        category: 'Uang Saku Sehat',
+        title: 'Batas Jajan Harian Aman: Rp ' + metrics.safeDailyAllowance.toLocaleString('id-ID') + '/hari',
+        description: 'Pola pengeluaranmu terjaga dengan baik. Kamu memiliki ruang untuk menabung target UKT semester depan.',
+        potentialSavingsMonthly: 200000,
+        runwayExtensionMonths: 0,
+        actionPrompt: 'Simulasikan Tabungan UKT',
+      });
+    }
+
+    // 3. Langganan Digital
+    const subTx = transactions.filter((t) => t.category === 'Kuota Internet & Langganan');
+    const subTotal = subTx.reduce((acc, t) => acc + Number(t.amount), 0);
+    if (subTotal > 100000) {
+      insights.push({
+        id: 'ins-stu-3',
+        severity: 'info',
+        category: 'Langganan Digital',
+        title: 'Gunakan Paket Edukasi & Diskon Mahasiswa',
+        description: 'Manfaatkan Spotify Student Discount atau WiFi kampus saat download file besar untuk memangkas biaya kuota.',
+        potentialSavingsMonthly: 65000,
+        runwayExtensionMonths: 0.3,
+        actionPrompt: 'Tanya Tips Hemat Mahasiswa',
+      });
+    }
+
+    return insights;
+  }
+
+  // Business Insights
+  const cloudTx = transactions.filter((t) => t.category === 'Cloud Infrastructure');
+  const cloudTotal = cloudTx.reduce((acc, t) => acc + Number(t.amount), 0);
+  if (cloudTotal > 10000000) {
+    insights.push({
+      id: 'ins-1',
+      severity: 'warning',
+      category: 'Cloud Infrastructure',
+      title: 'Lonjakan Biaya AI & Cloud Hosting (+28%)',
+      description: 'Pengeluaran AWS & GPU cluster bulan ini mencapai Rp 14.2jt. Ada potensi penghematan 25% dengan menerapkan auto-scaling dan Reserved Instances.',
+      potentialSavingsMonthly: 3500000,
+      runwayExtensionMonths: 0.8,
+      actionPrompt: 'Optimasi AWS & GPU Nodes',
+    });
+  }
+
+  const adsTx = transactions.filter((t) => t.category === 'Marketing & Ads');
+  const adsTotal = adsTx.reduce((acc, t) => acc + Number(t.amount), 0);
+  if (adsTotal > 5000000) {
+    insights.push({
+      id: 'ins-2',
+      severity: 'info',
+      category: 'Marketing Efficiency',
+      title: 'Analisis CAC: Meta vs Google Ads ROI',
+      description: 'Pengeluaran ads Rp 8.75jt menghasilkan 42 trial baru. Disarankan re-alokasi 40% budget ke Google Search Ads yang memiliki rasio konversi 2.4x lebih tinggi.',
+      potentialSavingsMonthly: 2100000,
+      runwayExtensionMonths: 0.5,
+      actionPrompt: 'Re-alokasi Budget Kampanye Ads',
+    });
+  }
+
+  if (metrics.runwayMonths < 8 && metrics.runwayMonths > 0) {
+    insights.push({
+      id: 'ins-3',
+      severity: 'danger',
+      category: 'Runway Alert',
+      title: 'Runway Mendekati Batas Kritis (< 8 Bulan)',
+      description: `Runway saat ini diproyeksikan ${metrics.runwayMonths.toFixed(1)} bulan. Segera pertimbangkan pemangkasan OPEX non-esensial atau akselerasi penagihan invoice tertunda.`,
+      potentialSavingsMonthly: 8000000,
+      runwayExtensionMonths: 2.3,
+      actionPrompt: 'Buka Skenario Survival Mode',
+    });
+  } else {
+    insights.push({
+      id: 'ins-3',
+      severity: 'success',
+      category: 'Growth Opportunity',
+      title: 'Arus Kas Stabil: Waktu Tepat untuk Ekspansi Bertahap',
+      description: 'Stabilitas kas memungkinkan perekrutan 1-2 key hires atau investasi software tooling tanpa mengorbankan buffer keamanan 12 bulan.',
+      potentialSavingsMonthly: 0,
+      runwayExtensionMonths: 0,
+      actionPrompt: 'Simulasikan Perekrutan Tim',
+    });
+  }
+
+  return insights;
+};
+
+export const askAiCfo = async (query, metrics, transactions, role = 'business') => {
+  const q = query.toLowerCase();
+  await new Promise((resolve) => setTimeout(resolve, 750));
+
+  const totalCashFormatted = formatCurrency(metrics.totalBalance);
+  const burnFormatted = formatCurrency(metrics.avgMonthlyExpense);
+  const incomeFormatted = formatCurrency(metrics.avgMonthlyIncome);
+
+  if (role === 'student') {
+    const dailySafeFormatted = formatCurrency(metrics.safeDailyAllowance);
+
+    if (q.includes('tanggal tua') || q.includes('hemat') || q.includes('makan') || q.includes('warteg') || q.includes('bertahan')) {
+      return {
+        text: `Halo sobat mahasiswa! Berikut **Life Hacks Survival Tanggal Tua** dari data uangmu:\n\n1. **Batas Jajan Harian:** Usahakan maksimal **${dailySafeFormatted}/hari** agar cukup sampai akhir bulan.\n2. **Makan Hemat & Bergizi:** Belanja telur, tahu, tempe di warung terdekat dan masak nasi di rice cooker kost (hemat ~Rp 18.000/hari).\n3. **Kopi & Nongkrong:** Beralih seduh kopi sendiri di kost sebelum berangkat kuliah.\n4. **Manfaatkan Fasilitas Kampus:** Gunakan dispenser air minum dan WiFi perpustakaan kampus.`,
+        suggestedAction: 'Buka Simulator Survival Tanggal Tua',
+      };
+    }
+
+    if (q.includes('ukt') || q.includes('nabung') || q.includes('laptop') || q.includes('target')) {
+      return {
+        text: `Rencana yang keren! Menabung saat kuliah butuh strategi alokasi yang konsisten:\n\n- **Target Nabung UKT / Laptop:** Sisihkan minimal **20% dari setiap kiriman/gaji freelance** langsung di awal bulan ke rekening tabungan terpisah.\n- Jika uang saku Rp 2.5 Jt + freelance Rp 1 Jt, kamu bisa menyisihkan **Rp 700.000/bulan** (terkumpul Rp 4.2 Jt dalam 6 bulan untuk bayar UKT!).\n\n💡 Kamu bisa simulasikan target tabungan ini di tab **Simulator**!`,
+        suggestedAction: 'Simulasikan Target Nabung',
+      };
+    }
+
+    if (q.includes('freelance') || q.includes('penghasilan') || q.includes('kerja') || q.includes('part-time')) {
+      return {
+        text: `Menambah pemasukan sampingan adalah cara tercepat meningkatkan saldo mahasiswa:\n\n- **Jasa Desain / UI/UX / Joki Koding:** Pasang portofolio di LinkedIn/Fastwork.\n- **Asisten Dosen / Lab:** Cari info lowongan asdos di fakultas (honor ~Rp 500rb - 800rb/bulan).\n- **Jualan Snack / Merchandise Kampus:** Potensi tambahan uang jajan mingguan.\n\nSetiap tambahan Rp 500rb/bulan akan meningkatkan batas jajan harianmu sebesar +Rp 16.500/hari!`,
+        suggestedAction: 'Uji Skenario Freelancer',
+      };
+    }
+
+    return {
+      text: `Halo! Saya **AI Financial Mentor** mahasiswa kamu 🎓.\n\nBerikut ringkasan kondisi dompetmu saat ini:\n- **Sisa Uang Saku & Saldo:** ${totalCashFormatted}\n- **Batas Jajan Aman Hari Ini:** ${dailySafeFormatted}/hari\n- **Skor Ketahanan Dompet:** ${metrics.healthScore}/100\n- **Sisa Waktu Menuju Akhir Bulan:** ${metrics.daysRemaining} hari lagi\n\nAda yang mau kamu tanyakan seputar jajan hemat, nabung UKT, atau tips anak kost?`,
+      suggestedAction: 'Buka Simulator Mahasiswa',
+    };
+  }
+
+  // Business CFO Responses
+  const runwayFormatted = metrics.runwayMonths > 50 ? 'Stabil / Menguntungkan (Profitable)' : `${metrics.runwayMonths.toFixed(1)} bulan`;
+
+  if (q.includes('runway') || q.includes('bertahan') || q.includes('cash')) {
+    return {
+      text: `Berdasarkan data kas saat ini sebesar **${totalCashFormatted}** dan pengeluaran bulanan rata-rata **${burnFormatted}**, estimasi **Runway bisnis kamu adalah ${runwayFormatted}**.\n\n💡 **Rekomendasi CFO:**\n1. Jika omset turun 20%, runway akan menyusut sekitar 1.8 bulan.\n2. Disarankan menjaga buffer kas minimal 6-12 bulan (${formatCurrency(metrics.avgMonthlyExpense * 6)}).\n3. Gunakan tab **What-If Simulator** untuk menguji skenario penurunan omset secara presisi.`,
+      suggestedAction: 'Buka What-If Simulator',
+    };
+  }
+
+  if (q.includes('hire') || q.includes('rekrut') || q.includes('karyawan') || q.includes('gaji')) {
+    return {
+      text: `Biaya payroll saat ini menyumbang porsi terbesar pengeluaran (${formatCurrency(48000000)}/bulan).\n\nJika kamu merekrut **2 orang baru** dengan rata-rata gaji Rp 10 Juta/bulan:\n- Pengeluaran bulanan naik menjadi **${formatCurrency(metrics.avgMonthlyExpense + 20000000)}**\n- Runway akan berkurang sekitar **1.4 bulan** jika tidak diiringi kenaikan revenue.\n\n✨ **Saran CFO:** Waktu paling aman merekrut adalah ketika MRR / Retainer baru sudah terikat kontrak minimal 6 bulan ke depan.`,
+      suggestedAction: 'Simulasikan Perekrutan Tim',
+    };
+  }
+
+  if (q.includes('hemat') || q.includes('potong') || q.includes('kurang') || q.includes('cost')) {
+    return {
+      text: `Dari analisis audit AI terhadap ${transactions.length} transaksi terakhir, berikut 3 pos pengeluaran yang paling mudah dioptimasi:\n\n1. **Cloud & AI Compute:** Rp 14.2 Jt ➔ Potensi hemat **Rp 3.5 Jt/bln** dengan reserved instances.\n2. **Software SaaS Subscriptions:** Rp 5.4 Jt ➔ Potensi hemat **Rp 1.2 Jt/bln** dari seat user yang tidak aktif.\n3. **Marketing Ads:** Rp 8.75 Jt ➔ Efisiensikan kampanye dengan ROAS terendah.\n\nTotal potensi penghematan: **~Rp 6.8 Juta/bulan** (+1.2 bulan runway tambahan).`,
+      suggestedAction: 'Terapkan Penghematan',
+    };
+  }
+
+  return {
+    text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu. Berikut ringkasan eksekutif kesehatan finansial per hari ini:\n\n- **Total Kas Riil:** ${totalCashFormatted}\n- **Pemasukan Bulanan:** ${incomeFormatted}\n- **Pengeluaran Bulanan:** ${burnFormatted}\n- **Financial Health Score:** ${metrics.healthScore}/100\n- **Status Runway:** ${runwayFormatted}\n\nAda aspek keuangan tertentu yang ingin kita bedah bersama? (misal: simulasi hiring, strategi pemangkasan biaya, atau proyeksi ekspansi)`,
+    suggestedAction: 'Jalankan Simulasi Baru',
+  };
+};

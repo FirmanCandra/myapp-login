@@ -11,11 +11,12 @@ import {
   HiOutlineArrowLeft,
   HiOutlineCheckCircle,
   HiOutlineLightBulb,
+  HiOutlineAcademicCap,
 } from 'react-icons/hi';
 import confetti from 'canvas-confetti';
 import './OnboardingModal.css';
 
-const TUTORIAL_STEPS = [
+const BUSINESS_TUTORIAL_STEPS = [
   {
     id: 'welcome',
     badge: 'Selamat Datang',
@@ -177,7 +178,159 @@ const TUTORIAL_STEPS = [
   },
 ];
 
-const OnboardingModal = ({ isOpen, onClose, onNavigateTab }) => {
+const STUDENT_TUTORIAL_STEPS = [
+  {
+    id: 'welcome-student',
+    badge: 'Mode Mahasiswa',
+    title: 'Selamat Datang di OmniLedger Mahasiswa! 🎓',
+    subtitle: 'Student Survival OS untuk Mengelola Uang Saku, Kost, & Tabungan UKT',
+    icon: HiOutlineAcademicCap,
+    iconColor: 'primary',
+    content: (
+      <div className="step-welcome-box">
+        <p className="step-intro-text">
+          OmniLedger Mode Mahasiswa dirancang khusus agar kamu bisa mengontrol uang saku kiriman, jajan warteg, sewa kost, dan target bayar UKT tanpa takut kehabisan uang di tanggal tua!
+        </p>
+        <div className="onboarding-feature-pills">
+          <div className="feature-pill-item">
+            <span className="pill-dot primary" />
+            <span><strong>Batas Jajan Harian (Safe Daily):</strong> Tahu persis batas aman jajan per hari</span>
+          </div>
+          <div className="feature-pill-item">
+            <span className="pill-dot emerald" />
+            <span><strong>Scan Bon & Nota Kost:</strong> Foto bon warteg, Indomaret, & kwitansi sewa kost</span>
+          </div>
+          <div className="feature-pill-item">
+            <span className="pill-dot purple" />
+            <span><strong>Simulator Survival Tanggal Tua:</strong> Uji skenario hemat makan & freelance</span>
+          </div>
+          <div className="feature-pill-item">
+            <span className="pill-dot amber" />
+            <span><strong>AI Financial Mentor:</strong> Tanya tips hemat anak kost & strategi nabung UKT</span>
+          </div>
+        </div>
+      </div>
+    ),
+    tip: '💡 Kamu bisa beralih antara Mode Mahasiswa dan Mode Bisnis kapan saja di tombol atas navigasi.',
+  },
+  {
+    id: 'overview-student',
+    badge: 'Fitur 1 dari 5',
+    title: '1. Sisa Uang Saku & Batas Jajan Harian',
+    subtitle: 'Cek kondisi dompet dan batas aman jajan hari ini',
+    icon: HiOutlineViewGrid,
+    iconColor: 'primary',
+    content: (
+      <div className="step-content-grid">
+        <ul className="step-points-list">
+          <li>
+            <strong>Batas Jajan Harian Aman (*Safe Daily*):</strong> Otomatis menghitung sisa saldo dibagi sisa hari sampai akhir bulan agar uangmu tidak habis sebelum kiriman baru.
+          </li>
+          <li>
+            <strong>Ketahanan Dompet:</strong> Ketahui berapa hari lagi dompetmu mampu bertahan dengan pola jajan saat ini.
+          </li>
+          <li>
+            <strong>Skor Ketahanan (0–100):</strong> Indikator cerdas kesehatan finansial anak kost.
+          </li>
+        </ul>
+      </div>
+    ),
+    actionTab: 'overview',
+    actionLabel: 'Lihat Tab Uang Saku',
+  },
+  {
+    id: 'scanner-student',
+    badge: 'Fitur 2 dari 5',
+    title: '2. Scan Bon Warteg, Struk & Kwitansi Kost',
+    subtitle: 'Foto struk belanja tanpa repot mencatat manual',
+    icon: HiOutlineDocumentSearch,
+    iconColor: 'emerald',
+    content: (
+      <div className="step-content-grid">
+        <ul className="step-points-list">
+          <li>
+            <strong>Foto Bon & Nota:</strong> Foto nota makan warteg, struk belanja Indomaret, fotokopi tugas, atau kwitansi kost.
+          </li>
+          <li>
+            <strong>Ekstraksi Otomatis:</strong> AI membaca total harga, nama warung, dan memasukkannya ke kategori yang sesuai (Makan & Minum, Kost, dll).
+          </li>
+        </ul>
+      </div>
+    ),
+    actionTab: 'scanner',
+    actionLabel: 'Coba Scan Bon',
+  },
+  {
+    id: 'simulator-student',
+    badge: 'Fitur 3 dari 5',
+    title: '3. Simulator Survival Tanggal Tua & UKT',
+    subtitle: 'Uji strategi hemat dan rencana tabungan semesteran',
+    icon: HiOutlineCalculator,
+    iconColor: 'purple',
+    content: (
+      <div className="step-content-grid">
+        <ul className="step-points-list">
+          <li>
+            <strong>Preset Khusus Mahasiswa:</strong> <em>Survival Tanggal Tua</em>, <em>Santai Awal Bulan</em>, <em>Target Nabung UKT / Laptop</em>, & <em>Mahasiswa Freelancer</em>.
+          </li>
+          <li>
+            <strong>Simulasi Wishlist & Bantuan:</strong> Uji apakah aman membeli HP baru atau bayar UKT dengan alokasi tabunganmu.
+          </li>
+        </ul>
+      </div>
+    ),
+    actionTab: 'simulator',
+    actionLabel: 'Buka Simulator',
+  },
+  {
+    id: 'cfo-student',
+    badge: 'Fitur 4 dari 5',
+    title: '4. AI Financial Mentor Mahasiswa',
+    subtitle: 'Teman diskusi finansial pintar untuk tips anak kost',
+    icon: HiOutlineChatAlt2,
+    iconColor: 'amber',
+    content: (
+      <div className="step-content-grid">
+        <ul className="step-points-list">
+          <li>
+            <strong>Life Hacks Hemat:</strong> Tips masak nasi di kost, diskon Spotify Student, dan maksimalkan WiFi kampus.
+          </li>
+          <li>
+            <strong>Chat AI Mentor:</strong> Tanya rekomendasi menu makan hemat, cara cari project freelance, atau cara nabung UKT.
+          </li>
+        </ul>
+      </div>
+    ),
+    actionTab: 'cfo',
+    actionLabel: 'Tanya Mentor AI',
+  },
+  {
+    id: 'ledger-student',
+    badge: 'Fitur 5 dari 5',
+    title: '5. Buku Kas & Catatan Uang Saku',
+    subtitle: 'Rekap lengkap semua pengeluaran dan kiriman',
+    icon: HiOutlineBookOpen,
+    iconColor: 'primary',
+    content: (
+      <div className="step-content-grid">
+        <ul className="step-points-list">
+          <li>
+            <strong>Kategori Mahasiswa Lengkap:</strong> Uang saku, freelance, warteg, sewa kost, kuota, print tugas, hingga tabungan UKT.
+          </li>
+          <li>
+            <strong>Ekspor Data:</strong> Unduh rekap keuangan ke file CSV kapan saja.
+          </li>
+        </ul>
+      </div>
+    ),
+    actionTab: 'ledger',
+    actionLabel: 'Buka Buku Kas',
+  },
+];
+
+const OnboardingModal = ({ isOpen, role = 'business', onClose, onNavigateTab }) => {
+  const isStudent = role === 'student';
+  const steps = isStudent ? STUDENT_TUTORIAL_STEPS : BUSINESS_TUTORIAL_STEPS;
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
@@ -185,13 +338,13 @@ const OnboardingModal = ({ isOpen, onClose, onNavigateTab }) => {
     if (isOpen) {
       setCurrentStepIndex(0);
     }
-  }, [isOpen]);
+  }, [isOpen, role]);
 
   if (!isOpen) return null;
 
-  const currentStep = TUTORIAL_STEPS[currentStepIndex];
+  const currentStep = steps[currentStepIndex] || steps[0];
   const isFirstStep = currentStepIndex === 0;
-  const isLastStep = currentStepIndex === TUTORIAL_STEPS.length - 1;
+  const isLastStep = currentStepIndex === steps.length - 1;
   const IconComponent = currentStep.icon;
 
   const handleNext = () => {
@@ -233,7 +386,7 @@ const OnboardingModal = ({ isOpen, onClose, onNavigateTab }) => {
         <div className="onboarding-progress-bar">
           <div
             className="onboarding-progress-fill"
-            style={{ width: `${((currentStepIndex + 1) / TUTORIAL_STEPS.length) * 100}%` }}
+            style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
           />
         </div>
 
@@ -302,7 +455,7 @@ const OnboardingModal = ({ isOpen, onClose, onNavigateTab }) => {
 
           {/* Dots Indicator */}
           <div className="onboarding-dots-row">
-            {TUTORIAL_STEPS.map((_, idx) => (
+            {steps.map((_, idx) => (
               <button
                 key={idx}
                 className={`onboarding-dot ${idx === currentStepIndex ? 'active' : ''}`}

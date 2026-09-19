@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   HiOutlineX,
   HiOutlinePlusCircle,
@@ -10,30 +10,36 @@ import {
   HiOutlineAnnotation,
 } from 'react-icons/hi';
 import confetti from 'canvas-confetti';
+import { BUSINESS_CATEGORIES, STUDENT_CATEGORIES } from '../services/financeService';
 import './ReceiptScanner.css'; // Shared modal CSS
 
-const CATEGORIES = [
-  'Client Revenue',
-  'Subscription MRR',
-  'Cloud Infrastructure',
-  'Payroll',
-  'Marketing & Ads',
-  'Office & Utilities',
-  'Software & Tools',
-  'Equipment & Capex',
-  'Legal & Accounting',
-  'Miscellaneous',
-];
+const TransactionModal = ({ isOpen, role = 'business', onClose, onSave }) => {
+  const isStudent = role === 'student';
+  const categories = isStudent ? STUDENT_CATEGORIES : BUSINESS_CATEGORIES;
 
-const TransactionModal = ({ isOpen, onClose, onSave }) => {
   const [title, setTitle] = useState('');
   const [type, setType] = useState('expense'); // 'income' | 'expense'
-  const [category, setCategory] = useState('Office & Utilities');
+  const [category, setCategory] = useState(() =>
+    isStudent ? 'Makan & Minum (Warteg/Kantin)' : 'Office & Utilities'
+  );
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [paymentMethod, setPaymentMethod] = useState('Bank Transfer');
+  const [paymentMethod, setPaymentMethod] = useState(() =>
+    isStudent ? 'QRIS BCA' : 'Bank Transfer (BCA)'
+  );
   const [merchant, setMerchant] = useState('');
   const [notes, setNotes] = useState('');
+
+  // Reset defaults on role switch
+  useEffect(() => {
+    if (isStudent) {
+      setCategory(type === 'income' ? 'Uang Saku & Kiriman Ortu' : 'Makan & Minum (Warteg/Kantin)');
+      setPaymentMethod('QRIS BCA');
+    } else {
+      setCategory(type === 'income' ? 'Client Revenue' : 'Office & Utilities');
+      setPaymentMethod('Bank Transfer (BCA)');
+    }
+  }, [isStudent, type]);
 
   if (!isOpen) return null;
 
@@ -71,8 +77,12 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
               <HiOutlinePlusCircle />
             </div>
             <div>
-              <h3>Catat Transaksi Manual</h3>
-              <p>Tambahkan mutasi pemasukan atau pengeluaran ke buku kas</p>
+              <h3>{isStudent ? 'Catat Uang Saku & Pengeluaran' : 'Catat Transaksi Manual'}</h3>
+              <p>
+                {isStudent
+                  ? 'Catat uang masuk atau jajan harian ke buku kas digital'
+                  : 'Tambahkan mutasi pemasukan atau pengeluaran ke buku kas'}
+              </p>
             </div>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Tutup modal">
@@ -89,32 +99,38 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
                 className={`filter-pill ${type === 'expense' ? 'expense active' : ''}`}
                 onClick={() => {
                   setType('expense');
-                  setCategory('Office & Utilities');
+                  setCategory(isStudent ? 'Makan & Minum (Warteg/Kantin)' : 'Office & Utilities');
                 }}
               >
-                - Pengeluaran (Expense)
+                - Pengeluaran (Keluar)
               </button>
               <button
                 type="button"
                 className={`filter-pill ${type === 'income' ? 'income active' : ''}`}
                 onClick={() => {
                   setType('income');
-                  setCategory('Client Revenue');
+                  setCategory(isStudent ? 'Uang Saku & Kiriman Ortu' : 'Client Revenue');
                 }}
               >
-                + Pemasukan (Income)
+                + Pemasukan (Masuk)
               </button>
             </div>
           </div>
 
           <div className="form-row">
-            <label>Judul Transaksi</label>
+            <label>{isStudent ? 'Judul / Keperluan' : 'Judul Transaksi'}</label>
             <input
               type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contoh: Pembayaran Langganan Client Q3"
+              placeholder={
+                isStudent
+                  ? type === 'income'
+                    ? 'Contoh: Kiriman Uang Saku Bulanan dari Ortu'
+                    : 'Contoh: Makan Siang Nasi Ayam Warteg'
+                  : 'Contoh: Pembayaran Langganan Client Q3'
+              }
               className="form-input"
             />
           </div>
@@ -133,13 +149,13 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
             </div>
 
             <div className="form-row">
-              <label><HiOutlineTag /> Kategori</label>
+              <label><HiOutlineTag /> Pos Kategori</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="form-input"
               >
-                {CATEGORIES.map((c) => (
+                {categories.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
@@ -165,24 +181,36 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
                 onChange={(e) => setPaymentMethod(e.target.value)}
                 className="form-input"
               >
-                <option value="Bank Transfer (BCA)">Bank Transfer (BCA)</option>
-                <option value="Bank Transfer (Mandiri)">Bank Transfer (Mandiri)</option>
-                <option value="Corporate Card">Corporate Card</option>
-                <option value="QRIS BCA">QRIS / E-Wallet</option>
-                <option value="Payment Gateway">Payment Gateway</option>
-                <option value="Petty Cash">Kas Kecil (Cash)</option>
+                {isStudent ? (
+                  <>
+                    <option value="QRIS BCA">QRIS / E-Wallet (GoPay, OVO, Dana)</option>
+                    <option value="Transfer BCA Mobile">Transfer BCA Mobile</option>
+                    <option value="Transfer Bank Mandiri">Transfer Livin Mandiri</option>
+                    <option value="Transfer Bank BNI">Transfer BNI Mobile</option>
+                    <option value="Tunai (Cash)">Tunai / Uang Cash</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Bank Transfer (BCA)">Bank Transfer (BCA)</option>
+                    <option value="Bank Transfer (Mandiri)">Bank Transfer (Mandiri)</option>
+                    <option value="Corporate Card">Corporate Card</option>
+                    <option value="QRIS BCA">QRIS / E-Wallet</option>
+                    <option value="Payment Gateway">Payment Gateway</option>
+                    <option value="Petty Cash">Kas Kecil (Cash)</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
 
           <div className="form-grid-2">
             <div className="form-row">
-              <label><HiOutlineOfficeBuilding /> Vendor / Pihak Kedua</label>
+              <label><HiOutlineOfficeBuilding /> {isStudent ? 'Tempat / Sumber Uang' : 'Vendor / Pihak Kedua'}</label>
               <input
                 type="text"
                 value={merchant}
                 onChange={(e) => setMerchant(e.target.value)}
-                placeholder="Contoh: PT Solusi Nusantara"
+                placeholder={isStudent ? 'Contoh: Warteg Bahari / Orang Tua' : 'Contoh: PT Solusi Nusantara'}
                 className="form-input"
               />
             </div>
@@ -193,7 +221,7 @@ const TransactionModal = ({ isOpen, onClose, onSave }) => {
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Opsional"
+                placeholder="Opsional (misal: patungan sama temen)"
                 className="form-input"
               />
             </div>

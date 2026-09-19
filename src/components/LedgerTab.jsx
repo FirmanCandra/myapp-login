@@ -10,7 +10,8 @@ import {
 import { formatCurrency } from '../services/financeService';
 import './Ledger.css';
 
-const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => {
+const LedgerTab = ({ transactions, role = 'business', onDeleteTx, onOpenNewTx, onOpenScanner }) => {
+  const isStudent = role === 'student';
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'income' | 'expense'
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -76,7 +77,7 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `omniledger_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `omniledger_${role}_export_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -90,8 +91,12 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
       {/* 1. Header & Quick Summary */}
       <div className="ledger-header-card glass-panel">
         <div className="ledger-header-left">
-          <h2>Buku Kas</h2>
-          <p>Catatan pemasukan dan pengeluaran lengkap dengan kategori dan filter</p>
+          <h2>{isStudent ? 'Buku Kas & Dompet Mahasiswa' : 'Buku Kas'}</h2>
+          <p>
+            {isStudent
+              ? 'Catatan uang saku, freelance, makan warteg, dan sewa kost lengkap dengan kategori'
+              : 'Catatan pemasukan dan pengeluaran lengkap dengan kategori dan filter'}
+          </p>
         </div>
 
         <div className="ledger-header-actions">
@@ -101,11 +106,11 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
           </button>
           <button className="btn-secondary-glass" onClick={onOpenScanner}>
             <HiOutlineDocumentSearch />
-            <span>Scan Struk</span>
+            <span>{isStudent ? 'Scan Bon/Struk' : 'Scan Struk'}</span>
           </button>
           <button className="btn-primary-gradient" onClick={onOpenNewTx}>
             <HiOutlinePlus />
-            <span>Catat Transaksi</span>
+            <span>{isStudent ? 'Catat Uang/Jajan' : 'Catat Transaksi'}</span>
           </button>
         </div>
       </div>
@@ -116,7 +121,7 @@ const LedgerTab = ({ transactions, onDeleteTx, onOpenNewTx, onOpenScanner }) => 
           <HiOutlineSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Cari transaksi, merchant, catatan..."
+            placeholder={isStudent ? 'Cari jajan, warung, catatan...' : 'Cari transaksi, merchant, catatan...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="ledger-search-input"

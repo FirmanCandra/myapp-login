@@ -10,24 +10,45 @@ import {
   HiOutlineArrowRight,
   HiOutlineServer,
   HiOutlineUserGroup,
+  HiOutlineAcademicCap,
+  HiOutlineBookOpen,
 } from 'react-icons/hi';
 import confetti from 'canvas-confetti';
 import { askAiCfo, formatCurrency } from '../services/financeService';
 import './CfoAdvisor.css';
 
-const QUICK_PROMPTS = [
+const BUSINESS_QUICK_PROMPTS = [
   'Berapa lama bisnis bertahan kalau omset turun 20%?',
   'Kapan waktu paling aman untuk rekrut 2 developer baru?',
   'Bagaimana strategi memangkas biaya agar runway > 18 bulan?',
   'Analisis efisiensi pengeluaran Cloud AWS & AI Compute',
 ];
 
-const CfoAdvisorTab = ({ metrics, transactions, onNavigateTab }) => {
-  const [messages, setMessages] = useState([
+const STUDENT_QUICK_PROMPTS = [
+  'Tips bertahan di tanggal tua & makan hemat',
+  'Bagaimana cara konsisten menabung untuk bayar UKT?',
+  'Berapa batas jajan harian aman saya saat ini?',
+  'Strategi cari cuan freelance desain / coding',
+];
+
+const CfoAdvisorTab = ({ metrics, transactions, role = 'business', onNavigateTab }) => {
+  const isStudent = role === 'student';
+  const quickPrompts = isStudent ? STUDENT_QUICK_PROMPTS : BUSINESS_QUICK_PROMPTS;
+
+  const [messages, setMessages] = useState(() => [
     {
       id: 'msg-init',
       sender: 'cfo',
-      text: `Halo! Ini ringkasan kondisi keuangan kamu berdasarkan **${transactions.length} transaksi** yang tercatat.
+      text: isStudent
+        ? `Halo sobat mahasiswa! 🎓 Ini ringkasan kondisi dompet & uang sakumu berdasarkan **${transactions.length} mutasi** yang tercatat:
+
+**Sisa Uang Saku & Tabungan:** ${formatCurrency(metrics.totalBalance)}
+**Batas Jajan Harian Aman:** ${formatCurrency(metrics.safeDailyAllowance)}/hari
+**Skor Ketahanan Dompet:** ${metrics.healthScore}/100
+**Sisa Waktu Bulan Ini:** ${metrics.daysRemaining} hari lagi
+
+Ada yang mau kamu tanyakan seputar jajan hemat, tips anak kost, atau strategi bayar UKT?`
+        : `Halo! Ini ringkasan kondisi keuangan bisnis kamu berdasarkan **${transactions.length} transaksi** yang tercatat:
 
 **Saldo kas:** ${formatCurrency(metrics.totalBalance)}
 **Status arus kas:** ${metrics.profitMargin >= 0 ? 'Surplus (+)' : 'Pengeluaran lebih besar (-)'}
@@ -45,6 +66,34 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
 
   const chatEndRef = useRef(null);
   const msgCounterRef = useRef(10);
+
+  // Re-initialize greeting when role changes
+  useEffect(() => {
+    setMessages([
+      {
+        id: `msg-init-${role}`,
+        sender: 'cfo',
+        text: isStudent
+          ? `Halo sobat mahasiswa! 🎓 Ini ringkasan kondisi dompet & uang sakumu berdasarkan **${transactions.length} mutasi** yang tercatat:
+
+**Sisa Uang Saku & Tabungan:** ${formatCurrency(metrics.totalBalance)}
+**Batas Jajan Harian Aman:** ${formatCurrency(metrics.safeDailyAllowance)}/hari
+**Skor Ketahanan Dompet:** ${metrics.healthScore}/100
+**Sisa Waktu Bulan Ini:** ${metrics.daysRemaining} hari lagi
+
+Ada yang mau kamu tanyakan seputar jajan hemat, tips anak kost, atau strategi bayar UKT?`
+          : `Halo! Ini ringkasan kondisi keuangan bisnis kamu berdasarkan **${transactions.length} transaksi** yang tercatat:
+
+**Saldo kas:** ${formatCurrency(metrics.totalBalance)}
+**Status arus kas:** ${metrics.profitMargin >= 0 ? 'Surplus (+)' : 'Pengeluaran lebih besar (-)'}
+**Skor kesehatan:** ${metrics.healthScore}/100
+**Potensi penghematan:** ~Rp 6.8 Juta/bulan
+
+Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
+        time: 'Baru saja',
+      },
+    ]);
+  }, [role, transactions.length, metrics.totalBalance, metrics.safeDailyAllowance, metrics.healthScore, metrics.daysRemaining, metrics.profitMargin, isStudent]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -67,7 +116,7 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
     setIsThinking(true);
 
     try {
-      const reply = await askAiCfo(q, metrics, transactions);
+      const reply = await askAiCfo(q, metrics, transactions, role);
       msgCounterRef.current += 1;
       const cfoMsg = {
         id: `msg-${msgCounterRef.current}`,
@@ -95,29 +144,32 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
       <div className="cfo-banner-card glass-panel">
         <div className="cfo-banner-left">
           <div className="cfo-avatar-pulse">
-            <HiOutlineSparkles />
+            {isStudent ? <HiOutlineAcademicCap /> : <HiOutlineSparkles />}
           </div>
           <div>
             <div className="cfo-badge-row">
-              <span className="glass-pill pill-purple">Konsultan Keuangan</span>
+              <span className={`glass-pill ${isStudent ? 'pill-primary' : 'pill-purple'}`}>
+                {isStudent ? 'AI Financial Mentor' : 'Konsultan Keuangan'}
+              </span>
             </div>
-            <h2>Analisis & Rekomendasi Keuangan</h2>
+            <h2>{isStudent ? 'Tips & Strategi Dompet Mahasiswa' : 'Analisis & Rekomendasi Keuangan'}</h2>
             <p>
-              Temuan inefisiensi pengeluaran, prediksi titik kritis kas, dan rekomendasi alokasi modal
-              berdasarkan data pembukuan.
+              {isStudent
+                ? 'Life hacks survival anak kost, batas jajan harian, dan strategi menabung UKT berdasarkan mutasi pengeluaranmu.'
+                : 'Temuan inefisiensi pengeluaran, prediksi titik kritis kas, dan rekomendasi alokasi modal berdasarkan data pembukuan.'}
             </p>
           </div>
         </div>
 
         <div className="cfo-banner-stats">
           <div className="stat-pill-box">
-            <span className="label">Total Kas</span>
+            <span className="label">{isStudent ? 'Sisa Saldo Dompet' : 'Total Kas'}</span>
             <span className="val">{formatCurrency(metrics.totalBalance)}</span>
           </div>
           <div className="stat-pill-box">
-            <span className="label">Potensi Hemat</span>
+            <span className="label">{isStudent ? 'Batas Jajan / Hari' : 'Potensi Hemat'}</span>
             <span className="val" style={{ color: '#34d399' }}>
-              +Rp 6.8 Jt / bln
+              {isStudent ? `${formatCurrency(metrics.safeDailyAllowance)}/hari` : '+Rp 6.8 Jt / bln'}
             </span>
           </div>
         </div>
@@ -129,118 +181,221 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
         <div className="cfo-cards-column">
           <div className="column-heading">
             <HiOutlineLightBulb className="icon-bulb" />
-            <h3>Rekomendasi & Temuan</h3>
+            <h3>{isStudent ? 'Rekomendasi & Life Hacks' : 'Rekomendasi & Temuan'}</h3>
           </div>
 
-          {/* Card 1: Cloud Optimization */}
-          <div className="strategy-card glass-panel">
-            <div className="strategy-top">
-              <div className="strat-icon cloud">
-                <HiOutlineServer />
+          {isStudent ? (
+            <>
+              {/* Student Card 1: Warteg & Masak Kost */}
+              <div className="strategy-card glass-panel">
+                <div className="strategy-top">
+                  <div className="strat-icon cloud" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+                    <HiOutlineCash />
+                  </div>
+                  <div className="strat-info">
+                    <span className="strat-tag">Makan & Minum</span>
+                    <h4>Hack Masak Nasi di Kost & Warteg</h4>
+                  </div>
+                  <span className="savings-pill">+Rp 450rb/bln</span>
+                </div>
+                <p className="strat-body">
+                  Masak nasi sendiri di rice cooker kamar kost dan beli lauk di warteg dekat kampus bisa memangkas
+                  biaya makan harian dari Rp 45.000 menjadi Rp 25.000 per hari (hemat hingga Rp 450rb/bulan!).
+                </p>
+                <div className="strat-footer">
+                  <div className="impact-text">
+                    <HiOutlineTrendingUp /> Menambah batas jajan +Rp 15.000/hari
+                  </div>
+                  <button
+                    className={`btn-apply-strat ${appliedSavings.includes('s1') ? 'applied' : ''}`}
+                    onClick={() => handleApplySavingCard('s1')}
+                  >
+                    {appliedSavings.includes('s1') ? (
+                      <>
+                        <HiOutlineCheckCircle /> Diterapkan
+                      </>
+                    ) : (
+                      'Terapkan Lifehack'
+                    )}
+                  </button>
+                </div>
               </div>
-              <div className="strat-info">
-                <span className="strat-tag">Cloud & AI Hosting</span>
-                <h4>Optimasi AWS EC2 & GPU Instances</h4>
-              </div>
-              <span className="savings-pill">+Rp 3.5 Jt/bln</span>
-            </div>
-            <p className="strat-body">
-              Pengeluaran server bulan ini sebesar Rp 14.2 Jt. Beralih ke 1-Year Reserved Instances dan mengaktifkan
-              auto-sleep instance non-produksi di malam hari akan memangkas biaya hingga 25%.
-            </p>
-            <div className="strat-footer">
-              <div className="impact-text">
-                <HiOutlineTrendingUp /> Menambah runway +0.8 bulan
-              </div>
-              <button
-                className={`btn-apply-strat ${appliedSavings.includes('c1') ? 'applied' : ''}`}
-                onClick={() => handleApplySavingCard('c1')}
-              >
-                {appliedSavings.includes('c1') ? (
-                  <>
-                    <HiOutlineCheckCircle /> Dioptimasi
-                  </>
-                ) : (
-                  'Terapkan Optimasi'
-                )}
-              </button>
-            </div>
-          </div>
 
-          {/* Card 2: Marketing CAC Efficiency */}
-          <div className="strategy-card glass-panel">
-            <div className="strategy-top">
-              <div className="strat-icon marketing">
-                <HiOutlineCash />
+              {/* Student Card 2: Student Discount & Subscriptions */}
+              <div className="strategy-card glass-panel">
+                <div className="strategy-top">
+                  <div className="strat-icon marketing" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                    <HiOutlineBookOpen />
+                  </div>
+                  <div className="strat-info">
+                    <span className="strat-tag">Diskon Mahasiswa</span>
+                    <h4>Gunakan Tarif Spotify Student & WiFi Kampus</h4>
+                  </div>
+                  <span className="savings-pill">+Rp 85rb/bln</span>
+                </div>
+                <p className="strat-body">
+                  Verifikasi email kampus (.ac.id) untuk diskon 50% langganan Spotify Student, Apple Music, dan Notion Pro.
+                  Manfaatkan WiFi perpustakaan kampus untuk download materi kuliah besar.
+                </p>
+                <div className="strat-footer">
+                  <div className="impact-text">
+                    <HiOutlineTrendingUp /> Efisiensi kuota data 40%
+                  </div>
+                  <button
+                    className={`btn-apply-strat ${appliedSavings.includes('s2') ? 'applied' : ''}`}
+                    onClick={() => handleApplySavingCard('s2')}
+                  >
+                    {appliedSavings.includes('s2') ? (
+                      <>
+                        <HiOutlineCheckCircle /> Diterapkan
+                      </>
+                    ) : (
+                      'Terapkan Diskon'
+                    )}
+                  </button>
+                </div>
               </div>
-              <div className="strat-info">
-                <span className="strat-tag">Customer Acquisition</span>
-                <h4>Re-alokasi Budget Ads ke High-ROAS Channel</h4>
-              </div>
-              <span className="savings-pill">+Rp 2.1 Jt/bln</span>
-            </div>
-            <p className="strat-body">
-              Iklan Google Search memiliki tingkat konversi 2.4x lebih tinggi dibanding Meta Ads untuk segmen B2B. Pindahkan
-              40% budget ke Google Search Ads untuk menekan Customer Acquisition Cost (CAC).
-            </p>
-            <div className="strat-footer">
-              <div className="impact-text">
-                <HiOutlineTrendingUp /> Efisiensi CAC 32%
-              </div>
-              <button
-                className={`btn-apply-strat ${appliedSavings.includes('c2') ? 'applied' : ''}`}
-                onClick={() => handleApplySavingCard('c2')}
-              >
-                {appliedSavings.includes('c2') ? (
-                  <>
-                    <HiOutlineCheckCircle /> Dioptimasi
-                  </>
-                ) : (
-                  'Terapkan Optimasi'
-                )}
-              </button>
-            </div>
-          </div>
 
-          {/* Card 3: Hiring Runway Safety Check */}
-          <div className="strategy-card glass-panel">
-            <div className="strategy-top">
-              <div className="strat-icon hiring">
-                <HiOutlineUserGroup />
+              {/* Student Card 3: Target Tabungan UKT */}
+              <div className="strategy-card glass-panel">
+                <div className="strategy-top">
+                  <div className="strat-icon hiring" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
+                    <HiOutlineAcademicCap />
+                  </div>
+                  <div className="strat-info">
+                    <span className="strat-tag">Target Finansial</span>
+                    <h4>Disiplin Nabung UKT Semester Depan</h4>
+                  </div>
+                  <span className="savings-pill neutral">Target Rp 3-5 Jt</span>
+                </div>
+                <p className="strat-body">
+                  Sisihkan Rp 500rb per bulan dari kiriman ortu & hasil freelance ke rekening terpisah agar tidak terpakai
+                  jajan kafe dan siap saat registrasi semester baru dibuka.
+                </p>
+                <div className="strat-footer">
+                  <div className="impact-text">
+                    <HiOutlineShieldCheck /> Bebas Cemas Saat Bayar UKT
+                  </div>
+                  <button className="btn-apply-strat" onClick={() => onNavigateTab('simulator')}>
+                    <span>Simulasikan Tabungan</span>
+                    <HiOutlineArrowRight />
+                  </button>
+                </div>
               </div>
-              <div className="strat-info">
-                <span className="strat-tag">Strategic Hiring</span>
-                <h4>Uji Kapasitas Gaji Sebelum Rekrut Tim Baru</h4>
+            </>
+          ) : (
+            <>
+              {/* Business Card 1: Cloud Optimization */}
+              <div className="strategy-card glass-panel">
+                <div className="strategy-top">
+                  <div className="strat-icon cloud">
+                    <HiOutlineServer />
+                  </div>
+                  <div className="strat-info">
+                    <span className="strat-tag">Cloud & AI Hosting</span>
+                    <h4>Optimasi AWS EC2 & GPU Instances</h4>
+                  </div>
+                  <span className="savings-pill">+Rp 3.5 Jt/bln</span>
+                </div>
+                <p className="strat-body">
+                  Pengeluaran server bulan ini sebesar Rp 14.2 Jt. Beralih ke 1-Year Reserved Instances dan mengaktifkan
+                  auto-sleep instance non-produksi di malam hari akan memangkas biaya hingga 25%.
+                </p>
+                <div className="strat-footer">
+                  <div className="impact-text">
+                    <HiOutlineTrendingUp /> Menambah runway +0.8 bulan
+                  </div>
+                  <button
+                    className={`btn-apply-strat ${appliedSavings.includes('c1') ? 'applied' : ''}`}
+                    onClick={() => handleApplySavingCard('c1')}
+                  >
+                    {appliedSavings.includes('c1') ? (
+                      <>
+                        <HiOutlineCheckCircle /> Dioptimasi
+                      </>
+                    ) : (
+                      'Terapkan Optimasi'
+                    )}
+                  </button>
+                </div>
               </div>
-              <span className="savings-pill neutral">Analisis Risiko</span>
-            </div>
-            <p className="strat-body">
-              Setiap penambahan 1 Mid-level engineer (Rp 10 Jt/bln) membutuhkan jaminan kenaikan omset minimal Rp 15 Jt/bln
-              untuk menjaga runway tetap stabil di atas 12 bulan.
-            </p>
-            <div className="strat-footer">
-              <div className="impact-text">
-                <HiOutlineShieldCheck /> Safety Buffer Analysis
+
+              {/* Business Card 2: Marketing CAC Efficiency */}
+              <div className="strategy-card glass-panel">
+                <div className="strategy-top">
+                  <div className="strat-icon marketing">
+                    <HiOutlineCash />
+                  </div>
+                  <div className="strat-info">
+                    <span className="strat-tag">Customer Acquisition</span>
+                    <h4>Re-alokasi Budget Ads ke High-ROAS Channel</h4>
+                  </div>
+                  <span className="savings-pill">+Rp 2.1 Jt/bln</span>
+                </div>
+                <p className="strat-body">
+                  Iklan Google Search memiliki tingkat konversi 2.4x lebih tinggi dibanding Meta Ads untuk segmen B2B. Pindahkan
+                  40% budget ke Google Search Ads untuk menekan Customer Acquisition Cost (CAC).
+                </p>
+                <div className="strat-footer">
+                  <div className="impact-text">
+                    <HiOutlineTrendingUp /> Efisiensi CAC 32%
+                  </div>
+                  <button
+                    className={`btn-apply-strat ${appliedSavings.includes('c2') ? 'applied' : ''}`}
+                    onClick={() => handleApplySavingCard('c2')}
+                  >
+                    {appliedSavings.includes('c2') ? (
+                      <>
+                        <HiOutlineCheckCircle /> Dioptimasi
+                      </>
+                    ) : (
+                      'Terapkan Optimasi'
+                    )}
+                  </button>
+                </div>
               </div>
-              <button className="btn-apply-strat" onClick={() => onNavigateTab('simulator')}>
-                <span>Uji di Simulator</span>
-                <HiOutlineArrowRight />
-              </button>
-            </div>
-          </div>
+
+              {/* Business Card 3: Hiring Runway Safety Check */}
+              <div className="strategy-card glass-panel">
+                <div className="strategy-top">
+                  <div className="strat-icon hiring">
+                    <HiOutlineUserGroup />
+                  </div>
+                  <div className="strat-info">
+                    <span className="strat-tag">Strategic Hiring</span>
+                    <h4>Uji Kapasitas Gaji Sebelum Rekrut Tim Baru</h4>
+                  </div>
+                  <span className="savings-pill neutral">Analisis Risiko</span>
+                </div>
+                <p className="strat-body">
+                  Setiap penambahan 1 Mid-level engineer (Rp 10 Jt/bln) membutuhkan jaminan kenaikan omset minimal Rp 15 Jt/bln
+                  untuk menjaga runway tetap stabil di atas 12 bulan.
+                </p>
+                <div className="strat-footer">
+                  <div className="impact-text">
+                    <HiOutlineShieldCheck /> Safety Buffer Analysis
+                  </div>
+                  <button className="btn-apply-strat" onClick={() => onNavigateTab('simulator')}>
+                    <span>Uji di Simulator</span>
+                    <HiOutlineArrowRight />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Right Column: Interactive AI CFO Chat */}
+        {/* Right Column: Interactive AI CFO / Mentor Chat */}
         <div className="cfo-chat-column glass-panel">
           <div className="chat-header-bar">
             <div className="chat-title-info">
               <div className="cfo-status-dot" />
               <div>
-                <h4>Konsultan Keuangan</h4>
-                <span>Tersambung ke data pembukuan</span>
+                <h4>{isStudent ? 'AI Financial Mentor' : 'Konsultan Keuangan'}</h4>
+                <span>{isStudent ? 'Tersambung ke uang saku & pengeluaranmu' : 'Tersambung ke data pembukuan'}</span>
               </div>
             </div>
-            <span className="glass-pill pill-purple">Aktif</span>
+            <span className={`glass-pill ${isStudent ? 'pill-primary' : 'pill-purple'}`}>Aktif</span>
           </div>
 
           {/* Chat Messages Viewport */}
@@ -250,8 +405,8 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
               return (
                 <div key={m.id} className={`chat-message-row ${isCfo ? 'cfo' : 'user'}`}>
                   {isCfo && (
-                    <div className="chat-avatar cfo-icon">
-                      <HiOutlineSparkles />
+                    <div className="chat-avatar cfo-icon" style={{ background: isStudent ? 'rgba(56, 189, 248, 0.15)' : 'rgba(168, 85, 247, 0.15)', color: isStudent ? 'var(--color-primary)' : 'var(--color-purple)' }}>
+                      {isStudent ? <HiOutlineAcademicCap /> : <HiOutlineSparkles />}
                     </div>
                   )}
                   <div className="chat-bubble">
@@ -264,8 +419,8 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
                         <button
                           className="btn-bubble-action"
                           onClick={() => {
-                            if (m.suggestedAction.includes('Simulator')) onNavigateTab('simulator');
-                            else if (m.suggestedAction.includes('Struk') || m.suggestedAction.includes('Scan'))
+                            if (m.suggestedAction.includes('Simulator') || m.suggestedAction.includes('Nabung') || m.suggestedAction.includes('Freelance')) onNavigateTab('simulator');
+                            else if (m.suggestedAction.includes('Struk') || m.suggestedAction.includes('Scan') || m.suggestedAction.includes('Bon'))
                               onNavigateTab('scanner');
                           }}
                         >
@@ -283,7 +438,7 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
             {isThinking && (
               <div className="chat-message-row cfo">
                 <div className="chat-avatar cfo-icon">
-                  <HiOutlineSparkles />
+                  {isStudent ? <HiOutlineAcademicCap /> : <HiOutlineSparkles />}
                 </div>
                 <div className="chat-bubble thinking">
                   <div className="thinking-dots">
@@ -291,7 +446,9 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
                     <span />
                     <span />
                   </div>
-                  <span className="thinking-label">AI CFO sedang mengkalkulasi skenario...</span>
+                  <span className="thinking-label">
+                    {isStudent ? 'AI Mentor sedang menganalisis dompetmu...' : 'AI CFO sedang mengkalkulasi skenario...'}
+                  </span>
                 </div>
               </div>
             )}
@@ -300,7 +457,7 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
 
           {/* Quick Prompts */}
           <div className="quick-prompts-bar">
-            {QUICK_PROMPTS.map((prompt, idx) => (
+            {quickPrompts.map((prompt, idx) => (
               <button key={idx} className="quick-prompt-chip" onClick={() => handleSendMessage(prompt)}>
                 {prompt}
               </button>
@@ -316,7 +473,7 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSendMessage();
               }}
-              placeholder="Tanyakan analisis keuangan, runway, atau strategi efisiensi..."
+              placeholder={isStudent ? 'Tanyakan tips hemat tanggal tua, nabung UKT, atau jajan aman...' : 'Tanyakan analisis keuangan, runway, atau strategi efisiensi...'}
               className="chat-input"
             />
             <button

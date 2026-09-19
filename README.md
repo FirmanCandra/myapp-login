@@ -1,59 +1,69 @@
-# 📊 OmniLedger AI — Autonomous Financial Intelligence & Cashflow Scenario Simulator
+# 📊 OmniLedger AI — Dual-Mode Financial Operating System (Bisnis & Mahasiswa)
 
-> **Financial Operating System (OS)** modern untuk UMKM, Startup, Founder, dan Freelancer dalam mengendalikan arus kas (*cashflow*), memprediksi daya tahan bisnis (*runway*), memindai struk otomatis, dan menyimulasikan keputusan finansial secara *real-time*.
+> **Autonomous Financial Intelligence & Cashflow Scenario Simulator** modern dengan dukungan **Mode Perusahaan & Bisnis** (SME / Startup Financial OS) dan **Mode Mahasiswa & Anak Kost** (Student Survival & Budgeting OS). Dilengkapi kalkulator *Safe Daily Allowance*, simulasi daya tahan kas (*runway* / survival), pemindai struk/bon *Vision OCR*, dan konsultan AI cerdas.
 
 ---
 
 ## 🌟 Tentang OmniLedger AI
 
-Mengelola keuangan bisnis sering kali menjadi tantangan besar bagi pelaku UMKM dan founder: struk belanja menumpuk, sulit menghitung *burn rate*, tidak tahu berapa bulan bisnis bisa bertahan jika penjualan turun, dan kebingungan menentukan waktu yang aman untuk merekrut tim baru.
+Baik perusahaan rintisan maupun mahasiswa yang merantau sama-sama menghadapi masalah pengelolaan uang: pencatatan struk yang tercecer, kebingungan memproyeksikan sisa uang, serta ketidaktahuan batas pengeluaran yang aman.
 
-**OmniLedger AI** hadir sebagai platform *Financial Intelligence* terintegrasi yang menggabungkan:
-1. **Pencatatan Keuangan Digital** yang cepat dan terstruktur.
-2. **Pemindai Struk Otomatis (Vision/OCR Scanner)** untuk mengekstrak data belanja tanpa ketik manual.
-3. **Simulator Skenario *What-If*** dinamis untuk menguji dampak keputusan bisnis sebelum dieksekusi.
-4. **Konsultan Keuangan AI (Virtual CFO)** yang memberikan temuan inefisiensi biaya dan rekomendasi penghematan konkret.
-5. **Dukungan Penuh Mode Gelap & Terang** dengan tampilan antarmuka *mobile-friendly* bergaya modern FinTech.
+**OmniLedger AI** hadir dengan sistem **Dual-Mode Personalisasi** yang dapat dipilih setelah login:
+
+1. 🏢 **Mode Perusahaan & Bisnis (Enterprise / SME OS):**
+   - Mengelola arus kas operasional (*cashflow*), *monthly burn rate*, *runway 12-bulan*, dan *profit margin*.
+   - Simulasi rekrutmen karyawan, belanja modal (*CAPEX*), dan injeksi dana investor.
+   - Vision OCR untuk tagihan server AWS, iklan Google/Meta, dan vendor.
+   - Autonomous AI CFO Advisor untuk efisiensi biaya usaha.
+
+2. 🎓 **Mode Mahasiswa & Anak Kost (Student Survival OS):**
+   - Menghitung **Batas Jajan Harian Aman (*Safe Daily Limit*)** agar uang saku kiriman tidak habis sebelum akhir bulan.
+   - **Simulator Survival Tanggal Tua:** Uji dampak hemat makan warteg, masak nasi di kost, dan project freelance.
+   - **Target Tabungan UKT / Wishlist Laptop:** Alokasi tabungan disiplin untuk registrasi semesteran.
+   - Vision OCR untuk nota warteg, struk Indomaret, kwitansi sewa kost, dan fotokopi tugas.
+   - AI Financial Mentor mahasiswa untuk life hacks hemat dan cuan sampingan.
 
 ---
 
 ## 🚀 Fitur Unggulan
 
-### 1. 📊 Executive Overview & Financial Health Score
-- **Metrik Keuangan Kunci:** Memantau saldo kas terkini, rata-rata pengeluaran bulanan, surplus/defisit kas, profit margin, dan estimasi *runway*.
-- **Indikator Kesehatan Finansial (Health Score Gauge 0–100):** Algoritma penilaian otomatis berdasarkan *runway buffer*, margin profitabilitas, dan rasio stabilitas kas.
-- **Grafik Tren Arus Kas Dinamis:** Visualisasi perbandingan pemasukan vs pengeluaran serta akumulasi saldo kas bulanan menggunakan *Recharts*.
-- **Distribusi Kategori Pengeluaran:** *Donut chart* interaktif untuk melacak pos biaya terbesar (Cloud, Payroll, Ads, Operasional).
+### 1. 👥 Personalisasi Akun & Role Switcher
+- **Popup Pemilihan Mode:** Setelah login, pengguna memilih mode profil yang paling relevan (*Perusahaan* atau *Mahasiswa*).
+- **Role Switcher Seamless:** Beralih mode kapan saja secara instan melalui navigasi atas tanpa kehilangan data.
+- **Isolasi Data Aman:** Data buku kas bisnis dan uang saku mahasiswa disimpan secara terpisah dan mandiri.
 
-### 2. 🎛️ Dynamic "What-If" Runway Simulator
-- **Simulasi Parameter Interaktif:**
-  - *Fluktuasi Pendapatan (Revenue Delta)*: Geser slider dari -50% (krisis) hingga +100% (skala besar).
-  - *Penyesuaian Biaya Operasional (OPEX Delta)*: Uji pemangkasan biaya hemat vs ekspansi.
-  - *Rencana Rekrut Tim (Hiring Planner)*: Tambah/kurang jumlah karyawan dengan pilihan standar gaji.
-  - *Belanja Modal (One-Time CAPEX)*: Uji pembelian mesin, server, renovasi, atau cabang baru pada bulan tertentu.
-  - *Injeksi Modal (Capital Injection)*: Simulasi suntikan modal investor atau pinjaman usaha.
-- **Grafik Proyeksi Kas 12 Bulan (Dual-Curve):** Menampilkan perbandingan garis kas *Baseline* vs *Skenario Simulasi* dan garis batas kritis kas nol (*Cash Cliff*).
-- **Preset Skenario Siap Pakai:** *Mode Bertahan (Survival)*, *Ekspansi Agresif*, *Uji Resesi (-30%)*, dan *Injeksi Modal*.
+### 2. 📊 Dashboard Ringkasan & Skor Kesehatan
+- **Mode Bisnis:** Memantau saldo kas kasir, pengeluaran bulanan, *Net Burn Rate*, margin profit, dan skor kesehatan kas (0–100).
+- **Mode Mahasiswa:** Menampilkan **Sisa Uang Saku & Tabungan**, **Total Pengeluaran Bulan Ini**, **Batas Jajan Harian Aman (*Safe Daily*)**, dan **Ketahanan Dompet** (sisa hari bertahan).
+- **Grafik Tren Arus Kas Dinamis:** Visualisasi perbandingan pemasukan vs pengeluaran serta saldo kas berjalan (*Recharts*).
 
-### 3. 🧾 Smart OCR & Vision Receipt Scanner
-- **Ekstraksi Otomatis:** Foto struk belanja atau unggah invoice, sistem otomatis mengenali nama merchant, tanggal, rincian barang/jasa, pajak (PPN/PB1), dan total nominal.
-- **Auto-Categorization:** Otomatis memasukkan transaksi ke pos kategori yang sesuai (Cloud Infrastructure, Office & Utilities, Marketing, dll).
-- **Pratinjau Struk Termal:** Tampilan struk digital yang rapi dan verifikasi data satu klik ke buku kas.
+### 3. 🎛️ Simulator Skenario "What-If" Runway & Survival
+- **Parameter Interaktif:**
+  - *Mode Bisnis:* Fluktuasi omset (-50% s/d +100%), efisiensi OPEX, rekrutmen tim, CAPEX cabang, dan modal investor.
+  - *Mode Mahasiswa:* Kiriman ortu & freelance, biaya makan kost, target bayar UKT / laptop baru, dan bantuan beasiswa.
+- **Grafik Proyeksi Kas 12 Bulan (Dual-Curve):** Menampilkan perbandingan garis kas *Baseline* vs *Skenario* serta garis peringatan kas kritis.
+- **Preset Skenario Siap Pakai:**
+  - Bisnis: *Mode Bertahan*, *Ekspansi Agresif*, *Uji Resesi (-30%)*, *Injeksi Modal*.
+  - Mahasiswa: *Survival Tanggal Tua*, *Santai Awal Bulan*, *Target Nabung UKT*, *Mahasiswa Freelancer*.
 
-### 4. 💬 Autonomous AI Financial Advisor (Virtual CFO)
-- **Analisis Anomali & Rekomendasi Penghematan:** Mendeteksi pemborosan biaya server/cloud, optimasi budget iklan ROAS tinggi, dan buffer keselamatan rekrutmen.
-- **Interactive Financial Chat:** Tanya jawab interaktif seputar strategi keuangan bisnis langsung dengan AI yang terhubung ke data buku kas.
-- **Quick-Prompt Suggestions:** Rekomendasi pertanyaan cepat untuk memudahkan eksplorasi data finansial.
+### 4. 🧾 Smart OCR & Vision Receipt Scanner
+- **Ekstraksi Otomatis:** Foto nota/bon belanja atau upload PDF, AI otomatis membaca nama toko/merchant, tanggal, rincian barang, pajak, dan total harga.
+- **Dukungan Struk Bisnis & Bon Mahasiswa:** Dari invoice AWS dan meeting kafe, hingga nota makan warteg, struk Indomaret, kwitansi sewa kost, dan print makalah.
+- **Pratinjau Struk Termal & Auto-Categorization:** Verifikasi data satu klik langsung masuk ke buku kas.
 
-### 5. 📖 Buku Kas Digital (Smart Financial Ledger)
-- **Manajemen Transaksi Lengkap:** Catat pemasukan dan pengeluaran manual maupun dari pemindaian struk.
-- **Filter & Pencarian Instan:** Filter berdasarkan tipe (*Pemasukan / Pengeluaran*), kategori, rentang nominal, dan tanggal.
-- **Export Data CSV:** Ekspor seluruh pembukuan ke format CSV dalam satu klik untuk pelaporan pajak atau akuntansi eksternal.
+### 5. 💬 Autonomous AI Advisor (Virtual CFO & Student Mentor)
+- **Mode Bisnis (Virtual CFO):** Analisis anomali biaya cloud, efisiensi CAC iklan, dan safety buffer rekrutmen tim.
+- **Mode Mahasiswa (Financial Mentor):** Tips jajan hemat, trik masak nasi di kost, diskon Spotify Student/kuota, dan strategi bayar UKT tepat waktu.
+- **Interactive Chat Assistant:** Tanya jawab keuangan secara cerdas terhubung langsung ke data mutasi kas.
 
-### 6. 🌗 Dual Theme & 📱 Mobile-First Design
-- **Dark Mode & Light Mode:** Pilihan tema gelap yang elegan atau tema terang yang bersih dan profesional.
-- **Navigasi Bawah Mobile (Docked Tab Bar):** Kemudahan navigasi satu jempol di smartphone dengan tombol cepat tambah transaksi (+).
-- **Mobile Transaction Cards:** Tampilan kartu transaksi yang dioptimalkan khusus layar sentuh.
+### 6. 📖 Buku Kas Digital (Smart Financial Ledger)
+- **Manajemen Transaksi:** Catat mutasi manual dan hasil scan struk dengan kategori lengkap bisnis maupun mahasiswa.
+- **Pencarian & Filter Cepat:** Filter pemasukan, pengeluaran, kategori, dan nominal.
+- **Export Data CSV:** Unduh laporan keuangan format spreadsheet dalam satu klik.
+
+### 7. 🌗 Dual Theme & 📱 Mobile-First Experience
+- **Dark Mode & Light Mode:** Tampilan modern glassmorphism dengan kontras tinggi.
+- **Mobile Bottom Navigation:** Navigasi cepat satu jempol dengan floating action button (+) untuk mencatat mutasi secara instan.
 
 ---
 

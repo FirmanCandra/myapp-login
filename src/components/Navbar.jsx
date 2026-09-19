@@ -11,19 +11,30 @@ import {
   HiOutlineMoon,
   HiOutlineQuestionMarkCircle,
   HiOutlineAcademicCap,
+  HiOutlineOfficeBuilding,
+  HiOutlineSwitchHorizontal,
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { NAV_TABS } from '../constants/tabs';
 import './Navbar.css';
 
-const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScanner, onOpenTutorial }) => {
+const Navbar = ({
+  activeTab,
+  setActiveTab,
+  healthScore,
+  onOpenNewTx,
+  onOpenScanner,
+  onOpenTutorial,
+  role = 'business',
+  onOpenRoleSelector,
+}) => {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const metadata = user?.user_metadata || {};
-  const fullName = metadata.full_name || metadata.name || 'User';
+  const fullName = metadata.full_name || metadata.name || (role === 'student' ? 'Mahasiswa' : 'Founder');
   const email = user?.email || '';
   const avatarUrl = metadata.avatar_url || metadata.picture || null;
   const initials = fullName
@@ -40,6 +51,8 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
     return 'pill-rose';
   };
 
+  const isStudent = role === 'student';
+
   return (
     <>
       {/* Top Navbar */}
@@ -47,10 +60,14 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
         <div className="nav-container">
           {/* Brand */}
           <div className="nav-brand">
-            <div className="brand-mark">O</div>
+            <div className={`brand-mark ${isStudent ? 'student' : ''}`}>
+              {isStudent ? '🎓' : 'O'}
+            </div>
             <div className="brand-text">
               <span className="brand-name">OmniLedger</span>
-              <span className="brand-sub">Financial OS</span>
+              <span className="brand-sub">
+                {isStudent ? 'Student Survival OS' : 'Financial OS'}
+              </span>
             </div>
           </div>
 
@@ -61,28 +78,28 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
               onClick={() => setActiveTab(NAV_TABS.OVERVIEW)}
             >
               <HiOutlineViewGrid />
-              <span>Ringkasan</span>
+              <span>{isStudent ? 'Uang Saku' : 'Ringkasan'}</span>
             </button>
             <button
               className={`nav-tab ${activeTab === NAV_TABS.SIMULATOR ? 'active' : ''}`}
               onClick={() => setActiveTab(NAV_TABS.SIMULATOR)}
             >
               <HiOutlineCalculator />
-              <span>Simulator</span>
+              <span>{isStudent ? 'Survival Simulator' : 'Simulator'}</span>
             </button>
             <button
               className={`nav-tab ${activeTab === NAV_TABS.SCANNER ? 'active' : ''}`}
               onClick={() => { setActiveTab(NAV_TABS.SCANNER); if (onOpenScanner) onOpenScanner(); }}
             >
               <HiOutlineDocumentSearch />
-              <span>Scan Struk</span>
+              <span>{isStudent ? 'Scan Bon/Struk' : 'Scan Struk'}</span>
             </button>
             <button
               className={`nav-tab ${activeTab === NAV_TABS.CFO ? 'active' : ''}`}
               onClick={() => setActiveTab(NAV_TABS.CFO)}
             >
               <HiOutlineChatAlt2 />
-              <span>Konsultan</span>
+              <span>{isStudent ? 'Mentor AI' : 'Konsultan'}</span>
             </button>
             <button
               className={`nav-tab ${activeTab === NAV_TABS.LEDGER ? 'active' : ''}`}
@@ -95,13 +112,24 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
 
           {/* Actions */}
           <div className="nav-actions">
-            <div className={`glass-pill ${getScoreBadgeClass(healthScore)} score-pill`} title={`Skor Kesehatan Finansial: ${healthScore}`}>
+            {/* Mode Switcher Button */}
+            <button
+              className={`btn-role-switcher ${isStudent ? 'student' : 'business'}`}
+              onClick={onOpenRoleSelector}
+              title="Ganti Mode (Bisnis / Mahasiswa)"
+            >
+              {isStudent ? <HiOutlineAcademicCap /> : <HiOutlineOfficeBuilding />}
+              <span className="role-btn-text">{isStudent ? 'Mahasiswa' : 'Bisnis'}</span>
+              <HiOutlineSwitchHorizontal className="switch-icon" />
+            </button>
+
+            <div className={`glass-pill ${getScoreBadgeClass(healthScore)} score-pill`} title={`Skor Kesehatan: ${healthScore}/100`}>
               <span className="score-text">Skor: {healthScore}</span>
             </div>
 
             <button className="btn-add-tx desktop-only" onClick={onOpenNewTx}>
               <HiOutlinePlus />
-              <span>Transaksi</span>
+              <span>{isStudent ? 'Catat' : 'Transaksi'}</span>
             </button>
 
             {/* Tutorial / Help Button */}
@@ -124,7 +152,7 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={fullName} className="profile-img" referrerPolicy="no-referrer" />
                 ) : (
-                  <div className="profile-placeholder">{initials}</div>
+                  <div className={`profile-placeholder ${isStudent ? 'student' : ''}`}>{initials}</div>
                 )}
               </button>
 
@@ -132,10 +160,23 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
                 <div className="profile-dropdown glass-panel">
                   <div className="dropdown-header">
                     <div className="dropdown-name">{fullName}</div>
+                    <div className="dropdown-role-label">
+                      Mode: <strong>{isStudent ? 'Mahasiswa 🎓' : 'Bisnis 🏢'}</strong>
+                    </div>
                     {email && <div className="dropdown-email">{email}</div>}
                   </div>
                   <div className="dropdown-divider" />
                   
+                  <button
+                    className="dropdown-action"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      if (onOpenRoleSelector) onOpenRoleSelector();
+                    }}
+                  >
+                    <HiOutlineSwitchHorizontal /> Ganti Mode Akun
+                  </button>
+
                   <button
                     className="dropdown-action"
                     onClick={() => {
@@ -171,7 +212,7 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
           onClick={() => setActiveTab(NAV_TABS.OVERVIEW)}
         >
           <div className="mobile-nav-icon"><HiOutlineViewGrid /></div>
-          <span className="mobile-nav-label">Ringkasan</span>
+          <span className="mobile-nav-label">{isStudent ? 'Uang Saku' : 'Ringkasan'}</span>
         </button>
 
         <button
@@ -185,9 +226,9 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
         {/* Center Floating Quick-Add Button */}
         <div className="mobile-center-action-wrap">
           <button
-            className="mobile-fab-btn"
+            className={`mobile-fab-btn ${isStudent ? 'student' : ''}`}
             onClick={onOpenNewTx}
-            title="Catat Transaksi Cepat"
+            title={isStudent ? 'Catat Pengeluaran / Uang Saku' : 'Catat Transaksi Cepat'}
           >
             <HiOutlinePlus />
           </button>
@@ -214,7 +255,7 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
           onClick={() => setActiveTab(NAV_TABS.CFO)}
         >
           <div className="mobile-nav-icon"><HiOutlineChatAlt2 /></div>
-          <span className="mobile-nav-label">Konsultan</span>
+          <span className="mobile-nav-label">{isStudent ? 'Mentor AI' : 'Konsultan'}</span>
         </button>
       </nav>
     </>

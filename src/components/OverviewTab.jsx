@@ -8,7 +8,8 @@ import {
   HiOutlineDocumentSearch,
   HiOutlinePlus,
   HiOutlineCreditCard,
-  HiOutlineSparkles,
+  HiOutlineLightningBolt,
+  HiOutlineCalendar,
 } from 'react-icons/hi';
 import {
   ResponsiveContainer,
@@ -50,65 +51,86 @@ const ChartTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpenScanner, onOpenNewTx }) => {
+const OverviewTab = ({
+  metrics,
+  transactions,
+  startingCash,
+  onNavigateTab,
+  onOpenScanner,
+  onOpenNewTx,
+  role = 'business',
+}) => {
   const [chartView, setChartView] = useState('cashflow');
   const trendData = generateHistoricalTrend(transactions, startingCash);
   const categoryData = generateCategoryBreakdown(transactions);
-  const insights = generateCfoInsights(transactions, metrics);
+  const insights = generateCfoInsights(transactions, metrics, role);
 
   const netCashflow = metrics.avgMonthlyIncome - metrics.avgMonthlyExpense;
+  const isStudent = role === 'student';
 
   return (
     <div className="overview-content">
       {/* KPI Cards */}
       <section className="kpi-row">
+        {/* KPI 1: Total Cash / Sisa Uang Saku */}
         <div className="kpi-card glass-panel">
           <div className="kpi-header">
             <div className="kpi-icon primary"><HiOutlineCash /></div>
-            <span className="glass-pill pill-primary">Kas</span>
+            <span className="glass-pill pill-primary">{isStudent ? 'Uang Saku' : 'Kas'}</span>
           </div>
-          <span className="kpi-label">Saldo Kas</span>
+          <span className="kpi-label">{isStudent ? 'Sisa Saldo & Tabungan' : 'Saldo Kas'}</span>
           <span className="kpi-value">{formatCurrency(metrics.totalBalance)}</span>
           <span className="kpi-sub">Modal: {formatShortCurrency(startingCash)}</span>
         </div>
 
+        {/* KPI 2: Expense */}
         <div className="kpi-card glass-panel">
           <div className="kpi-header">
             <div className="kpi-icon rose"><HiOutlineTrendingDown /></div>
-            <span className="glass-pill pill-rose">Pengeluaran</span>
+            <span className="glass-pill pill-rose">{isStudent ? 'Pengeluaran' : 'Pengeluaran'}</span>
           </div>
-          <span className="kpi-label">Rata-rata Keluar / Bulan</span>
+          <span className="kpi-label">{isStudent ? 'Total Keluar / Bulan' : 'Rata-rata Keluar / Bulan'}</span>
           <span className="kpi-value">{formatCurrency(metrics.avgMonthlyExpense)}</span>
-          <span className="kpi-sub">Operasional bulanan</span>
+          <span className="kpi-sub">{isStudent ? 'Biaya makan, kost & jajan' : 'Operasional bulanan'}</span>
         </div>
 
+        {/* KPI 3: Net Cashflow or Safe Daily Limit */}
         <div className="kpi-card glass-panel">
           <div className="kpi-header">
-            <div className={`kpi-icon ${netCashflow >= 0 ? 'emerald' : 'amber'}`}>
-              {netCashflow >= 0 ? <HiOutlineTrendingUp /> : <HiOutlineTrendingDown />}
+            <div className={`kpi-icon ${isStudent ? 'emerald' : netCashflow >= 0 ? 'emerald' : 'amber'}`}>
+              {isStudent ? <HiOutlineLightningBolt /> : netCashflow >= 0 ? <HiOutlineTrendingUp /> : <HiOutlineTrendingDown />}
             </div>
-            <span className={`glass-pill ${netCashflow >= 0 ? 'pill-emerald' : 'pill-amber'}`}>
-              {netCashflow >= 0 ? 'Surplus' : 'Defisit'}
+            <span className={`glass-pill ${isStudent ? 'pill-emerald' : netCashflow >= 0 ? 'pill-emerald' : 'pill-amber'}`}>
+              {isStudent ? 'Safe Daily' : netCashflow >= 0 ? 'Surplus' : 'Defisit'}
             </span>
           </div>
-          <span className="kpi-label">Arus Kas Bersih / Bulan</span>
-          <span className="kpi-value" style={{ color: netCashflow >= 0 ? 'var(--color-emerald)' : 'var(--color-amber)' }}>
-            {formatCurrency(netCashflow)}
+          <span className="kpi-label">{isStudent ? 'Batas Jajan Harian Aman' : 'Arus Kas Bersih / Bulan'}</span>
+          <span className="kpi-value" style={{ color: isStudent ? 'var(--color-emerald)' : netCashflow >= 0 ? 'var(--color-emerald)' : 'var(--color-amber)' }}>
+            {isStudent ? formatCurrency(metrics.safeDailyAllowance) : formatCurrency(netCashflow)}
           </span>
-          <span className="kpi-sub">Margin: {metrics.profitMargin.toFixed(1)}%</span>
+          <span className="kpi-sub">
+            {isStudent
+              ? `Batas aman s/d ${metrics.daysRemaining} hari ke depan`
+              : `Margin: ${metrics.profitMargin.toFixed(1)}%`}
+          </span>
         </div>
 
+        {/* KPI 4: Survival / Runway */}
         <div className="kpi-card glass-panel">
           <div className="kpi-header">
-            <div className="kpi-icon purple"><HiOutlineClock /></div>
-            <span className="glass-pill pill-purple">Runway</span>
+            <div className="kpi-icon purple">
+              {isStudent ? <HiOutlineCalendar /> : <HiOutlineClock />}
+            </div>
+            <span className="glass-pill pill-purple">{isStudent ? 'Survival' : 'Runway'}</span>
           </div>
-          <span className="kpi-label">Daya Tahan Kas</span>
+          <span className="kpi-label">{isStudent ? 'Ketahanan Dompet' : 'Daya Tahan Kas'}</span>
           <span className="kpi-value">
-            {metrics.runwayMonths > 50 ? '∞ Sehat' : `${metrics.runwayMonths.toFixed(1)} Bulan`}
+            {isStudent
+              ? metrics.safeDailyAllowance >= 30000 ? '✅ Aman' : '⚠️ Kritis'
+              : metrics.runwayMonths > 50 ? '∞ Sehat' : `${metrics.runwayMonths.toFixed(1)} Bulan`}
           </span>
           <button className="kpi-link" onClick={() => onNavigateTab('simulator')}>
-            Buka Simulator <HiOutlineArrowRight />
+            {isStudent ? 'Uji Survival Kost' : 'Buka Simulator'} <HiOutlineArrowRight />
           </button>
         </div>
       </section>
@@ -118,21 +140,25 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
         <div className="chart-card glass-panel">
           <div className="chart-top">
             <div>
-              <h3 className="section-title">Tren Arus Kas</h3>
-              <p className="section-sub">Perbandingan pemasukan dan pengeluaran per bulan</p>
+              <h3 className="section-title">{isStudent ? 'Arus Uang Saku Bulanan' : 'Tren Arus Kas'}</h3>
+              <p className="section-sub">
+                {isStudent
+                  ? 'Perbandingan uang kiriman/freelance vs jajan harian'
+                  : 'Perbandingan pemasukan dan pengeluaran per bulan'}
+              </p>
             </div>
             <div className="chart-toggles">
               <button
                 className={`toggle-btn ${chartView === 'cashflow' ? 'active' : ''}`}
                 onClick={() => setChartView('cashflow')}
               >
-                Pemasukan vs Keluar
+                {isStudent ? 'Masuk vs Keluar' : 'Pemasukan vs Keluar'}
               </button>
               <button
                 className={`toggle-btn ${chartView === 'balance' ? 'active' : ''}`}
                 onClick={() => setChartView('balance')}
               >
-                Saldo Kas
+                {isStudent ? 'Saldo Dompet' : 'Saldo Kas'}
               </button>
             </div>
           </div>
@@ -155,8 +181,8 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
                   <XAxis dataKey="month" stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }} />
                   <YAxis stroke="var(--color-text-muted)" tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }} tickFormatter={formatShortCurrency} />
                   <Tooltip content={<ChartTooltip />} />
-                  <Area type="monotone" dataKey="income" name="Pemasukan" stroke="var(--color-emerald)" strokeWidth={2} fill="url(#gIncome)" />
-                  <Area type="monotone" dataKey="expense" name="Pengeluaran" stroke="var(--color-rose)" strokeWidth={2} fill="url(#gExpense)" />
+                  <Area type="monotone" dataKey="income" name={isStudent ? 'Uang Masuk' : 'Pemasukan'} stroke="var(--color-emerald)" strokeWidth={2} fill="url(#gIncome)" />
+                  <Area type="monotone" dataKey="expense" name={isStudent ? 'Pengeluaran' : 'Pengeluaran'} stroke="var(--color-rose)" strokeWidth={2} fill="url(#gExpense)" />
                 </AreaChart>
               ) : (
                 <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
@@ -191,28 +217,30 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
         {/* Shortcuts */}
         <div className="shortcuts-panel glass-panel">
           <h3 className="section-title">Aksi Cepat</h3>
-          <p className="section-sub">Perbarui pembukuan dan uji skenario keuangan</p>
+          <p className="section-sub">
+            {isStudent ? 'Kelola jajan & rencanakan target uang saku' : 'Perbarui pembukuan dan uji skenario keuangan'}
+          </p>
 
           <div className="shortcut-list">
             <button className="shortcut-card" onClick={onOpenScanner}>
               <div className="sc-icon scan"><HiOutlineDocumentSearch /></div>
               <div className="sc-text">
-                <strong>Scan Struk / Invoice</strong>
-                <span>Ekstrak data dari foto struk</span>
+                <strong>{isStudent ? 'Scan Bon Warteg / Struk' : 'Scan Struk / Invoice'}</strong>
+                <span>{isStudent ? 'Foto struk belanjaan & nota kost' : 'Ekstrak data dari foto struk'}</span>
               </div>
             </button>
             <button className="shortcut-card" onClick={() => onNavigateTab('simulator')}>
               <div className="sc-icon sim"><HiOutlineTrendingDown /></div>
               <div className="sc-text">
-                <strong>Simulator Skenario</strong>
-                <span>Uji dampak perubahan omset & biaya</span>
+                <strong>{isStudent ? 'Simulator Survival Tanggal Tua' : 'Simulator Skenario'}</strong>
+                <span>{isStudent ? 'Uji target nabung UKT & jajan hemat' : 'Uji dampak perubahan omset & biaya'}</span>
               </div>
             </button>
             <button className="shortcut-card" onClick={() => onNavigateTab('cfo')}>
               <div className="sc-icon cfo"><HiOutlineCash /></div>
               <div className="sc-text">
-                <strong>Konsultasi Keuangan</strong>
-                <span>Tanya strategi efisiensi kas</span>
+                <strong>{isStudent ? 'Tanya Mentor Finansial' : 'Konsultasi Keuangan'}</strong>
+                <span>{isStudent ? 'Life hacks hemat uang saku anak kost' : 'Tanya strategi efisiensi kas'}</span>
               </div>
             </button>
           </div>
@@ -225,8 +253,8 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
 
         <div className="category-card glass-panel">
           <div className="card-header">
-            <h3 className="section-title">Distribusi Pengeluaran</h3>
-            <span className="glass-pill">{categoryData.length} Kategori</span>
+            <h3 className="section-title">{isStudent ? 'Pos Pengeluaran Mahasiswa' : 'Distribusi Pengeluaran'}</h3>
+            <span className="glass-pill">{categoryData.length} Pos</span>
           </div>
           <div className="category-body">
             <div className="category-pie-container">
@@ -259,7 +287,7 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
 
         <div className="alerts-card glass-panel">
           <div className="card-header">
-            <h3 className="section-title">Temuan & Saran</h3>
+            <h3 className="section-title">{isStudent ? 'Saran & Peringatan Dompet' : 'Temuan & Saran'}</h3>
           </div>
           <div className="alerts-list">
             {insights.map((ins) => (
@@ -290,12 +318,12 @@ const OverviewTab = ({ metrics, transactions, startingCash, onNavigateTab, onOpe
       <section className="recent-section glass-panel">
         <div className="recent-header">
           <div>
-            <h3 className="section-title">Transaksi Terakhir</h3>
-            <p className="section-sub">Aktivitas pemasukan dan pengeluaran terbaru</p>
+            <h3 className="section-title">{isStudent ? 'Mutasi Uang Saku Terakhir' : 'Transaksi Terakhir'}</h3>
+            <p className="section-sub">{isStudent ? 'Catatan jajan, kiriman, & pengeluaran kost' : 'Aktivitas pemasukan dan pengeluaran terbaru'}</p>
           </div>
           <div className="recent-actions">
-            <button className="btn-secondary" onClick={() => onNavigateTab('ledger')}>Semua Transaksi</button>
-            <button className="btn-primary" onClick={onOpenNewTx}><HiOutlinePlus /> Catat</button>
+            <button className="btn-secondary" onClick={() => onNavigateTab('ledger')}>Semua Catatan</button>
+            <button className="btn-primary" onClick={onOpenNewTx}><HiOutlinePlus /> {isStudent ? 'Catat Jajan' : 'Catat'}</button>
           </div>
         </div>
 

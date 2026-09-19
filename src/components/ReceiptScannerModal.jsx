@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   HiOutlineDocumentSearch,
   HiOutlineUpload,
@@ -10,39 +10,45 @@ import {
   HiOutlineOfficeBuilding,
   HiOutlineCash,
   HiOutlineTag,
+  HiOutlineAcademicCap,
 } from 'react-icons/hi';
 import confetti from 'canvas-confetti';
-import { SAMPLE_RECEIPTS, formatCurrency, formatShortCurrency } from '../services/financeService';
+import {
+  BUSINESS_SAMPLE_RECEIPTS,
+  STUDENT_SAMPLE_RECEIPTS,
+  BUSINESS_CATEGORIES,
+  STUDENT_CATEGORIES,
+  formatCurrency,
+  formatShortCurrency,
+} from '../services/financeService';
 import './ReceiptScanner.css';
 
-const CATEGORIES = [
-  'Cloud Infrastructure',
-  'Payroll',
-  'Marketing & Ads',
-  'Office & Utilities',
-  'Software & Tools',
-  'Equipment & Capex',
-  'Legal & Accounting',
-  'Client Revenue',
-  'Miscellaneous',
-];
+const ReceiptScannerModal = ({ isOpen, role = 'business', onClose, onSaveReceiptTransaction }) => {
+  const isStudent = role === 'student';
+  const sampleReceipts = isStudent ? STUDENT_SAMPLE_RECEIPTS : BUSINESS_SAMPLE_RECEIPTS;
+  const categories = isStudent ? STUDENT_CATEGORIES : BUSINESS_CATEGORIES;
 
-const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
   const [scanState, setScanState] = useState('idle'); // 'idle' | 'scanning' | 'verified'
   const [selectedPreset, setSelectedPreset] = useState(null);
   const [progress, setProgress] = useState(0);
 
   // Form Extracted State
   const [merchant, setMerchant] = useState('');
-  const [category, setCategory] = useState('Miscellaneous');
+  const [category, setCategory] = useState(() => (isStudent ? 'Kebutuhan Kost & Harian' : 'Miscellaneous'));
   const [total, setTotal] = useState(0);
   const [tax, setTax] = useState(0);
   const [date, setDate] = useState('2026-09-18');
-  const [paymentMethod, setPaymentMethod] = useState('Corporate Card');
+  const [paymentMethod, setPaymentMethod] = useState(() => (isStudent ? 'QRIS BCA' : 'Corporate Card'));
   const [confidence, setConfidence] = useState(0.96);
   const [items, setItems] = useState([]);
 
   const fileInputRef = useRef(null);
+
+  // Reset category on role switch
+  useEffect(() => {
+    setCategory(isStudent ? 'Kebutuhan Kost & Harian' : 'Miscellaneous');
+    setPaymentMethod(isStudent ? 'QRIS BCA' : 'Corporate Card');
+  }, [isStudent]);
 
   if (!isOpen) return null;
 
@@ -61,7 +67,7 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
             setTotal(receiptData.total);
             setTax(receiptData.tax || 0);
             setDate(receiptData.date);
-            setPaymentMethod(receiptData.paymentMethod || 'Corporate Card');
+            setPaymentMethod(receiptData.paymentMethod || (isStudent ? 'QRIS BCA' : 'Corporate Card'));
             setConfidence(receiptData.confidence || 0.95);
             setItems(receiptData.items || []);
             setScanState('verified');
@@ -84,28 +90,31 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
 
     const reader = new FileReader();
     reader.onload = () => {
-      // Use sample data with the custom uploaded image
       const mockParsed = {
-        merchant: file.name.replace(/\.[^/.]+$/, '').toUpperCase() || 'TOKO MITRA USAHA',
-        category: 'Equipment & Capex',
-        total: 1250000,
-        tax: 125000,
+        merchant: file.name.replace(/\.[^/.]+$/, '').toUpperCase() || (isStudent ? 'WARUNG KOST BERKAH' : 'TOKO MITRA USAHA'),
+        category: isStudent ? 'Kebutuhan Kost & Harian' : 'Equipment & Capex',
+        total: isStudent ? 45000 : 1250000,
+        tax: isStudent ? 0 : 125000,
         date: new Date().toISOString().split('T')[0],
-        paymentMethod: 'QRIS BCA',
-        confidence: 0.94,
-        items: [
-          { desc: 'Pengadaan Perlengkapan Operasional', amount: 1125000 },
-          { desc: 'PPN 11%', amount: 125000 },
-        ],
+        paymentMethod: isStudent ? 'QRIS BCA' : 'Corporate Card',
+        confidence: 0.95,
+        items: isStudent
+          ? [
+              { desc: 'Kebutuhan Harian Kost & Makanan', amount: 45000 },
+            ]
+          : [
+              { desc: 'Pengadaan Perlengkapan Operasional', amount: 1125000 },
+              { desc: 'PPN 11%', amount: 125000 },
+            ],
       };
-      triggerScanAnimation(mockParsed, reader.result);
+      triggerScanAnimation(mockParsed);
     };
     reader.readAsDataURL(file);
   };
 
   const handleSaveToLedger = () => {
     const tx = {
-      title: `Struk: ${merchant}`,
+      title: `${isStudent ? 'Bon/Struk' : 'Struk'}: ${merchant}`,
       type: 'expense',
       category: category,
       amount: Number(total),
@@ -113,7 +122,7 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
       payment_method: paymentMethod,
       merchant: merchant,
       tax: Number(tax),
-      notes: `Smart OCR Verified (${(confidence * 100).toFixed(0)}% Confidence). ${items.length} item line list.`,
+      notes: `Smart OCR Verified (${(confidence * 100).toFixed(0)}% Keyakinan). ${items.length} rincian item.`,
     };
 
     onSaveReceiptTransaction(tx);
@@ -127,12 +136,16 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
         {/* Modal Header */}
         <div className="modal-header-bar">
           <div className="modal-title-row">
-            <div className="modal-icon-badge">
-              <HiOutlineDocumentSearch />
+            <div className="modal-icon-badge" style={{ background: isStudent ? 'rgba(56, 189, 248, 0.15)' : 'rgba(99, 102, 241, 0.15)', color: isStudent ? 'var(--color-primary)' : 'var(--color-purple)' }}>
+              {isStudent ? <HiOutlineAcademicCap /> : <HiOutlineDocumentSearch />}
             </div>
             <div>
-              <h3>Pemindai Struk & Invoice</h3>
-              <p>Ekstraksi otomatis nama merchant, item, pajak, dan nominal dari foto struk</p>
+              <h3>{isStudent ? 'Pemindai Bon Warteg, Struk & Kwitansi Kost' : 'Pemindai Struk & Invoice'}</h3>
+              <p>
+                {isStudent
+                  ? 'Foto bon makan, struk Indomaret, kwitansi sewa kost, atau print tugas langsung terurai rapi'
+                  : 'Ekstraksi otomatis nama merchant, item, pajak, dan nominal dari foto struk atau tagihan'}
+              </p>
             </div>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
@@ -158,18 +171,18 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
                   <div className="dropzone-icon-circle">
                     <HiOutlineUpload />
                   </div>
-                  <span className="dropzone-title">Upload Foto Struk / PDF Invoice</span>
-                  <span className="dropzone-sub">Klik untuk browse atau seret file ke sini</span>
+                  <span className="dropzone-title">Upload Foto Struk / Bon / PDF</span>
+                  <span className="dropzone-sub">Klik untuk browse atau seret file foto ke sini</span>
                 </div>
 
                 <div className="preset-sample-section">
                   <div className="preset-header-text">
                     <HiOutlineSparkles style={{ color: '#38bdf8' }} />
-                  <span>Atau coba contoh struk:</span>
+                    <span>Atau coba contoh {isStudent ? 'bon mahasiswa' : 'struk bisnis'}:</span>
                   </div>
 
                   <div className="preset-cards-list">
-                    {SAMPLE_RECEIPTS.map((sample) => (
+                    {sampleReceipts.map((sample) => (
                       <button
                         key={sample.id}
                         className={`preset-sample-card ${selectedPreset === sample.id ? 'active' : ''}`}
@@ -195,7 +208,7 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
                 <div className="scanning-feedback">
                   <div className="spinner-hud" />
                   <h4>Memindai Dokumen...</h4>
-                  <p>Mengekstrak informasi dari struk atau invoice</p>
+                  <p>Mengekstrak informasi dari {isStudent ? 'bon & nota belanja' : 'struk atau invoice'}</p>
                   <div className="progress-bar-hud">
                     <div className="progress-fill-hud" style={{ width: `${progress}%` }} />
                   </div>
@@ -267,13 +280,13 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
             <div className="verification-form">
               <div className="form-row">
                 <label>
-                  <HiOutlineOfficeBuilding /> Nama Merchant / Vendor
+                  <HiOutlineOfficeBuilding /> {isStudent ? 'Nama Toko / Warung / Merchant' : 'Nama Merchant / Vendor'}
                 </label>
                 <input
                   type="text"
                   value={merchant}
                   onChange={(e) => setMerchant(e.target.value)}
-                  placeholder="Contoh: Amazon Web Services"
+                  placeholder={isStudent ? 'Contoh: Warteg Bahari / Indomaret' : 'Contoh: Amazon Web Services'}
                   disabled={scanState !== 'verified'}
                   className="form-input"
                 />
@@ -290,7 +303,7 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
                     disabled={scanState !== 'verified'}
                     className="form-input"
                   >
-                    {CATEGORIES.map((c) => (
+                    {categories.map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
@@ -348,10 +361,21 @@ const ReceiptScannerModal = ({ isOpen, onClose, onSaveReceiptTransaction }) => {
                   disabled={scanState !== 'verified'}
                   className="form-input"
                 >
-                  <option value="Corporate Card">Corporate Credit Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="QRIS BCA">QRIS / E-Wallet</option>
-                  <option value="Petty Cash">Kas Kecil (Cash)</option>
+                  {isStudent ? (
+                    <>
+                      <option value="QRIS BCA">QRIS / E-Wallet (GoPay, OVO, Dana)</option>
+                      <option value="Transfer Bank BCA">Transfer Bank (BCA Mobile)</option>
+                      <option value="Transfer Bank Mandiri">Transfer Bank (Livin Mandiri)</option>
+                      <option value="Tunai (Cash)">Tunai (Uang Cash)</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Corporate Card">Corporate Credit Card</option>
+                      <option value="Bank Transfer">Bank Transfer</option>
+                      <option value="QRIS BCA">QRIS / E-Wallet</option>
+                      <option value="Petty Cash">Kas Kecil (Cash)</option>
+                    </>
+                  )}
                 </select>
               </div>
 
