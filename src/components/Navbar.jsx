@@ -117,10 +117,10 @@ const Navbar = ({
             >
               {isStudent ? <HiOutlineAcademicCap /> : <HiOutlineOfficeBuilding />}
               <span className="role-btn-text">{isStudent ? 'Mahasiswa' : 'Bisnis'}</span>
-              <HiOutlineSwitchHorizontal className="switch-icon" />
+              <HiOutlineSwitchHorizontal className="switch-icon desktop-only" />
             </button>
 
-            <div className={`glass-pill ${getScoreBadgeClass(healthScore)} score-pill`} title={`Skor Kesehatan: ${healthScore}/100`}>
+            <div className={`glass-pill ${getScoreBadgeClass(healthScore)} score-pill desktop-only`} title={`Skor Kesehatan: ${healthScore}/100`}>
               <span className="score-text">Skor: {healthScore}</span>
             </div>
 
@@ -129,9 +129,9 @@ const Navbar = ({
               <span>{isStudent ? 'Catat' : 'Transaksi'}</span>
             </button>
 
-            {/* Tutorial / Help Button */}
+            {/* Tutorial / Help Button (Desktop only, available in profile dropdown on mobile) */}
             <button
-              className="btn-tutorial-toggle"
+              className="btn-tutorial-toggle desktop-only"
               onClick={onOpenTutorial}
               title="Panduan Penggunaan (Tutorial)"
               aria-label="Buka Panduan Tutorial"
@@ -143,9 +143,14 @@ const Navbar = ({
               {theme === 'dark' ? <HiOutlineSun /> : <HiOutlineMoon />}
             </button>
 
-            {/* Profile */}
+            {/* Profile Avatar & Dropdown */}
             <div className="profile-wrap">
-              <button className="profile-btn" onClick={() => setShowUserMenu(!showUserMenu)} title="Menu Profil">
+              <button
+                className="profile-btn"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                title="Menu Profil & Logout"
+                aria-label="Buka Menu Profil dan Logout"
+              >
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={fullName} className="profile-img" referrerPolicy="no-referrer" />
                 ) : (
@@ -154,48 +159,55 @@ const Navbar = ({
               </button>
 
               {showUserMenu && (
-                <div className="profile-dropdown glass-panel">
-                  <div className="dropdown-header">
-                    <div className="dropdown-name">{fullName}</div>
-                    <div className="dropdown-role-label">
-                      Mode: <strong>{isStudent ? 'Mahasiswa 🎓' : 'Bisnis 🏢'}</strong>
+                <>
+                  <div
+                    className="profile-dropdown-backdrop"
+                    onClick={() => setShowUserMenu(false)}
+                  />
+                  <div className="profile-dropdown glass-panel">
+                    <div className="dropdown-header">
+                      <div className="dropdown-name">{fullName}</div>
+                      <div className="dropdown-role-label">
+                        Mode Aktif: <strong>{isStudent ? 'Mahasiswa 🎓' : 'Bisnis 🏢'}</strong>
+                      </div>
+                      {email && <div className="dropdown-email">{email}</div>}
                     </div>
-                    {email && <div className="dropdown-email">{email}</div>}
+                    <div className="dropdown-divider" />
+                    
+                    <button
+                      className="dropdown-action"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        if (onOpenRoleSelector) onOpenRoleSelector();
+                      }}
+                    >
+                      <HiOutlineSwitchHorizontal /> <span>Ganti Mode Akun</span>
+                    </button>
+
+                    <button
+                      className="dropdown-action"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        if (onOpenTutorial) onOpenTutorial();
+                      }}
+                    >
+                      <HiOutlineQuestionMarkCircle /> <span>Panduan Aplikasi</span>
+                    </button>
+
+                    <div className="dropdown-divider" />
+
+                    <button
+                      className="dropdown-action logout-btn"
+                      onClick={async () => {
+                        setShowUserMenu(false);
+                        await signOut();
+                      }}
+                    >
+                      <HiOutlineLogout className="logout-icon" />
+                      <span>Keluar (Logout)</span>
+                    </button>
                   </div>
-                  <div className="dropdown-divider" />
-                  
-                  <button
-                    className="dropdown-action"
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      if (onOpenRoleSelector) onOpenRoleSelector();
-                    }}
-                  >
-                    <HiOutlineSwitchHorizontal /> Ganti Mode Akun
-                  </button>
-
-                  <button
-                    className="dropdown-action"
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      if (onOpenTutorial) onOpenTutorial();
-                    }}
-                  >
-                    <HiOutlineAcademicCap /> Panduan Aplikasi
-                  </button>
-
-                  <div className="dropdown-divider" />
-
-                  <button
-                    className="dropdown-action logout"
-                    onClick={async () => {
-                      setShowUserMenu(false);
-                      await signOut();
-                    }}
-                  >
-                    <HiOutlineLogout /> Keluar
-                  </button>
-                </div>
+                </>
               )}
             </div>
           </div>
