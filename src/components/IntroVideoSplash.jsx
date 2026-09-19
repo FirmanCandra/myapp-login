@@ -1,11 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { HiOutlineArrowRight, HiOutlinePlay } from 'react-icons/hi';
+import {
+  HiOutlineArrowRight,
+  HiOutlineVolumeUp,
+  HiOutlineVolumeOff,
+  HiOutlinePlay,
+} from 'react-icons/hi';
 import FinoraLogo from './FinoraLogo';
 import './IntroVideoSplash.css';
 
 const IntroVideoSplash = ({ onFinish }) => {
   const videoRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [isMuted, setIsMuted] = useState(false); // Default sound is ON!
   const [isFading, setIsFading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
@@ -18,31 +24,34 @@ const IntroVideoSplash = ({ onFinish }) => {
     }, 700);
   }, [isFading, onFinish]);
 
-  // Video Autoplay & Auto Sound Initialization
+  // Video Autoplay & Sound Initialization (Default Sound ON)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Direct hardware & mobile playback flags
+    // Set mobile attributes
     video.playsInline = true;
     video.setAttribute('playsinline', 'true');
     video.setAttribute('webkit-playsinline', 'true');
     video.setAttribute('x5-playsinline', 'true');
     video.setAttribute('preload', 'auto');
 
-    // Attempt to play with Sound ON directly
+    // Default to Sound ON (unmuted)
     video.muted = false;
     video.volume = 1.0;
+    setIsMuted(false);
 
     const tryStartPlayback = async () => {
       try {
         await video.play();
         setIsPaused(false);
         setIsBuffering(false);
+        setIsMuted(false);
       } catch (err) {
-        // If browser blocks unmuted autoplay, play muted first and unmute on first user touch
-        console.warn('Browser requires touch for sound, playing and queuing unmute on touch:', err);
+        // If mobile browser policy requires user touch before playing audio:
+        console.warn('Browser policy requires touch for sound, playing and queuing unmute:', err);
         video.muted = true;
+        setIsMuted(true);
         try {
           await video.play();
           setIsPaused(false);
@@ -51,23 +60,26 @@ const IntroVideoSplash = ({ onFinish }) => {
           setIsPaused(true);
         }
 
-        const handleUserGestureUnmute = () => {
+        // On very first touch or click anywhere, automatically unmute!
+        const handleFirstTouchUnmute = () => {
           if (videoRef.current) {
             videoRef.current.muted = false;
+            videoRef.current.volume = 1.0;
+            setIsMuted(false);
             videoRef.current.play().catch(() => {});
           }
-          window.removeEventListener('touchstart', handleUserGestureUnmute);
-          window.removeEventListener('click', handleUserGestureUnmute);
+          window.removeEventListener('touchstart', handleFirstTouchUnmute);
+          window.removeEventListener('click', handleFirstTouchUnmute);
         };
 
-        window.addEventListener('touchstart', handleUserGestureUnmute, { passive: true, once: true });
-        window.addEventListener('click', handleUserGestureUnmute, { passive: true, once: true });
+        window.addEventListener('touchstart', handleFirstTouchUnmute, { passive: true, once: true });
+        window.addEventListener('click', handleFirstTouchUnmute, { passive: true, once: true });
       }
     };
 
     tryStartPlayback();
 
-    // Anti-stuck watchdog: detect if video hangs
+    // Anti-stuck watchdog
     let lastTime = 0;
     let stuckCount = 0;
     const progressWatchdog = setInterval(() => {
@@ -75,7 +87,7 @@ const IntroVideoSplash = ({ onFinish }) => {
         if (video.currentTime === lastTime && video.currentTime > 0) {
           stuckCount += 1;
           if (stuckCount >= 3) {
-            console.warn('Video paused unexpectedly, nudging playback...');
+            console.warn('Playback stalled, nudging video...');
             video.play().catch(() => {});
             stuckCount = 0;
           }
@@ -109,11 +121,25 @@ const IntroVideoSplash = ({ onFinish }) => {
     }
   };
 
+  const toggleSound = (e) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      setIsMuted(nextMuted);
+      if (!nextMuted) {
+        videoRef.current.volume = 1.0;
+        videoRef.current.play().catch(() => {});
+      }
+    }
+  };
+
   const togglePlay = (e) => {
     e.stopPropagation();
     if (videoRef.current) {
       if (videoRef.current.paused) {
         videoRef.current.muted = false;
+        setIsMuted(false);
         videoRef.current
           .play()
           .then(() => setIsPaused(false))
@@ -128,6 +154,7 @@ const IntroVideoSplash = ({ onFinish }) => {
   const handleContainerClick = () => {
     if (videoRef.current && videoRef.current.paused) {
       videoRef.current.muted = false;
+      setIsMuted(false);
       videoRef.current
         .play()
         .then(() => setIsPaused(false))
@@ -148,6 +175,7 @@ const IntroVideoSplash = ({ onFinish }) => {
         className="intro-video-element"
         autoPlay
         playsInline
+        muted={isMuted}
         preload="auto"
         onTimeUpdate={handleTimeUpdate}
         onEnded={triggerFadeOut}
@@ -175,6 +203,16 @@ const IntroVideoSplash = ({ onFinish }) => {
         />
 
         <div className="intro-top-actions">
+          <button
+            className={`intro-glass-btn sound-btn ${isMuted ? 'muted' : 'active'}`}
+            onClick={toggleSound}
+            title={isMuted ? 'Nyalakan Audio' : 'Bisukan Audio'}
+            aria-label="Toggle Sound"
+          >
+            {isMuted ? <HiOutlineVolumeOff /> : <HiOutlineVolumeUp />}
+            <span>{isMuted ? 'Muted' : 'Sound On'}</span>
+          </button>
+
           <button
             className="intro-glass-btn skip-btn"
             onClick={triggerFadeOut}
