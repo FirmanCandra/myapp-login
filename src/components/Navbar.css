@@ -127,6 +127,7 @@
   transform: translateY(-1px);
 }
 
+.btn-tutorial-toggle,
 .btn-theme-toggle {
   width: 34px;
   height: 34px;
@@ -142,9 +143,11 @@
   flex-shrink: 0;
 }
 
+.btn-tutorial-toggle:hover,
 .btn-theme-toggle:hover {
   color: var(--color-primary);
   border-color: var(--color-primary-border);
+  background: var(--color-surface-hover);
 }
 
 /* Profile */

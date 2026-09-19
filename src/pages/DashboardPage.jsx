@@ -7,6 +7,7 @@ import CfoAdvisorTab from '../components/CfoAdvisorTab';
 import LedgerTab from '../components/LedgerTab';
 import ReceiptScannerModal from '../components/ReceiptScannerModal';
 import TransactionModal from '../components/TransactionModal';
+import OnboardingModal from '../components/OnboardingModal';
 import { useAuth } from '../context/AuthContext';
 import {
   getStoredTransactions,
@@ -27,6 +28,7 @@ const DashboardPage = () => {
   // Modals
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isNewTxOpen, setIsNewTxOpen] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   // Load Transactions
   useEffect(() => {
@@ -43,6 +45,17 @@ const DashboardPage = () => {
     };
     loadData();
   }, [user]);
+
+  // First-Time User Onboarding Popup Trigger
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('omniledger_onboarding_completed');
+    if (!hasSeenOnboarding) {
+      const timer = setTimeout(() => {
+        setIsTutorialOpen(true);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Reactive Financial Metrics
   const metrics = useMemo(() => {
@@ -77,6 +90,7 @@ const DashboardPage = () => {
         healthScore={metrics.healthScore}
         onOpenNewTx={() => setIsNewTxOpen(true)}
         onOpenScanner={() => setIsScannerOpen(true)}
+        onOpenTutorial={() => setIsTutorialOpen(true)}
       />
 
       {/* 2. Main Tab Viewport */}
@@ -152,6 +166,16 @@ const DashboardPage = () => {
         isOpen={isNewTxOpen}
         onClose={() => setIsNewTxOpen(false)}
         onSave={handleSaveTransaction}
+      />
+
+      {/* Interactive First-Time Tutorial Onboarding Modal */}
+      <OnboardingModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+        onNavigateTab={(tab) => {
+          if (tab === 'scanner') setIsScannerOpen(true);
+          else setActiveTab(tab);
+        }}
       />
     </div>
   );

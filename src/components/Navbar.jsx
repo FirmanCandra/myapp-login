@@ -9,13 +9,15 @@ import {
   HiOutlinePlus,
   HiOutlineSun,
   HiOutlineMoon,
+  HiOutlineQuestionMarkCircle,
+  HiOutlineAcademicCap,
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { NAV_TABS } from '../constants/tabs';
 import './Navbar.css';
 
-const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScanner }) => {
+const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScanner, onOpenTutorial }) => {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -102,6 +104,16 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
               <span>Transaksi</span>
             </button>
 
+            {/* Tutorial / Help Button */}
+            <button
+              className="btn-tutorial-toggle"
+              onClick={onOpenTutorial}
+              title="Panduan Penggunaan (Tutorial)"
+              aria-label="Buka Panduan Tutorial"
+            >
+              <HiOutlineQuestionMarkCircle />
+            </button>
+
             <button className="btn-theme-toggle" onClick={toggleTheme} title="Ganti tema (Light / Dark)">
               {theme === 'dark' ? <HiOutlineSun /> : <HiOutlineMoon />}
             </button>
@@ -123,6 +135,19 @@ const Navbar = ({ activeTab, setActiveTab, healthScore, onOpenNewTx, onOpenScann
                     {email && <div className="dropdown-email">{email}</div>}
                   </div>
                   <div className="dropdown-divider" />
+                  
+                  <button
+                    className="dropdown-action"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      if (onOpenTutorial) onOpenTutorial();
+                    }}
+                  >
+                    <HiOutlineAcademicCap /> Panduan Aplikasi
+                  </button>
+
+                  <div className="dropdown-divider" />
+
                   <button
                     className="dropdown-action logout"
                     onClick={async () => {
