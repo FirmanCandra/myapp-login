@@ -606,17 +606,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 0.85rem;
-  background: var(--color-bg-secondary);
+  padding: 0.85rem 1rem;
+  background: var(--color-bg-secondary, #111827);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   gap: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-tx-card:active {
+  transform: scale(0.98);
+  background: var(--color-surface-hover);
 }
 
 .mobile-tx-left {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
   min-width: 0;
   flex: 1;
 }
@@ -629,7 +636,7 @@
 }
 
 .mobile-tx-title {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-text);
   overflow: hidden;
@@ -644,7 +651,7 @@
 }
 
 .mobile-tx-date {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
 }
@@ -681,59 +688,92 @@
   .alerts-card,
   .recent-section {
     padding: 1.15rem 1rem;
+    border-radius: 16px;
   }
 
   .overview-chart-container {
-    height: 240px;
+    height: 230px;
+  }
+
+  .student-banner-card {
+    padding: 1rem 1.15rem;
+    border-radius: 16px;
+  }
+
+  .student-allowance-amount {
+    font-size: 1.4rem;
   }
 }
 
 @media (max-width: 520px) {
   .kpi-row {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.65rem;
+    gap: 0.6rem;
   }
 
   .kpi-card {
     padding: 0.85rem;
+    border-radius: 14px;
   }
 
   .kpi-value {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
   }
 
   .kpi-icon {
-    width: 28px;
-    height: 28px;
-    font-size: 0.95rem;
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+    border-radius: 8px;
   }
 
   .kpi-sub {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
   }
 
   .chart-toggles {
     width: 100%;
+    border-radius: 8px;
+    padding: 2px;
   }
 
   .toggle-btn {
     flex: 1;
     text-align: center;
-    padding: 0.35rem 0.4rem;
+    padding: 0.4rem 0.45rem;
+    font-size: 0.72rem;
+    border-radius: 6px;
   }
 
   .category-body {
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
   }
 
   .cat-list {
     width: 100%;
   }
+
+  .quick-action-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .btn-quick-act {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.75rem;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 360px) {
   .kpi-row {
+    grid-template-columns: 1fr;
+  }
+  .quick-action-btns {
     grid-template-columns: 1fr;
   }
 }
