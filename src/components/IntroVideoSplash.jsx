@@ -134,17 +134,6 @@ const IntroVideoSplash = ({ onFinish }) => {
         <div className="intro-progress-track">
           <div className="intro-progress-fill" style={{ width: `${progress}%` }} />
         </div>
-
-        <div className="intro-footer-row">
-          <div className="intro-hint-badge">
-            <span>💡 Klik di mana saja untuk langsung ke menu Login</span>
-          </div>
-
-          <button className="intro-enter-btn" onClick={triggerFadeOut}>
-            <span>Masuk ke FINORA</span>
-            <HiOutlineArrowRight />
-          </button>
-        </div>
       </div>
     </div>
   );
