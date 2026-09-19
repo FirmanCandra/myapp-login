@@ -7,8 +7,9 @@ import {
   HiOutlineChatAlt2,
   HiOutlineLockClosed,
   HiOutlineArrowRight,
-  HiOutlineCheckCircle,
   HiOutlinePlay,
+  HiOutlineBriefcase,
+  HiOutlineAcademicCap,
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -22,6 +23,9 @@ const LoginPage = () => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [selectedRole, setSelectedRole] = useState(
+    () => localStorage.getItem('omniledger_user_role') || 'business'
+  );
 
   if (loading) {
     return <LoadingSpinner message="Memuat FINORA..." />;
@@ -32,10 +36,16 @@ const LoginPage = () => {
     return null;
   }
 
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
+    localStorage.setItem('omniledger_user_role', role);
+  };
+
   const handleGoogleLogin = async () => {
     try {
       setIsSigningIn(true);
       setError(null);
+      localStorage.setItem('omniledger_user_role', selectedRole);
       await signInWithGoogle();
     } catch (err) {
       setError(err.message || 'Gagal login. Silakan coba lagi atau masuk sebagai tamu.');
@@ -44,156 +54,174 @@ const LoginPage = () => {
   };
 
   const handleGuestDemoLogin = () => {
+    localStorage.setItem('omniledger_user_role', selectedRole);
     navigate('/dashboard');
   };
 
   return (
-    <div className="login-page-wrapper">
+    <div className={`login-page-wrapper mode-${selectedRole}`}>
       {showIntro && (
         <IntroVideoSplash onFinish={() => setShowIntro(false)} />
       )}
 
-      <div className="login-bg-glow blob-1" />
-      <div className="login-bg-glow blob-2" />
+      <div className="login-split-card login-fade-in">
+        {/* Left Side: Dark Hero Panel (Navy + Gradient Mesh) */}
+        <section className="login-hero-panel">
+          <div className="hero-mesh-bg" />
 
-      <div className="login-split-card glass-panel login-fade-in">
-        {/* Left Side: Desktop Showcase */}
-        <section className="login-showcase-panel desktop-only">
-          <div className="showcase-brand-header">
-            <FinoraLogo size="lg" showTagline={true} customTagline="Your Financial Intelligence" />
+          <div className="hero-brand-header">
+            <FinoraLogo
+              size="md"
+              variant="white"
+              showTagline={true}
+              customTagline="Your Financial Intelligence"
+            />
           </div>
 
-          <div className="showcase-hero-content">
-            <div className="glass-pill pill-primary showcase-pill">
-              SMART • SIMPLE • FUTURE-READY
-            </div>
-            <h1>
-              Kelola keuangan bisnis & kuliah dengan <span className="gradient-text">cerdas dan terukur</span>
+          <div className="hero-content">
+            <h1 className="hero-headline">
+              Kelola keuangan bisnis & kuliah dengan terukur
             </h1>
-            <p>
-              Autonomous Financial Intelligence untuk UMKM, Startup, dan Mahasiswa. Simulasi skenario runway, pemindai bon otomatis, dan AI Financial Mentor.
+            <p className="hero-description">
+              Autonomous Financial Intelligence untuk UMKM, Startup, dan Mahasiswa. Simulasi skenario runway, pemindai bon cerdas, dan AI Financial Advisor.
             </p>
           </div>
 
-          <div className="showcase-features-list">
-            <div className="feature-item">
-              <div className="feat-icon-box">
+          {/* Three Feature Highlights with circular subtle gradient badge */}
+          <div className="hero-features-list">
+            <div className="hero-feature-item">
+              <div className="feature-circle-badge">
                 <HiOutlineCalculator />
               </div>
-              <div>
-                <strong>Simulator Skenario & Survival</strong>
-                <span>Uji dampak perubahan omset, target nabung UKT, dan keputusan strategis keuangan.</span>
+              <div className="feature-text">
+                <span className="feature-title">Simulator Skenario</span>
+                <span className="feature-desc">Uji ketahanan runway & rencana tabungan dengan kalkulasi presisi.</span>
               </div>
             </div>
 
-            <div className="feature-item">
-              <div className="feat-icon-box">
+            <div className="hero-feature-item">
+              <div className="feature-circle-badge">
                 <HiOutlineDocumentSearch />
               </div>
-              <div>
-                <strong>Smart OCR Receipt Scanner</strong>
-                <span>Foto struk belanja atau bon warteg, data otomatis terurai masuk ke buku kas.</span>
+              <div className="feature-text">
+                <span className="feature-title">Smart OCR Scanner</span>
+                <span className="feature-desc">Ekstraksi otomatis foto bon belanja & nota kas masuk ke pembukuan.</span>
               </div>
             </div>
 
-            <div className="feature-item">
-              <div className="feat-icon-box">
+            <div className="hero-feature-item">
+              <div className="feature-circle-badge">
                 <HiOutlineChatAlt2 />
               </div>
-              <div>
-                <strong>AI Financial Advisor & Mentor</strong>
-                <span>Rekomendasi penghematan, batas jajan harian aman, dan konsultasi finansial 24/7.</span>
+              <div className="feature-text">
+                <span className="feature-title">AI Financial Advisor</span>
+                <span className="feature-desc">Konsultasi cerdas, audit inefisiensi pengeluaran, & tips terukur 24/7.</span>
               </div>
             </div>
           </div>
 
-          <div className="showcase-footer-trust">
-            <HiOutlineLockClosed className="trust-icon" />
-            <span>Data terenkripsi • Row-Level Security • Supabase Cloud</span>
+          {/* Security Strip at bottom of navy panel */}
+          <div className="hero-security-strip">
+            <HiOutlineLockClosed className="security-icon" />
+            <span>Data terenkripsi · Row-Level Security · Supabase Cloud</span>
           </div>
         </section>
 
-        {/* Right Side: Auth Form */}
-        <section className="login-auth-panel">
-          <div className="auth-card-inner">
-            {/* Mobile Brand Header */}
-            <div className="mobile-brand-banner mobile-only">
-              <FinoraLogo size="md" showTagline={true} customTagline="Your Financial Intelligence" />
+        {/* Right Side: Auth Form Panel (White Surface with Asymmetric Radius) */}
+        <section className="login-form-panel">
+          <div className="form-card-inner">
+            {/* Mobile Header */}
+            <div className="form-mobile-header mobile-only">
+              <FinoraLogo size="sm" showTagline={true} customTagline="Your Financial Intelligence" />
             </div>
 
-            <div className="auth-header-text">
-              <h2>Masuk ke Dashboard</h2>
-              <p>Pilih mode Perusahaan (SME) atau Mahasiswa (Anak Kost)</p>
+            <div className="form-title-group">
+              <h2 className="form-title">Masuk ke Dashboard</h2>
+              <p className="form-subtitle">
+                {selectedRole === 'business'
+                  ? 'Mode Bisnis & UMKM (Runway & Cashflow OS)'
+                  : 'Mode Mahasiswa & Anak Kost (Uang Saku & UKT)'}
+              </p>
+            </div>
+
+            {/* Segmented Persona Toggle */}
+            <div className="persona-toggle-wrapper">
+              <div className="persona-toggle-track">
+                <div
+                  className={`persona-toggle-indicator ${selectedRole}`}
+                />
+                <button
+                  type="button"
+                  className={`persona-toggle-btn ${selectedRole === 'business' ? 'active' : ''}`}
+                  onClick={() => handleRoleChange('business')}
+                  id="persona-btn-business"
+                >
+                  <HiOutlineBriefcase className="persona-btn-icon" />
+                  <span>Bisnis</span>
+                </button>
+                <button
+                  type="button"
+                  className={`persona-toggle-btn ${selectedRole === 'student' ? 'active' : ''}`}
+                  onClick={() => handleRoleChange('student')}
+                  id="persona-btn-student"
+                >
+                  <HiOutlineAcademicCap className="persona-btn-icon" />
+                  <span>Mahasiswa</span>
+                </button>
+              </div>
             </div>
 
             {error && (
-              <div className="auth-error-banner" role="alert">
+              <div className="form-error-banner" role="alert">
                 {error}
               </div>
             )}
 
-            <div className="auth-buttons-wrap">
+            {/* Auth Action Buttons */}
+            <div className="form-actions-wrap">
               <button
-                className={`btn-oauth-google ${isSigningIn ? 'loading' : ''}`}
+                className={`btn-google-auth ${isSigningIn ? 'loading' : ''}`}
                 onClick={handleGoogleLogin}
                 disabled={isSigningIn}
                 id="google-login-btn"
               >
-                <FcGoogle className="oauth-icon" />
+                <FcGoogle className="google-icon" />
                 <span>{isSigningIn ? 'Menghubungkan...' : 'Lanjutkan dengan Google'}</span>
               </button>
 
-              <div className="auth-divider-line">
+              <div className="form-divider">
                 <span>atau</span>
               </div>
 
               <button
-                className="btn-demo-guest"
+                className="btn-guest-ghost"
                 onClick={handleGuestDemoLogin}
                 id="guest-demo-btn"
               >
-                <div className="demo-btn-content">
-                  <div className="demo-btn-left">
-                    <div style={{ textAlign: 'left' }}>
-                      <span className="demo-btn-title">Masuk Langsung (Tamu)</span>
-                      <span className="demo-btn-sub">Mulai eksplorasi tanpa login</span>
-                    </div>
-                  </div>
-                  <HiOutlineArrowRight />
+                <div className="guest-btn-content">
+                  <span className="guest-btn-title">Masuk Langsung (Tamu)</span>
+                  <span className="guest-btn-desc">Mulai eksplorasi tanpa login</span>
                 </div>
+                <HiOutlineArrowRight className="guest-arrow" />
               </button>
             </div>
 
-            <div className="auth-guarantee-box">
-              <div className="guarantee-row">
-                <HiOutlineCheckCircle className="check-icon" />
-                <span>Gratis & Siap Pakai</span>
-              </div>
-              <div className="guarantee-row">
-                <HiOutlineCheckCircle className="check-icon" />
-                <span>Dual-Mode: Bisnis 🏢 & Mahasiswa 🎓</span>
-              </div>
-              <div className="guarantee-row">
-                <HiOutlineCheckCircle className="check-icon" />
-                <span>Kalkulasi finansial presisi</span>
-              </div>
-            </div>
-
-            <div className="login-replay-intro-wrap">
+            {/* Footer Replay & Links */}
+            <div className="form-footer">
               <button
                 type="button"
-                className="btn-replay-intro"
+                className="btn-replay-video"
                 onClick={() => setShowIntro(true)}
                 id="replay-intro-btn"
               >
-                <HiOutlinePlay className="play-icon" />
-                <span>Tonton Ulang Video Intro</span>
+                <HiOutlinePlay className="replay-icon" />
+                <span>Tonton ulang video intro</span>
               </button>
-            </div>
 
-            <p className="auth-footer-terms">
-              Dengan masuk, kamu menyetujui Ketentuan Layanan dan Kebijakan Privasi FINORA.
-            </p>
+              <p className="form-terms-text">
+                Dengan masuk, kamu menyetujui Ketentuan Layanan dan Kebijakan Privasi FINORA.
+              </p>
+            </div>
           </div>
         </section>
       </div>
@@ -202,3 +230,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
