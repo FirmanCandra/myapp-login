@@ -1,21 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import {
-  HiOutlineArrowRight,
-  HiOutlineVolumeUp,
-  HiOutlineVolumeOff,
-  HiOutlinePlay,
-} from 'react-icons/hi';
+import { HiOutlineArrowRight, HiOutlinePlay } from 'react-icons/hi';
 import FinoraLogo from './FinoraLogo';
 import './IntroVideoSplash.css';
 
 const IntroVideoSplash = ({ onFinish }) => {
   const videoRef = useRef(null);
   const [progress, setProgress] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
   const [isFading, setIsFading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isBuffering, setIsBuffering] = useState(true);
-  const [needUserGesture, setNeedUserGesture] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
 
   const triggerFadeOut = useCallback(() => {
     if (isFading) return;
@@ -25,111 +18,86 @@ const IntroVideoSplash = ({ onFinish }) => {
     }, 700);
   }, [isFading, onFinish]);
 
-  // Preload video into in-memory Blob URL for 100% stutter-free instant mobile & desktop playback
+  // Video Autoplay & Auto Sound Initialization
   useEffect(() => {
-    let isMounted = true;
-    let activeBlobUrl = null;
     const video = videoRef.current;
     if (!video) return;
 
-    // Apply strict hardware DOM properties
-    video.defaultMuted = true;
-    video.muted = true;
+    // Direct hardware & mobile playback flags
     video.playsInline = true;
     video.setAttribute('playsinline', 'true');
     video.setAttribute('webkit-playsinline', 'true');
     video.setAttribute('x5-playsinline', 'true');
-    video.setAttribute('x5-video-player-type', 'h5-page');
-    video.setAttribute('x5-video-player-fullscreen', 'true');
     video.setAttribute('preload', 'auto');
-    video.setAttribute('disablePictureInPicture', 'true');
-    video.setAttribute('disableRemotePlayback', 'true');
 
-    // 1. Start immediate stream playback
-    const startPlay = () => {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            if (isMounted) {
-              setIsBuffering(false);
-              setNeedUserGesture(false);
-              setIsPaused(false);
-            }
-          })
-          .catch((err) => {
-            console.warn('Autoplay waiting for touch:', err);
-            if (isMounted) {
-              setIsBuffering(false);
-              setNeedUserGesture(true);
-              setIsPaused(true);
-            }
-          });
+    // Attempt to play with Sound ON directly
+    video.muted = false;
+    video.volume = 1.0;
+
+    const tryStartPlayback = async () => {
+      try {
+        await video.play();
+        setIsPaused(false);
+        setIsBuffering(false);
+      } catch (err) {
+        // If browser blocks unmuted autoplay, play muted first and unmute on first user touch
+        console.warn('Browser requires touch for sound, playing and queuing unmute on touch:', err);
+        video.muted = true;
+        try {
+          await video.play();
+          setIsPaused(false);
+          setIsBuffering(false);
+        } catch {
+          setIsPaused(true);
+        }
+
+        const handleUserGestureUnmute = () => {
+          if (videoRef.current) {
+            videoRef.current.muted = false;
+            videoRef.current.play().catch(() => {});
+          }
+          window.removeEventListener('touchstart', handleUserGestureUnmute);
+          window.removeEventListener('click', handleUserGestureUnmute);
+        };
+
+        window.addEventListener('touchstart', handleUserGestureUnmute, { passive: true, once: true });
+        window.addEventListener('click', handleUserGestureUnmute, { passive: true, once: true });
       }
     };
 
-    // 2. Concurrently load full video into RAM Blob (1.4MB) to eliminate mobile CDN range stalls
-    fetch('/gemini_generated_video_b10a9b8b.mp4', { cache: 'force-cache' })
-      .then((res) => {
-        if (!res.ok) throw new Error('Blob fetch failed');
-        return res.blob();
-      })
-      .then((blob) => {
-        if (!isMounted) return;
-        activeBlobUrl = URL.createObjectURL(blob);
-        // If video is still in early stage or buffering, swap to zero-latency memory Blob
-        if (video && (video.currentTime < 1 || video.paused)) {
-          const currentTime = video.currentTime;
-          video.src = activeBlobUrl;
-          video.currentTime = currentTime;
-          startPlay();
-        }
-      })
-      .catch(() => {
-        // Fallback to direct path
-        if (video && !video.src) {
-          video.src = '/gemini_generated_video_b10a9b8b.mp4';
-          startPlay();
-        }
-      });
+    tryStartPlayback();
 
-    startPlay();
-
-    // Anti-stuck watchdog: detect if video stalls on low-end mobile CPU
+    // Anti-stuck watchdog: detect if video hangs
     let lastTime = 0;
-    let stuckSeconds = 0;
+    let stuckCount = 0;
     const progressWatchdog = setInterval(() => {
       if (video && !video.paused && !video.ended) {
         if (video.currentTime === lastTime && video.currentTime > 0) {
-          stuckSeconds += 0.5;
-          if (stuckSeconds >= 2.0) {
-            console.warn('Nudging mobile video playback...');
+          stuckCount += 1;
+          if (stuckCount >= 3) {
+            console.warn('Video paused unexpectedly, nudging playback...');
             video.play().catch(() => {});
-            stuckSeconds = 0;
+            stuckCount = 0;
           }
         } else {
-          stuckSeconds = 0;
+          stuckCount = 0;
           lastTime = video.currentTime;
           setIsBuffering(false);
         }
       }
     }, 500);
 
-    // Safety timeout: If video never progresses within 5.5s, gracefully transition to login
+    // Safety timeout: transition to login if video is completely blocked after 5s
     const initialSafetyTimeout = setTimeout(() => {
       if (video && video.currentTime === 0 && !video.ended) {
-        console.warn('Initial video load safety transition to login');
+        console.warn('Video load safety fallback -> login');
         triggerFadeOut();
       }
-    }, 5500);
+    }, 5000);
 
     return () => {
-      isMounted = false;
       clearInterval(progressWatchdog);
       clearTimeout(initialSafetyTimeout);
-      if (activeBlobUrl) {
-        URL.revokeObjectURL(activeBlobUrl);
-      }
     };
   }, [triggerFadeOut]);
 
@@ -141,24 +109,14 @@ const IntroVideoSplash = ({ onFinish }) => {
     }
   };
 
-  const toggleSound = (e) => {
-    e.stopPropagation();
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setIsMuted(videoRef.current.muted);
-    }
-  };
-
   const togglePlay = (e) => {
     e.stopPropagation();
     if (videoRef.current) {
       if (videoRef.current.paused) {
+        videoRef.current.muted = false;
         videoRef.current
           .play()
-          .then(() => {
-            setIsPaused(false);
-            setNeedUserGesture(false);
-          })
+          .then(() => setIsPaused(false))
           .catch(() => {});
       } else {
         videoRef.current.pause();
@@ -168,16 +126,12 @@ const IntroVideoSplash = ({ onFinish }) => {
   };
 
   const handleContainerClick = () => {
-    if (needUserGesture && videoRef.current) {
+    if (videoRef.current && videoRef.current.paused) {
+      videoRef.current.muted = false;
       videoRef.current
         .play()
-        .then(() => {
-          setNeedUserGesture(false);
-          setIsPaused(false);
-        })
-        .catch(() => {
-          triggerFadeOut();
-        });
+        .then(() => setIsPaused(false))
+        .catch(() => triggerFadeOut());
     } else {
       triggerFadeOut();
     }
@@ -194,11 +148,7 @@ const IntroVideoSplash = ({ onFinish }) => {
         className="intro-video-element"
         autoPlay
         playsInline
-        muted={isMuted}
         preload="auto"
-        disablePictureInPicture
-        disableRemotePlayback
-        controlsList="nodownload nofullscreen noremoteplayback"
         onTimeUpdate={handleTimeUpdate}
         onEnded={triggerFadeOut}
         onWaiting={() => setIsBuffering(true)}
@@ -226,16 +176,6 @@ const IntroVideoSplash = ({ onFinish }) => {
 
         <div className="intro-top-actions">
           <button
-            className="intro-glass-btn sound-btn"
-            onClick={toggleSound}
-            title={isMuted ? 'Nyalakan Audio' : 'Bisukan Audio'}
-            aria-label="Toggle Sound"
-          >
-            {isMuted ? <HiOutlineVolumeOff /> : <HiOutlineVolumeUp />}
-            <span>{isMuted ? 'Muted' : 'Sound On'}</span>
-          </button>
-
-          <button
             className="intro-glass-btn skip-btn"
             onClick={triggerFadeOut}
             title="Lewati Video & Masuk ke Login"
@@ -255,19 +195,18 @@ const IntroVideoSplash = ({ onFinish }) => {
           Autonomous Cashflow Scenario Simulator & Dual-Mode Financial Operating System
         </p>
 
-        {/* Play / Un-pause prompt for mobile touch policies */}
-        {(isPaused || needUserGesture) && (
+        {isPaused && (
           <button
             className="intro-play-overlay-btn"
             onClick={togglePlay}
-            title="Putar Video"
+            title="Putar Video dengan Suara"
             aria-label="Putar Video"
           >
             <HiOutlinePlay />
           </button>
         )}
 
-        {isBuffering && !isPaused && !needUserGesture && (
+        {isBuffering && !isPaused && (
           <div className="intro-buffering-indicator">
             <div className="buffering-spinner" />
           </div>
