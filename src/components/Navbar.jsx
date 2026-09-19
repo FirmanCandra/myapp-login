@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { NAV_TABS } from '../constants/tabs';
+import FinoraLogo from './FinoraLogo';
 import './Navbar.css';
 
 const Navbar = ({
@@ -59,16 +60,12 @@ const Navbar = ({
       <header className="app-navbar">
         <div className="nav-container">
           {/* Brand */}
-          <div className="nav-brand">
-            <div className={`brand-mark ${isStudent ? 'student' : ''}`}>
-              {isStudent ? '🎓' : 'O'}
-            </div>
-            <div className="brand-text">
-              <span className="brand-name">OmniLedger</span>
-              <span className="brand-sub">
-                {isStudent ? 'Student Survival OS' : 'Financial OS'}
-              </span>
-            </div>
+          <div className="nav-brand" onClick={() => setActiveTab(NAV_TABS.OVERVIEW)} style={{ cursor: 'pointer' }}>
+            <FinoraLogo
+              size="sm"
+              showTagline={true}
+              customTagline={isStudent ? 'Student Edition 🎓' : 'Your Financial Intelligence'}
+            />
           </div>
 
           {/* Desktop Navigation Tabs */}

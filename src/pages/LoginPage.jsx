@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
 import {
-  HiOutlineShieldCheck,
   HiOutlineCalculator,
   HiOutlineDocumentSearch,
   HiOutlineChatAlt2,
@@ -12,6 +11,7 @@ import {
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
+import FinoraLogo from '../components/FinoraLogo';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -21,7 +21,7 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
 
   if (loading) {
-    return <LoadingSpinner message="Memuat OmniLedger..." />;
+    return <LoadingSpinner message="Memuat FINORA..." />;
   }
 
   if (user) {
@@ -53,19 +53,18 @@ const LoginPage = () => {
         {/* Left Side: Desktop Showcase */}
         <section className="login-showcase-panel desktop-only">
           <div className="showcase-brand-header">
-            <div className="showcase-logo-icon">
-              <HiOutlineShieldCheck />
-            </div>
-            <div className="showcase-brand-title">OmniLedger</div>
+            <FinoraLogo size="lg" showTagline={true} customTagline="Your Financial Intelligence" />
           </div>
 
           <div className="showcase-hero-content">
-            <div className="glass-pill pill-primary showcase-pill">Financial OS</div>
+            <div className="glass-pill pill-primary showcase-pill">
+              SMART • SIMPLE • FUTURE-READY
+            </div>
             <h1>
-              Kelola keuangan bisnis dengan lebih <span className="gradient-text">cerdas dan terukur</span>
+              Kelola keuangan bisnis & kuliah dengan <span className="gradient-text">cerdas dan terukur</span>
             </h1>
             <p>
-              Dashboard keuangan lengkap untuk UMKM, freelancer, dan startup. Simulasi skenario, scan struk otomatis, dan analisis arus kas — dalam satu platform.
+              Autonomous Financial Intelligence untuk UMKM, Startup, dan Mahasiswa. Simulasi skenario runway, pemindai bon otomatis, dan AI Financial Mentor.
             </p>
           </div>
 
@@ -75,8 +74,8 @@ const LoginPage = () => {
                 <HiOutlineCalculator />
               </div>
               <div>
-                <strong>Simulator Skenario</strong>
-                <span>Uji dampak perubahan omset, biaya baru, dan keputusan strategis terhadap kesehatan kas.</span>
+                <strong>Simulator Skenario & Survival</strong>
+                <span>Uji dampak perubahan omset, target nabung UKT, dan keputusan strategis keuangan.</span>
               </div>
             </div>
 
@@ -85,8 +84,8 @@ const LoginPage = () => {
                 <HiOutlineDocumentSearch />
               </div>
               <div>
-                <strong>Pemindai Struk & Invoice</strong>
-                <span>Foto struk, data terurai otomatis. Tanpa input manual satu per satu.</span>
+                <strong>Smart OCR Receipt Scanner</strong>
+                <span>Foto struk belanja atau bon warteg, data otomatis terurai masuk ke buku kas.</span>
               </div>
             </div>
 
@@ -95,15 +94,15 @@ const LoginPage = () => {
                 <HiOutlineChatAlt2 />
               </div>
               <div>
-                <strong>Konsultan Keuangan</strong>
-                <span>Temuan inefisiensi pengeluaran dan rekomendasi penghematan berdasarkan data nyata.</span>
+                <strong>AI Financial Advisor & Mentor</strong>
+                <span>Rekomendasi penghematan, batas jajan harian aman, dan konsultasi finansial 24/7.</span>
               </div>
             </div>
           </div>
 
           <div className="showcase-footer-trust">
             <HiOutlineLockClosed className="trust-icon" />
-            <span>Data terenkripsi • Row-Level Security • Supabase</span>
+            <span>Data terenkripsi • Row-Level Security • Supabase Cloud</span>
           </div>
         </section>
 
@@ -112,16 +111,12 @@ const LoginPage = () => {
           <div className="auth-card-inner">
             {/* Mobile Brand Header */}
             <div className="mobile-brand-banner mobile-only">
-              <div className="brand-mark">O</div>
-              <div>
-                <div className="mobile-brand-title">OmniLedger</div>
-                <div className="mobile-brand-sub">Autonomous Financial OS</div>
-              </div>
+              <FinoraLogo size="md" showTagline={true} customTagline="Your Financial Intelligence" />
             </div>
 
             <div className="auth-header-text">
               <h2>Masuk ke Dashboard</h2>
-              <p>Akses data keuangan dan simulasi bisnis kamu</p>
+              <p>Pilih mode Perusahaan (SME) atau Mahasiswa (Anak Kost)</p>
             </div>
 
             {error && (
@@ -153,8 +148,8 @@ const LoginPage = () => {
                 <div className="demo-btn-content">
                   <div className="demo-btn-left">
                     <div style={{ textAlign: 'left' }}>
-                      <span className="demo-btn-title">Masuk sebagai Tamu</span>
-                      <span className="demo-btn-sub">Coba langsung dengan data contoh</span>
+                      <span className="demo-btn-title">Masuk Langsung (Tamu)</span>
+                      <span className="demo-btn-sub">Mulai eksplorasi tanpa login</span>
                     </div>
                   </div>
                   <HiOutlineArrowRight />
@@ -165,20 +160,20 @@ const LoginPage = () => {
             <div className="auth-guarantee-box">
               <div className="guarantee-row">
                 <HiOutlineCheckCircle className="check-icon" />
-                <span>Gratis, tanpa kartu kredit</span>
+                <span>Gratis & Siap Pakai</span>
               </div>
               <div className="guarantee-row">
                 <HiOutlineCheckCircle className="check-icon" />
-                <span>Database tersinkronisasi otomatis</span>
+                <span>Dual-Mode: Bisnis 🏢 & Mahasiswa 🎓</span>
               </div>
               <div className="guarantee-row">
                 <HiOutlineCheckCircle className="check-icon" />
-                <span>Kalkulasi keuangan akurat</span>
+                <span>Kalkulasi finansial presisi</span>
               </div>
             </div>
 
             <p className="auth-footer-terms">
-              Dengan masuk, kamu menyetujui Ketentuan Layanan dan Kebijakan Privasi OmniLedger.
+              Dengan masuk, kamu menyetujui Ketentuan Layanan dan Kebijakan Privasi FINORA.
             </p>
           </div>
         </section>

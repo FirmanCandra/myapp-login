@@ -1,0 +1,147 @@
+/* =========================================================
+   FINORA — Visual Identity & Brand Logo Styles
+   Colors: #6366F1 (Indigo) | #06B6D4 (Cyan) | #0F172A (Navy)
+   ========================================================= */
+
+.finora-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+  text-decoration: none;
+}
+
+.finora-logo-wrap.clickable {
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.finora-logo-wrap.clickable:hover {
+  transform: translateY(-1px);
+}
+
+.finora-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.finora-logo-svg {
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.25));
+  transition: transform 0.3s ease;
+}
+
+.finora-logo-wrap:hover .finora-logo-svg {
+  transform: scale(1.05);
+}
+
+/* Typography */
+.finora-text-group {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.finora-brand-title {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: var(--color-text, #0f172a);
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--color-text, #0f172a) 0%, var(--color-text, #1e293b) 100%);
+}
+
+[data-theme='dark'] .finora-brand-title {
+  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.finora-brand-tagline {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary, #64748b);
+  margin-top: 2px;
+}
+
+.finora-brand-pillars {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted, #94a3b8);
+  margin-top: 4px;
+}
+
+.finora-brand-pillars span {
+  color: #06b6d4;
+  margin: 0 3px;
+}
+
+/* Sizes */
+.finora-logo-wrap.size-xs {
+  gap: 0.4rem;
+}
+.finora-logo-wrap.size-xs .finora-brand-title {
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+}
+
+.finora-logo-wrap.size-sm {
+  gap: 0.55rem;
+}
+.finora-logo-wrap.size-sm .finora-brand-title {
+  font-size: 1.1rem;
+  letter-spacing: 0.14em;
+}
+.finora-logo-wrap.size-sm .finora-brand-tagline {
+  font-size: 0.65rem;
+}
+
+.finora-logo-wrap.size-md .finora-brand-title {
+  font-size: 1.35rem;
+}
+
+.finora-logo-wrap.size-lg {
+  gap: 1rem;
+}
+.finora-logo-wrap.size-lg .finora-brand-title {
+  font-size: 1.85rem;
+  letter-spacing: 0.18em;
+}
+.finora-logo-wrap.size-lg .finora-brand-tagline {
+  font-size: 0.88rem;
+}
+
+.finora-logo-wrap.size-xl {
+  flex-direction: column;
+  text-align: center;
+  gap: 1.25rem;
+}
+.finora-logo-wrap.size-xl .finora-brand-title {
+  font-size: 2.5rem;
+  letter-spacing: 0.22em;
+}
+.finora-logo-wrap.size-xl .finora-brand-tagline {
+  font-size: 1.05rem;
+  margin-top: 4px;
+}
+
+/* Variants */
+.finora-logo-wrap.variant-white .finora-brand-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+.finora-logo-wrap.variant-white .finora-brand-tagline {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.finora-logo-wrap.variant-monochrome .finora-brand-title {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}

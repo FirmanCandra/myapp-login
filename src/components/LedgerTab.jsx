@@ -77,7 +77,7 @@ const LedgerTab = ({ transactions, role = 'business', onDeleteTx, onOpenNewTx, o
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `omniledger_${role}_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `finora_${role}_export_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -1,14 +1,28 @@
-# 📊 OmniLedger AI — Dual-Mode Financial Operating System (Bisnis & Mahasiswa)
+# 💎 FINORA — Your Financial Intelligence
 
-> **Autonomous Financial Intelligence & Cashflow Scenario Simulator** modern dengan dukungan **Mode Perusahaan & Bisnis** (SME / Startup Financial OS) dan **Mode Mahasiswa & Anak Kost** (Student Survival & Budgeting OS). Dilengkapi kalkulator *Safe Daily Allowance*, simulasi daya tahan kas (*runway* / survival), pemindai struk/bon *Vision OCR*, dan konsultan AI cerdas.
+> **Autonomous Financial Intelligence & Cashflow Scenario Simulator**
+> **SMART • SIMPLE • FUTURE-READY**
+> 
+> Platform manajemen finansial modern dengan dukungan **Mode Perusahaan & Bisnis** (SME / Startup Financial OS) dan **Mode Mahasiswa & Anak Kost** (Student Survival & Budgeting OS). Dilengkapi kalkulator *Safe Daily Allowance*, simulasi daya tahan kas (*runway* / survival), pemindai struk/bon *Vision OCR*, dan AI Financial Advisor.
 
 ---
 
-## 🌟 Tentang OmniLedger AI
+## 🎨 Identitas Visual & Filosofi Logo
+
+FINORA hadir dengan simbol logo huruf **"F"** aerodinamis yang melambangkan fleksibilitas, aliran kas positif, dan kecerdasan finansial masa depan dengan bintang *sparkle* di sudut kanan atas:
+
+- **Primary Colors:** `#6366F1` (Indigo Modern) & `#06B6D4` (Cyan Intelligence)
+- **Dark Accent:** `#0F172A` (Slate Navy)
+- **Light Accent:** `#E5E7EB` (Clean Platinum)
+- **Pillars:** `SMART` / `SIMPLE` / `FUTURE-READY`
+
+---
+
+## 🌟 Tentang FINORA
 
 Baik perusahaan rintisan maupun mahasiswa yang merantau sama-sama menghadapi masalah pengelolaan uang: pencatatan struk yang tercecer, kebingungan memproyeksikan sisa uang, serta ketidaktahuan batas pengeluaran yang aman.
 
-**OmniLedger AI** hadir dengan sistem **Dual-Mode Personalisasi** yang dapat dipilih setelah login:
+**FINORA** hadir dengan sistem **Dual-Mode Personalisasi** yang dapat dipilih setelah login:
 
 1. 🏢 **Mode Perusahaan & Bisnis (Enterprise / SME OS):**
    - Mengelola arus kas operasional (*cashflow*), *monthly burn rate*, *runway 12-bulan*, dan *profit margin*.
@@ -152,7 +166,7 @@ Jalankan skrip SQL yang ada pada file `src/lib/supabase_schema.sql` di **SQL Edi
 ```bash
 npm run dev
 ```
-Buka browser di **http://localhost:5173** untuk mulai menggunakan OmniLedger AI.
+Buka browser di **http://localhost:5173** untuk mulai menggunakan FINORA.
 
 ### 7. Build untuk Produksi
 ```bash

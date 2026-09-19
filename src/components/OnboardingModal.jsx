@@ -20,14 +20,14 @@ const BUSINESS_TUTORIAL_STEPS = [
   {
     id: 'welcome',
     badge: 'Selamat Datang',
-    title: 'Selamat Datang di OmniLedger AI! 🚀',
-    subtitle: 'Financial Operating System untuk UMKM, Startup, & Freelancer',
+    title: 'Selamat Datang di FINORA! 🚀',
+    subtitle: 'Your Financial Intelligence untuk Bisnis, Startup, & Mahasiswa',
     icon: HiOutlineSparkles,
     iconColor: 'purple',
     content: (
       <div className="step-welcome-box">
         <p className="step-intro-text">
-          OmniLedger AI dirancang untuk membantumu mengendalikan arus kas (*cashflow*), memprediksi daya tahan bisnis (*runway*), memindai struk otomatis, dan menyimulasikan keputusan bisnis dengan mudah.
+          FINORA dirancang untuk membantumu mengendalikan arus kas (*cashflow*), memprediksi daya tahan bisnis (*runway*), memindai struk otomatis, dan menyimulasikan keputusan finansial dengan mudah.
         </p>
         <div className="onboarding-feature-pills">
           <div className="feature-pill-item">
@@ -182,14 +182,14 @@ const STUDENT_TUTORIAL_STEPS = [
   {
     id: 'welcome-student',
     badge: 'Mode Mahasiswa',
-    title: 'Selamat Datang di OmniLedger Mahasiswa! 🎓',
-    subtitle: 'Student Survival OS untuk Mengelola Uang Saku, Kost, & Tabungan UKT',
+    title: 'Selamat Datang di FINORA Mahasiswa! 🎓',
+    subtitle: 'Student Survival & Financial Intelligence untuk Mengelola Uang Saku, Kost, & UKT',
     icon: HiOutlineAcademicCap,
     iconColor: 'primary',
     content: (
       <div className="step-welcome-box">
         <p className="step-intro-text">
-          OmniLedger Mode Mahasiswa dirancang khusus agar kamu bisa mengontrol uang saku kiriman, jajan warteg, sewa kost, dan target bayar UKT tanpa takut kehabisan uang di tanggal tua!
+          FINORA Mode Mahasiswa dirancang khusus agar kamu bisa mengontrol uang saku kiriman, jajan warteg, sewa kost, dan target bayar UKT tanpa takut kehabisan uang di tanggal tua!
         </p>
         <div className="onboarding-feature-pills">
           <div className="feature-pill-item">

@@ -32,7 +32,7 @@ const RoleSelectorModal = ({ isOpen, currentRole, onSelectRole, onClose, isClosa
             <span className="glass-pill pill-primary">
               <HiOutlineSparkles /> Personalisasi Akun
             </span>
-            <h2>Pilih Mode Penggunaan OmniLedger</h2>
+            <h2>Pilih Mode Penggunaan FINORA</h2>
             <p>Pilih profil yang paling sesuai dengan kebutuhan finansial kamu saat ini</p>
           </div>
           {isClosable && (
