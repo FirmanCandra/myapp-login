@@ -8,10 +8,12 @@ import {
   HiOutlineLockClosed,
   HiOutlineArrowRight,
   HiOutlineCheckCircle,
+  HiOutlinePlay,
 } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FinoraLogo from '../components/FinoraLogo';
+import IntroVideoSplash from '../components/IntroVideoSplash';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -19,6 +21,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState(null);
+  const [showIntro, setShowIntro] = useState(true);
 
   if (loading) {
     return <LoadingSpinner message="Memuat FINORA..." />;
@@ -46,10 +49,14 @@ const LoginPage = () => {
 
   return (
     <div className="login-page-wrapper">
+      {showIntro && (
+        <IntroVideoSplash onFinish={() => setShowIntro(false)} />
+      )}
+
       <div className="login-bg-glow blob-1" />
       <div className="login-bg-glow blob-2" />
 
-      <div className="login-split-card glass-panel">
+      <div className="login-split-card glass-panel login-fade-in">
         {/* Left Side: Desktop Showcase */}
         <section className="login-showcase-panel desktop-only">
           <div className="showcase-brand-header">
@@ -170,6 +177,18 @@ const LoginPage = () => {
                 <HiOutlineCheckCircle className="check-icon" />
                 <span>Kalkulasi finansial presisi</span>
               </div>
+            </div>
+
+            <div className="login-replay-intro-wrap">
+              <button
+                type="button"
+                className="btn-replay-intro"
+                onClick={() => setShowIntro(true)}
+                id="replay-intro-btn"
+              >
+                <HiOutlinePlay className="play-icon" />
+                <span>Tonton Ulang Video Intro</span>
+              </button>
             </div>
 
             <p className="auth-footer-terms">

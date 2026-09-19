@@ -1,0 +1,324 @@
+/* =========================================================
+   FINORA — Cinematic Intro Video Splash Screen & Fade Transition
+   ========================================================= */
+
+.intro-splash-container {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #070913;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Animations */
+.intro-splash-container.fade-in {
+  animation: introFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.intro-splash-container.fade-out {
+  opacity: 0;
+  transform: scale(1.035);
+  filter: blur(10px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+@keyframes introFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.05);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* Background Video */
+.intro-video-element {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Cinematic Gradient Overlays */
+.intro-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(
+      circle at center,
+      rgba(15, 23, 42, 0.25) 0%,
+      rgba(7, 9, 19, 0.7) 65%,
+      rgba(7, 9, 19, 0.95) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(7, 9, 19, 0.8) 0%,
+      rgba(7, 9, 19, 0.1) 35%,
+      rgba(7, 9, 19, 0.2) 65%,
+      rgba(7, 9, 19, 0.9) 100%
+    );
+  pointer-events: none;
+}
+
+/* Top Bar */
+.intro-top-bar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(7, 9, 19, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.intro-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.intro-glass-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.intro-glass-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.intro-glass-btn.skip-btn {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(6, 182, 212, 0.35) 100%);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.intro-glass-btn.skip-btn:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.6) 0%, rgba(6, 182, 212, 0.6) 100%);
+  border-color: rgba(56, 189, 248, 0.7);
+}
+
+/* Center Hero Overlay */
+.intro-center-caption {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: introCaptionFloat 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+@keyframes introCaptionFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intro-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.95rem;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  color: #818cf8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.intro-tagline-hero {
+  font-size: 2.75rem;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
+
+.gradient-highlight {
+  background: linear-gradient(135deg, #818cf8 0%, #38bdf8 50%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-sub-text {
+  font-size: 0.98rem;
+  color: rgba(226, 232, 240, 0.85);
+  line-height: 1.55;
+  max-width: 580px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.intro-play-overlay-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-top: 0.5rem;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.intro-play-overlay-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Bottom Bar */
+.intro-bottom-bar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 2rem 1.75rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(7, 9, 19, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.intro-progress-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.intro-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+  border-radius: 2px;
+  transition: width 0.15s linear;
+}
+
+.intro-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.intro-hint-badge {
+  font-size: 0.78rem;
+  color: rgba(203, 213, 225, 0.75);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.intro-enter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-full, 9999px);
+  background: linear-gradient(135deg, #4f46e5 0%, #0891b2 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.intro-enter-btn:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #0e7490 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(6, 182, 212, 0.55);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .intro-top-bar {
+    padding: 1rem 1.25rem;
+  }
+
+  .intro-tagline-hero {
+    font-size: 1.85rem;
+  }
+
+  .intro-sub-text {
+    font-size: 0.85rem;
+  }
+
+  .intro-bottom-bar {
+    padding: 1rem 1.25rem 1.5rem;
+  }
+
+  .intro-footer-row {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .intro-enter-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .intro-hint-badge {
+    justify-content: center;
+    font-size: 0.72rem;
+  }
+
+  .sound-btn span {
+    display: none;
+  }
+}

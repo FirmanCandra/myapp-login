@@ -41,7 +41,25 @@
   max-width: 920px;
   width: 100%;
   overflow: hidden;
-  animation: fadeIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+.login-fade-in {
+  animation: loginCardFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes loginCardFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
 }
 
 /* Showcase (Left) */
@@ -327,6 +345,44 @@
   font-size: 0.65rem;
   color: var(--color-text-muted);
   line-height: 1.5;
+}
+
+.login-replay-intro-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: -0.25rem;
+}
+
+.btn-replay-intro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: var(--color-bg-secondary);
+  border: 1px dashed var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-replay-intro .play-icon {
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  transition: transform 0.25s ease;
+}
+
+.btn-replay-intro:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  transform: translateY(-1px);
+}
+
+.btn-replay-intro:hover .play-icon {
+  transform: scale(1.15);
 }
 
 @media (max-width: 960px) {
