@@ -112,10 +112,7 @@ const IntroVideoSplash = ({ onFinish }) => {
 
       {/* Center Hero Overlay Content */}
       <div className="intro-center-caption">
-        <div className="intro-pill-badge">
-          <HiOutlineSparkles /> SMART • SIMPLE • FUTURE-READY
-        </div>
-        <h1 className="intro-tagline-hero">
+         <h1 className="intro-tagline-hero">
           Your Financial <span className="gradient-highlight">Intelligence</span>
         </h1>
         <p className="intro-sub-text">
