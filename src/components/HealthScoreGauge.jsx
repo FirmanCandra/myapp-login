@@ -2,7 +2,10 @@ import { HiOutlineTrendingUp, HiOutlineExclamationCircle } from 'react-icons/hi'
 import './HealthScoreGauge.css';
 
 const HealthScoreGauge = ({ score, metrics }) => {
+  const isZeroState = !metrics || (metrics.totalBalance === 0 && metrics.totalIncome === 0 && metrics.totalExpense === 0);
+
   const getStatus = (val) => {
+    if (isZeroState) return { label: 'Belum Ada Data', color: 'var(--color-text-muted)' };
     if (val >= 80) return { label: 'Prima', color: 'var(--color-emerald)' };
     if (val >= 60) return { label: 'Stabil', color: 'var(--color-primary)' };
     if (val >= 40) return { label: 'Waspada', color: 'var(--color-amber)' };
@@ -42,26 +45,26 @@ const HealthScoreGauge = ({ score, metrics }) => {
           </div>
         </div>
 
-        <div className="gauge-status" style={{ background: status.color + '15', borderColor: status.color + '40', color: status.color }}>
+        <div className="gauge-status" style={{ background: isZeroState ? 'var(--color-surface-hover)' : status.color + '15', borderColor: status.color + '40', color: status.color }}>
           {status.label}
         </div>
 
         <div className="gauge-factors">
           <div className="factor">
             <span className="f-label">Likuiditas</span>
-            <span className="f-value">{metrics.totalBalance > 100000000 ? 'Aman' : metrics.totalBalance > 50000000 ? 'Cukup' : 'Rendah'}</span>
+            <span className="f-value">{isZeroState ? '-' : metrics.totalBalance > 100000000 ? 'Aman' : metrics.totalBalance > 50000000 ? 'Cukup' : 'Rendah'}</span>
           </div>
           <div className="factor">
             <span className="f-label">Arus Kas</span>
-            <span className="f-value">{metrics.profitMargin >= 0 ? 'Positif' : 'Negatif'}</span>
+            <span className="f-value">{isZeroState ? '-' : metrics.profitMargin >= 0 ? 'Positif' : 'Negatif'}</span>
           </div>
           <div className="factor">
             <span className="f-label">Runway</span>
-            <span className="f-value">{metrics.runwayMonths > 50 ? 'Tak terbatas' : `${metrics.runwayMonths.toFixed(1)} bln`}</span>
+            <span className="f-value">{isZeroState ? '-' : metrics.runwayMonths > 50 ? 'Tak terbatas' : `${metrics.runwayMonths.toFixed(1)} bln`}</span>
           </div>
           <div className="factor">
             <span className="f-label">Margin</span>
-            <span className="f-value">{metrics.profitMargin.toFixed(1)}%</span>
+            <span className="f-value">{isZeroState ? '-' : `${metrics.profitMargin.toFixed(1)}%`}</span>
           </div>
         </div>
       </div>

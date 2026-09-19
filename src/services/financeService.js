@@ -4,8 +4,8 @@ import { supabase } from '../lib/supabase';
 // 1. Seed & Default Data for Business & Student
 // ==========================================
 
-export const DEFAULT_BUSINESS_STARTING_CASH = 185000000; // Rp 185 Juta
-export const DEFAULT_STUDENT_STARTING_CASH = 3750000; // Rp 3.75 Juta
+export const DEFAULT_BUSINESS_STARTING_CASH = 0; // Rp 0 (Mulai dari 0)
+export const DEFAULT_STUDENT_STARTING_CASH = 0; // Rp 0 (Mulai dari 0)
 
 export const BUSINESS_CATEGORIES = [
   'Client Revenue',
@@ -35,231 +35,9 @@ export const STUDENT_CATEGORIES = [
   'Lain-lain',
 ];
 
-export const INITIAL_BUSINESS_TRANSACTIONS = [
-  {
-    id: 'biz-01',
-    title: 'Enterprise Client Retainer Q3',
-    type: 'income',
-    category: 'Client Revenue',
-    amount: 65000000,
-    date: '2026-09-02',
-    payment_method: 'Bank Transfer (BCA)',
-    merchant: 'PT Solusi Digital Nusantara',
-    notes: 'Pembayaran termin 1 pengembangan sistem',
-  },
-  {
-    id: 'biz-02',
-    title: 'AWS Cloud Hosting & AI GPU Cluster',
-    type: 'expense',
-    category: 'Cloud Infrastructure',
-    amount: 14200000,
-    date: '2026-09-04',
-    payment_method: 'Corporate Card',
-    merchant: 'Amazon Web Services Inc',
-    notes: 'Penggunaan EC2, S3 & Bedrock Claude API',
-  },
-  {
-    id: 'biz-03',
-    title: 'Gaji Tim Engineering & Design (6 Orang)',
-    type: 'expense',
-    category: 'Payroll',
-    amount: 48000000,
-    date: '2026-08-28',
-    payment_method: 'Bank Payroll',
-    merchant: 'Internal Payroll',
-    notes: 'Gaji pokok + tunjangan BPJS & kesehatan',
-  },
-  {
-    id: 'biz-04',
-    title: 'SaaS Subscription Revenue (MRR)',
-    type: 'income',
-    category: 'Subscription MRR',
-    amount: 28500000,
-    date: '2026-08-25',
-    payment_method: 'Midtrans Payment Gateway',
-    merchant: 'Online Subscribers',
-    notes: 'Total 142 active pro subscribers',
-  },
-  {
-    id: 'biz-05',
-    title: 'Meta & Google Ads Campaign Acquisition',
-    type: 'expense',
-    category: 'Marketing & Ads',
-    amount: 8750000,
-    date: '2026-08-20',
-    payment_method: 'Corporate Card',
-    merchant: 'Meta Platforms Ireland',
-    notes: 'Campaign promo Q3 B2B lead gen',
-  },
-  {
-    id: 'biz-06',
-    title: 'Sewa Co-Working Space & Dedicated Internet',
-    type: 'expense',
-    category: 'Office & Utilities',
-    amount: 12000000,
-    date: '2026-08-15',
-    payment_method: 'Bank Transfer (Mandiri)',
-    merchant: 'WeWork / CoHive Hub',
-    notes: 'Biaya sewa ruang private office 6 pax',
-  },
-  {
-    id: 'biz-07',
-    title: 'Software Tooling (GitHub, Figma, OpenAI, Linear)',
-    type: 'expense',
-    category: 'Software & Tools',
-    amount: 5400000,
-    date: '2026-08-10',
-    payment_method: 'Corporate Card',
-    merchant: 'Various SaaS',
-    notes: 'Biaya lisensi tools bulanan tim',
-  },
-  {
-    id: 'biz-08',
-    title: 'Custom Feature Development Fee',
-    type: 'income',
-    category: 'Client Revenue',
-    amount: 32000000,
-    date: '2026-08-05',
-    payment_method: 'Bank Transfer (BCA)',
-    merchant: 'CV Maju Jaya Logistik',
-    notes: 'Integrasi API WhatsApp & Payment Gateway',
-  },
-  {
-    id: 'biz-09',
-    title: 'Pengadaan Hardware (MacBook M3 & Monitor 4K)',
-    type: 'expense',
-    category: 'Equipment & Capex',
-    amount: 28000000,
-    date: '2026-07-22',
-    payment_method: 'Bank Transfer (BCA)',
-    merchant: 'iBox Official Store',
-    notes: 'Laptop lead developer baru',
-  },
-  {
-    id: 'biz-10',
-    title: 'Konsultasi Legal & Pajak Semester 1',
-    type: 'expense',
-    category: 'Legal & Accounting',
-    amount: 6500000,
-    date: '2026-07-15',
-    payment_method: 'Bank Transfer',
-    merchant: 'Kantor Konsultan Pajak Mitra',
-    notes: 'Review SPT Badan & PPh 21/23',
-  },
-];
+export const INITIAL_BUSINESS_TRANSACTIONS = [];
 
-export const INITIAL_STUDENT_TRANSACTIONS = [
-  {
-    id: 'stu-01',
-    title: 'Kiriman Uang Saku Bulanan dari Ortu',
-    type: 'income',
-    category: 'Uang Saku & Kiriman Ortu',
-    amount: 2500000,
-    date: '2026-09-01',
-    payment_method: 'Transfer BCA Mobile',
-    merchant: 'Orang Tua',
-    notes: 'Uang saku rutin awal bulan September',
-  },
-  {
-    id: 'stu-02',
-    title: 'Honor Jasa Desain UI/UX Landing Page',
-    type: 'income',
-    category: 'Gaji Part-time & Freelance',
-    amount: 1200000,
-    date: '2026-09-03',
-    payment_method: 'Transfer Bank Mandiri',
-    merchant: 'Klien Startup Lokal',
-    notes: 'Project freelance desain web 3 halaman',
-  },
-  {
-    id: 'stu-03',
-    title: 'Bayar Sewa Kost Bulanan + Listrik & WiFi',
-    type: 'expense',
-    category: 'Sewa Kost & Listrik',
-    amount: 950000,
-    date: '2026-09-02',
-    payment_method: 'Transfer BCA',
-    merchant: 'Ibu Kost Wisma Melati',
-    notes: 'Kamar lantai 2 + listrik token',
-  },
-  {
-    id: 'stu-04',
-    title: 'Belanja Bulanan Sabun, Odol, & Snack Kost',
-    type: 'expense',
-    category: 'Kebutuhan Kost & Harian',
-    amount: 185000,
-    date: '2026-09-05',
-    payment_method: 'QRIS BCA',
-    merchant: 'Indomaret Point Kampus',
-    notes: 'Kebutuhan mandi, deterjen, & air galon',
-  },
-  {
-    id: 'stu-05',
-    title: 'Makan Siang Nasi Ayam Warteg Bahari',
-    type: 'expense',
-    category: 'Makan & Minum (Warteg/Kantin)',
-    amount: 22000,
-    date: '2026-09-06',
-    payment_method: 'Tunai (Cash)',
-    merchant: 'Warteg Bahari Kampus',
-    notes: 'Nasi + ayam balado + tempe orek + es teh',
-  },
-  {
-    id: 'stu-06',
-    title: 'Paket Data Internet 35GB & Spotify Student',
-    type: 'expense',
-    category: 'Kuota Internet & Langganan',
-    amount: 79000,
-    date: '2026-09-07',
-    payment_method: 'GoPay / E-Wallet',
-    merchant: 'Telkomsel & Spotify',
-    notes: 'Kuota nugas skripsi & musik',
-  },
-  {
-    id: 'stu-07',
-    title: 'Print Makalah 40 Halaman + Jilid Spiral',
-    type: 'expense',
-    category: 'Akademik, Buku & Print Tugas',
-    amount: 38000,
-    date: '2026-09-09',
-    payment_method: 'QRIS GoPay',
-    merchant: 'Percetakan & Fotokopi Berkah',
-    notes: 'Tugas besar mata kuliah Manajemen Keuangan',
-  },
-  {
-    id: 'stu-08',
-    title: 'Kopi Susu & Nongkrong Nugas Bareng Kelompok',
-    type: 'expense',
-    category: 'Nongkrong, Kafe & Lifestyle',
-    amount: 45000,
-    date: '2026-09-12',
-    payment_method: 'QRIS BCA',
-    merchant: 'Kopi Kenangan Kampus',
-    notes: 'Nongkrong nugas kelompok sampai sore',
-  },
-  {
-    id: 'stu-09',
-    title: 'Honor Asisten Laboratorium Komputer',
-    type: 'income',
-    category: 'Beasiswa & Kampus',
-    amount: 600000,
-    date: '2026-09-14',
-    payment_method: 'Transfer Bank BNI',
-    merchant: 'Fakultas Ilmu Komputer',
-    notes: 'Gaji asdos praktikum basis data',
-  },
-  {
-    id: 'stu-10',
-    title: 'Isi Bensin Motor Vario Mingguan',
-    type: 'expense',
-    category: 'Transportasi & Bensin',
-    amount: 40000,
-    date: '2026-09-15',
-    payment_method: 'Tunai (Cash)',
-    merchant: 'SPBU Pertamina',
-    notes: 'Pertalite full tank buat pp kampus',
-  },
-];
+export const INITIAL_STUDENT_TRANSACTIONS = [];
 
 // Sample Receipts by Role
 export const BUSINESS_SAMPLE_RECEIPTS = [
@@ -502,12 +280,22 @@ export const formatShortCurrency = (val) => {
 // 3. Storage & Data Management (Role Aware)
 // ==========================================
 
-const getStorageKey = (role = 'business') => `omniledger_transactions_${role}_v2`;
-const getStartingCashKey = (role = 'business') => `omniledger_starting_cash_${role}_v2`;
+const getStorageKey = (role = 'business') => `omniledger_transactions_${role}_v4`;
+const getStartingCashKey = (role = 'business') => `omniledger_starting_cash_${role}_v4`;
 
 export const getStoredTransactions = async (userId, role = 'business') => {
   const initialData = role === 'student' ? INITIAL_STUDENT_TRANSACTIONS : INITIAL_BUSINESS_TRANSACTIONS;
   const storageKey = getStorageKey(role);
+
+  // Clean old storage keys with dummy data if they exist
+  try {
+    ['v1', 'v2', 'v3'].forEach((ver) => {
+      localStorage.removeItem(`omniledger_transactions_${role}_${ver}`);
+      localStorage.removeItem(`omniledger_starting_cash_${role}_${ver}`);
+    });
+  } catch (e) {
+    // Ignore in non-browser environments
+  }
 
   if (userId) {
     try {
@@ -626,16 +414,17 @@ export const calculateFinancialMetrics = (
   });
 
   const totalBalance = startingCash + totalIncome - totalExpense;
-  const defaultMonthlyExp = role === 'student' ? 1800000 : 60000000;
-  const defaultMonthlyInc = role === 'student' ? 2500000 : 75000000;
 
-  const avgMonthlyExpense = recentExpense > 0 ? recentExpense : totalExpense / 3 || defaultMonthlyExp;
-  const avgMonthlyIncome = recentIncome > 0 ? recentIncome : totalIncome / 3 || defaultMonthlyInc;
+  // Real calculations without fake fallback numbers
+  const avgMonthlyExpense = recentExpense > 0 ? recentExpense : totalExpense > 0 ? totalExpense / 3 : 0;
+  const avgMonthlyIncome = recentIncome > 0 ? recentIncome : totalIncome > 0 ? totalIncome / 3 : 0;
   const netBurnRate = avgMonthlyExpense - avgMonthlyIncome;
 
-  let runwayMonths = 999;
-  if (netBurnRate > 0) {
+  let runwayMonths = 0;
+  if (totalBalance > 0 && netBurnRate > 0) {
     runwayMonths = Math.max(0, totalBalance / netBurnRate);
+  } else if (totalBalance > 0 && netBurnRate <= 0) {
+    runwayMonths = 999;
   }
 
   const profitMargin = avgMonthlyIncome > 0 ? ((avgMonthlyIncome - avgMonthlyExpense) / avgMonthlyIncome) * 100 : 0;
@@ -644,38 +433,40 @@ export const calculateFinancialMetrics = (
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const currentDay = now.getDate();
   const daysRemaining = Math.max(1, daysInMonth - currentDay);
-  const safeDailyAllowance = Math.max(0, Math.round(totalBalance / daysRemaining));
+  const safeDailyAllowance = totalBalance > 0 ? Math.max(0, Math.round(totalBalance / daysRemaining)) : 0;
 
   // Health score calculation
-  let healthScore = 50;
+  let healthScore = 0;
 
-  if (role === 'student') {
-    if (safeDailyAllowance >= 50000) healthScore += 25;
-    else if (safeDailyAllowance >= 30000) healthScore += 15;
-    else if (safeDailyAllowance >= 15000) healthScore += 5;
-    else healthScore -= 25;
+  if (transactions.length > 0 || totalBalance > 0) {
+    healthScore = 50;
+    if (role === 'student') {
+      if (safeDailyAllowance >= 50000) healthScore += 25;
+      else if (safeDailyAllowance >= 30000) healthScore += 15;
+      else if (safeDailyAllowance >= 15000) healthScore += 5;
+      else healthScore -= 25;
 
-    if (totalBalance >= 1500000) healthScore += 15;
-    else if (totalBalance < 300000) healthScore -= 20;
+      if (totalBalance >= 1500000) healthScore += 15;
+      else if (totalBalance < 300000) healthScore -= 20;
 
-    if (profitMargin >= 0) healthScore += 10;
-    else healthScore -= 10;
-  } else {
-    if (runwayMonths >= 18 || netBurnRate <= 0) healthScore += 25;
-    else if (runwayMonths >= 12) healthScore += 18;
-    else if (runwayMonths >= 6) healthScore += 8;
-    else healthScore -= 20;
+      if (profitMargin >= 0) healthScore += 10;
+      else healthScore -= 10;
+    } else {
+      if (runwayMonths >= 18 || netBurnRate <= 0) healthScore += 25;
+      else if (runwayMonths >= 12) healthScore += 18;
+      else if (runwayMonths >= 6) healthScore += 8;
+      else healthScore -= 20;
 
-    if (profitMargin > 20) healthScore += 20;
-    else if (profitMargin > 0) healthScore += 10;
-    else if (profitMargin > -20) healthScore -= 5;
-    else healthScore -= 20;
+      if (profitMargin > 20) healthScore += 20;
+      else if (profitMargin > 0) healthScore += 10;
+      else if (profitMargin > -20) healthScore -= 5;
+      else healthScore -= 20;
 
-    if (totalBalance > 100000000) healthScore += 10;
-    else if (totalBalance < 20000000) healthScore -= 15;
+      if (totalBalance > 100000000) healthScore += 10;
+      else if (totalBalance < 20000000) healthScore -= 15;
+    }
+    healthScore = Math.min(100, Math.max(10, Math.round(healthScore)));
   }
-
-  healthScore = Math.min(100, Math.max(10, Math.round(healthScore)));
 
   return {
     totalBalance,
@@ -834,6 +625,36 @@ export const simulateRunwayScenario = (
 export const generateCfoInsights = (transactions, metrics, role = 'business') => {
   const insights = [];
 
+  if (transactions.length === 0) {
+    if (role === 'student') {
+      return [
+        {
+          id: 'ins-empty-stu',
+          severity: 'info',
+          category: 'Mulai Menabung',
+          title: 'Dompet Masih Kosong (Rp 0)',
+          description: 'Catat kiriman uang saku atau gaji freelance pertamamu untuk mulai menghitung batas jajan harian aman!',
+          potentialSavingsMonthly: 0,
+          runwayExtensionMonths: 0,
+          actionPrompt: 'Catat Uang Saku',
+        },
+      ];
+    } else {
+      return [
+        {
+          id: 'ins-empty-biz',
+          severity: 'info',
+          category: 'Pembukuan Baru',
+          title: 'Buku Kas Masih Kosong (Rp 0)',
+          description: 'Mulai dengan mencatat modal awal, pembayaran invoice klien, atau scan struk operasional pertamamu.',
+          potentialSavingsMonthly: 0,
+          runwayExtensionMonths: 0,
+          actionPrompt: 'Catat Transaksi Pertama',
+        },
+      ];
+    }
+  }
+
   if (role === 'student') {
     // 1. Nongkrong & Kopi Check
     const cafeTx = transactions.filter((t) => t.category === 'Nongkrong, Kafe & Lifestyle');
@@ -960,6 +781,19 @@ export const askAiCfo = async (query, metrics, transactions, role = 'business') 
   const totalCashFormatted = formatCurrency(metrics.totalBalance);
   const burnFormatted = formatCurrency(metrics.avgMonthlyExpense);
   const incomeFormatted = formatCurrency(metrics.avgMonthlyIncome);
+
+  if (transactions.length === 0 && metrics.totalBalance === 0) {
+    if (role === 'student') {
+      return {
+        text: `Halo sobat mahasiswa! 🎓 Buku kas uang sakumu saat ini masih kosong (**Rp 0**).\n\n💡 **Langkah Awal:**\n1. Klik tombol **+ Catat** untuk memasukkan uang saku dari orang tua atau gaji freelance.\n2. Atau foto struk/bon belanjaanmu menggunakan fitur **Scan Bon/Struk**.\n\nSetelah ada catatan mutasi, saya akan otomatis menghitung **Batas Jajan Harian Aman (Safe Daily Limit)** dan memberikan tips hemat untukmu!`,
+        suggestedAction: 'Catat Uang Saku',
+      };
+    }
+    return {
+      text: `Halo! Saya **Autonomous AI CFO** untuk bisnis kamu. Saat ini pembukuan kas dimulai bersih dari **Rp 0**.\n\nSilakan catat mutasi modal awal/transaksi pertamamu atau gunakan fitur **Scan Struk** untuk membaca invoice tagihan. Setelah data masuk, sistem AI akan langsung memproyeksikan arus kas dan menganalisis kesehatan finansial bisnismu!`,
+      suggestedAction: 'Catat Transaksi Pertama',
+    };
+  }
 
   if (role === 'student') {
     const dailySafeFormatted = formatCurrency(metrics.safeDailyAllowance);

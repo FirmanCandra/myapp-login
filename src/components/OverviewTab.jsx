@@ -256,33 +256,43 @@ const OverviewTab = ({
             <h3 className="section-title">{isStudent ? 'Pos Pengeluaran Mahasiswa' : 'Distribusi Pengeluaran'}</h3>
             <span className="glass-pill">{categoryData.length} Pos</span>
           </div>
-          <div className="category-body">
-            <div className="category-pie-container">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={categoryData} innerRadius={36} outerRadius={54} paddingAngle={3} dataKey="value">
-                    {categoryData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} stroke="var(--color-bg)" strokeWidth={2} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+          {categoryData.length === 0 ? (
+            <div className="category-empty-state">
+              <HiOutlineDocumentSearch style={{ fontSize: '1.75rem', color: 'var(--color-text-muted)', opacity: 0.6 }} />
+              <p>Belum ada pengeluaran tercatat</p>
+              <button className="btn-secondary-xs" onClick={onOpenNewTx}>
+                + Catat Pengeluaran
+              </button>
             </div>
-            <div className="cat-list">
-              {categoryData.slice(0, 4).map((cat, i) => (
-                <div key={i} className="cat-row">
-                  <div className="cat-label">
-                    <span className="cat-dot" style={{ background: cat.color }} />
-                    <span className="cat-name">{cat.name}</span>
+          ) : (
+            <div className="category-body">
+              <div className="category-pie-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={categoryData} innerRadius={36} outerRadius={54} paddingAngle={3} dataKey="value">
+                      {categoryData.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} stroke="var(--color-bg)" strokeWidth={2} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="cat-list">
+                {categoryData.slice(0, 4).map((cat, i) => (
+                  <div key={i} className="cat-row">
+                    <div className="cat-label">
+                      <span className="cat-dot" style={{ background: cat.color }} />
+                      <span className="cat-name">{cat.name}</span>
+                    </div>
+                    <div className="cat-val">
+                      <span>{formatShortCurrency(cat.value)}</span>
+                      <span className="cat-pct">{cat.percentage}%</span>
+                    </div>
                   </div>
-                  <div className="cat-val">
-                    <span>{formatShortCurrency(cat.value)}</span>
-                    <span className="cat-pct">{cat.percentage}%</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="alerts-card glass-panel">
@@ -303,6 +313,7 @@ const OverviewTab = ({
                   className="alert-action"
                   onClick={() => {
                     if (ins.actionPrompt.includes('Survival') || ins.actionPrompt.includes('Simulasi')) onNavigateTab('simulator');
+                    else if (ins.actionPrompt.includes('Catat')) onOpenNewTx();
                     else onNavigateTab('cfo');
                   }}
                 >
@@ -327,73 +338,95 @@ const OverviewTab = ({
           </div>
         </div>
 
-        {/* Desktop Table View */}
-        <div className="table-wrap recent-table-desktop">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Deskripsi</th>
-                <th>Kategori</th>
-                <th>Tanggal</th>
-                <th>Pembayaran</th>
-                <th style={{ textAlign: 'right' }}>Nominal</th>
-              </tr>
-            </thead>
-            <tbody>
+        {transactions.length === 0 ? (
+          <div className="recent-empty-state">
+            <HiOutlineDocumentSearch style={{ fontSize: '2.5rem', color: 'var(--color-text-muted)', opacity: 0.6 }} />
+            <h4>{isStudent ? 'Belum Ada Mutasi Uang Saku' : 'Buku Kas Masih Kosong'}</h4>
+            <p>
+              {isStudent
+                ? 'Mulai dengan mencatat kiriman uang saku dari ortu atau foto nota makan warteg / struk Indomaret.'
+                : 'Mulai dengan mencatat transaksi modal / omset pertama atau gunakan pemindai struk untuk membaca invoice.'}
+            </p>
+            <div className="recent-empty-btns">
+              <button className="btn-primary" onClick={onOpenNewTx}>
+                <HiOutlinePlus /> {isStudent ? 'Catat Uang Saku / Jajan' : 'Catat Transaksi Pertama'}
+              </button>
+              <button className="btn-secondary" onClick={onOpenScanner}>
+                <HiOutlineDocumentSearch /> {isStudent ? 'Scan Bon Warteg / Struk' : 'Scan Struk / Invoice'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="table-wrap recent-table-desktop">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Deskripsi</th>
+                    <th>Kategori</th>
+                    <th>Tanggal</th>
+                    <th>Pembayaran</th>
+                    <th style={{ textAlign: 'right' }}>Nominal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.slice(0, 5).map((tx) => {
+                    const inc = tx.type === 'income';
+                    return (
+                      <tr key={tx.id}>
+                        <td>
+                          <div className="tx-desc">
+                            <span className={`tx-dot ${inc ? 'emerald' : 'rose'}`} />
+                            <div>
+                              <div className="tx-title">{tx.title}</div>
+                              <div className="tx-merchant">{tx.merchant || tx.notes || '-'}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td><span className="tx-cat">{tx.category}</span></td>
+                        <td className="tx-date">{tx.date}</td>
+                        <td><span className="tx-method"><HiOutlineCreditCard /> {tx.payment_method || 'Transfer'}</span></td>
+                        <td style={{ textAlign: 'right' }}>
+                          <span className={`tx-amount ${inc ? 'income' : 'expense'}`}>
+                            {inc ? '+' : '-'} {formatCurrency(tx.amount)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="recent-cards-mobile">
               {transactions.slice(0, 5).map((tx) => {
                 const inc = tx.type === 'income';
                 return (
-                  <tr key={tx.id}>
-                    <td>
-                      <div className="tx-desc">
-                        <span className={`tx-dot ${inc ? 'emerald' : 'rose'}`} />
-                        <div>
-                          <div className="tx-title">{tx.title}</div>
-                          <div className="tx-merchant">{tx.merchant || tx.notes || '-'}</div>
+                  <div key={tx.id} className="mobile-tx-card">
+                    <div className="mobile-tx-left">
+                      <div className={`tx-dot ${inc ? 'emerald' : 'rose'}`} />
+                      <div className="mobile-tx-info">
+                        <div className="mobile-tx-title">{tx.title}</div>
+                        <div className="mobile-tx-sub">
+                          <span className="tx-cat">{tx.category}</span>
+                          <span className="mobile-tx-date">{tx.date}</span>
                         </div>
                       </div>
-                    </td>
-                    <td><span className="tx-cat">{tx.category}</span></td>
-                    <td className="tx-date">{tx.date}</td>
-                    <td><span className="tx-method"><HiOutlineCreditCard /> {tx.payment_method || 'Transfer'}</span></td>
-                    <td style={{ textAlign: 'right' }}>
+                    </div>
+                    <div className="mobile-tx-right">
                       <span className={`tx-amount ${inc ? 'income' : 'expense'}`}>
                         {inc ? '+' : '-'} {formatCurrency(tx.amount)}
                       </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Card List View */}
-        <div className="recent-cards-mobile">
-          {transactions.slice(0, 5).map((tx) => {
-            const inc = tx.type === 'income';
-            return (
-              <div key={tx.id} className="mobile-tx-card">
-                <div className="mobile-tx-left">
-                  <div className={`tx-dot ${inc ? 'emerald' : 'rose'}`} />
-                  <div className="mobile-tx-info">
-                    <div className="mobile-tx-title">{tx.title}</div>
-                    <div className="mobile-tx-sub">
-                      <span className="tx-cat">{tx.category}</span>
-                      <span className="mobile-tx-date">{tx.date}</span>
+                      <span className="mobile-tx-method">{tx.payment_method || 'Transfer'}</span>
                     </div>
                   </div>
-                </div>
-                <div className="mobile-tx-right">
-                  <span className={`tx-amount ${inc ? 'income' : 'expense'}`}>
-                    {inc ? '+' : '-'} {formatCurrency(tx.amount)}
-                  </span>
-                  <span className="mobile-tx-method">{tx.payment_method || 'Transfer'}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </section>
     </div>
   );

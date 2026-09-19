@@ -35,12 +35,20 @@ const CfoAdvisorTab = ({ metrics, transactions, role = 'business', onNavigateTab
   const isStudent = role === 'student';
   const quickPrompts = isStudent ? STUDENT_QUICK_PROMPTS : BUSINESS_QUICK_PROMPTS;
 
-  const [messages, setMessages] = useState(() => [
-    {
-      id: 'msg-init',
-      sender: 'cfo',
-      text: isStudent
-        ? `Halo sobat mahasiswa! 🎓 Ini ringkasan kondisi dompet & uang sakumu berdasarkan **${transactions.length} mutasi** yang tercatat:
+  const buildInitialGreeting = () => ({
+    id: `msg-init-${role}-${transactions.length}`,
+    sender: 'cfo',
+    text: isStudent
+      ? transactions.length === 0
+        ? `Halo sobat mahasiswa! 🎓 Buku kas dompetmu saat ini masih bersih (**0 mutasi**, Saldo: **Rp 0**).
+
+💡 **Langkah awal:**
+1. Mulai dengan mencatat kiriman uang saku dari orang tua atau hasil freelance (+ Pemasukan).
+2. Scan struk/nota warteg atau catat jajan kopi harianmu (- Pengeluaran).
+3. Setelah ada mutasi tercatat, aku akan otomatis menghitung **Batas Jajan Harian Aman** & **Skor Ketahanan Dompet** untukmu!
+
+Ada yang mau kamu tanyakan tentang tips hemat anak kost atau cara menabung UKT?`
+        : `Halo sobat mahasiswa! 🎓 Ini ringkasan kondisi dompet & uang sakumu berdasarkan **${transactions.length} mutasi** yang tercatat:
 
 **Sisa Uang Saku & Tabungan:** ${formatCurrency(metrics.totalBalance)}
 **Batas Jajan Harian Aman:** ${formatCurrency(metrics.safeDailyAllowance)}/hari
@@ -48,7 +56,16 @@ const CfoAdvisorTab = ({ metrics, transactions, role = 'business', onNavigateTab
 **Sisa Waktu Bulan Ini:** ${metrics.daysRemaining} hari lagi
 
 Ada yang mau kamu tanyakan seputar jajan hemat, tips anak kost, atau strategi bayar UKT?`
-        : `Halo! Ini ringkasan kondisi keuangan bisnis kamu berdasarkan **${transactions.length} transaksi** yang tercatat:
+      : transactions.length === 0
+      ? `Halo! Buku kas bisnis kamu saat ini masih kosong (**0 transaksi**, Saldo Kas: **Rp 0**).
+
+📊 **Langkah awal:**
+1. Catat modal awal atau pendapatan client pertama (+ Pemasukan).
+2. Scan invoice atau struk pengeluaran operasional (- Pengeluaran).
+3. Setelah data masuk, aku akan otomatis mendiagnosis **Runway Bisnis**, **Efisiensi OPEX**, dan **Peluang Penghematan Biaya**.
+
+Silakan tanyakan apa saja seputar strategi keuangan atau simulasi skenario bisnismu.`
+      : `Halo! Ini ringkasan kondisi keuangan bisnis kamu berdasarkan **${transactions.length} transaksi** yang tercatat:
 
 **Saldo kas:** ${formatCurrency(metrics.totalBalance)}
 **Status arus kas:** ${metrics.profitMargin >= 0 ? 'Surplus (+)' : 'Pengeluaran lebih besar (-)'}
@@ -56,9 +73,10 @@ Ada yang mau kamu tanyakan seputar jajan hemat, tips anak kost, atau strategi ba
 **Potensi penghematan:** ~Rp 6.8 Juta/bulan
 
 Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
-      time: 'Baru saja',
-    },
-  ]);
+    time: 'Baru saja',
+  });
+
+  const [messages, setMessages] = useState(() => [buildInitialGreeting()]);
 
   const [inputQuery, setInputQuery] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -67,32 +85,9 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
   const chatEndRef = useRef(null);
   const msgCounterRef = useRef(10);
 
-  // Re-initialize greeting when role changes
+  // Re-initialize greeting when role or transactions count changes from 0
   useEffect(() => {
-    setMessages([
-      {
-        id: `msg-init-${role}`,
-        sender: 'cfo',
-        text: isStudent
-          ? `Halo sobat mahasiswa! 🎓 Ini ringkasan kondisi dompet & uang sakumu berdasarkan **${transactions.length} mutasi** yang tercatat:
-
-**Sisa Uang Saku & Tabungan:** ${formatCurrency(metrics.totalBalance)}
-**Batas Jajan Harian Aman:** ${formatCurrency(metrics.safeDailyAllowance)}/hari
-**Skor Ketahanan Dompet:** ${metrics.healthScore}/100
-**Sisa Waktu Bulan Ini:** ${metrics.daysRemaining} hari lagi
-
-Ada yang mau kamu tanyakan seputar jajan hemat, tips anak kost, atau strategi bayar UKT?`
-          : `Halo! Ini ringkasan kondisi keuangan bisnis kamu berdasarkan **${transactions.length} transaksi** yang tercatat:
-
-**Saldo kas:** ${formatCurrency(metrics.totalBalance)}
-**Status arus kas:** ${metrics.profitMargin >= 0 ? 'Surplus (+)' : 'Pengeluaran lebih besar (-)'}
-**Skor kesehatan:** ${metrics.healthScore}/100
-**Potensi penghematan:** ~Rp 6.8 Juta/bulan
-
-Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
-        time: 'Baru saja',
-      },
-    ]);
+    setMessages([buildInitialGreeting()]);
   }, [role, transactions.length, metrics.totalBalance, metrics.safeDailyAllowance, metrics.healthScore, metrics.daysRemaining, metrics.profitMargin, isStudent]);
 
   useEffect(() => {
@@ -169,7 +164,7 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
           <div className="stat-pill-box">
             <span className="label">{isStudent ? 'Batas Jajan / Hari' : 'Potensi Hemat'}</span>
             <span className="val" style={{ color: '#34d399' }}>
-              {isStudent ? `${formatCurrency(metrics.safeDailyAllowance)}/hari` : '+Rp 6.8 Jt / bln'}
+              {isStudent ? `${formatCurrency(metrics.safeDailyAllowance)}/hari` : transactions.length > 0 ? '+Rp 6.8 Jt / bln' : 'Rp 0 / bln'}
             </span>
           </div>
         </div>
