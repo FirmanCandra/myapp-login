@@ -8,25 +8,36 @@ import {
 import FinoraLogo from './FinoraLogo';
 import './IntroVideoSplash.css';
 
+const BUFFER_GRACE_MS = 1500; // 1.5 second buffer grace period
+
 const IntroVideoSplash = ({ onFinish }) => {
   const videoRef = useRef(null);
   const progressBarRef = useRef(null);
+  const graceTimerRef = useRef(null);
+  const isUnmountedRef = useRef(false);
   const [isMuted, setIsMuted] = useState(false); // Default sound is ON!
   const [isFading, setIsFading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(true); // NEW: loading state
 
   const triggerFadeOut = useCallback(() => {
     if (isFading) return;
     setIsFading(true);
+    // Clear any pending grace timer when skipping
+    if (graceTimerRef.current) {
+      clearTimeout(graceTimerRef.current);
+      graceTimerRef.current = null;
+    }
     setTimeout(() => {
       onFinish();
     }, 700);
   }, [isFading, onFinish]);
 
-  // Video Autoplay & Sound Initialization
+  // Video Autoplay & Sound Initialization — with buffer-first strategy
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+    isUnmountedRef.current = false;
 
     // Mobile hardware video attributes
     video.playsInline = true;
@@ -35,19 +46,29 @@ const IntroVideoSplash = ({ onFinish }) => {
     video.setAttribute('x5-playsinline', 'true');
     video.setAttribute('preload', 'auto');
 
-    // Default to Sound ON (unmuted)
-    video.muted = false;
+    // Do NOT autoplay yet — we want to buffer first
+    video.pause();
+    video.muted = true; // start muted to allow preload on mobile
     video.volume = 1.0;
-    setIsMuted(false);
+    video.currentTime = 0;
 
-    const tryStartPlayback = async () => {
+    // Force the browser to start downloading
+    video.load();
+
+    const startPlayback = async () => {
+      if (isUnmountedRef.current) return;
+      setIsBuffering(false);
+
+      // Try unmuted first (sound ON by default)
+      video.muted = false;
+      setIsMuted(false);
+
       try {
         await video.play();
         setIsPaused(false);
-        setIsMuted(false);
       } catch (err) {
-        // If mobile browser policy requires user touch before playing audio:
-        console.warn('Browser policy requires touch for sound, playing and queuing unmute:', err);
+        // Autoplay policy: fallback to muted play + auto-unmute on first touch
+        console.warn('Autoplay with sound blocked, falling back to muted:', err);
         video.muted = true;
         setIsMuted(true);
         try {
@@ -57,7 +78,7 @@ const IntroVideoSplash = ({ onFinish }) => {
           setIsPaused(true);
         }
 
-        // On very first touch or click anywhere, automatically unmute!
+        // On very first touch/click anywhere, automatically unmute!
         const handleFirstTouchUnmute = () => {
           if (videoRef.current) {
             videoRef.current.muted = false;
@@ -74,18 +95,47 @@ const IntroVideoSplash = ({ onFinish }) => {
       }
     };
 
-    tryStartPlayback();
+    // Strategy: Wait for `canplaythrough` (browser says it can play without stopping),
+    // THEN wait an additional grace period to build extra buffer.
+    let hasStarted = false;
 
-    // Safety timeout: transition to login if video is completely blocked after 6s
-    const initialSafetyTimeout = setTimeout(() => {
+    const onCanPlayThrough = () => {
+      if (hasStarted) return;
+      hasStarted = true;
+      video.removeEventListener('canplaythrough', onCanPlayThrough);
+
+      // Grace period: let the buffer fill a bit more
+      graceTimerRef.current = setTimeout(() => {
+        graceTimerRef.current = null;
+        startPlayback();
+      }, BUFFER_GRACE_MS);
+    };
+
+    video.addEventListener('canplaythrough', onCanPlayThrough);
+
+    // Fallback: if canplaythrough never fires (slow network), start after 4s anyway
+    const fallbackTimer = setTimeout(() => {
+      if (!hasStarted) {
+        hasStarted = true;
+        video.removeEventListener('canplaythrough', onCanPlayThrough);
+        startPlayback();
+      }
+    }, 4000);
+
+    // Safety timeout: transition to login if video is completely blocked after 8s
+    const safetyTimer = setTimeout(() => {
       if (video && video.currentTime === 0 && !video.ended) {
         console.warn('Video load safety fallback -> login');
         triggerFadeOut();
       }
-    }, 6000);
+    }, 8000);
 
     return () => {
-      clearTimeout(initialSafetyTimeout);
+      isUnmountedRef.current = true;
+      if (graceTimerRef.current) clearTimeout(graceTimerRef.current);
+      clearTimeout(fallbackTimer);
+      clearTimeout(safetyTimer);
+      video.removeEventListener('canplaythrough', onCanPlayThrough);
     };
   }, [triggerFadeOut]);
 
@@ -128,6 +178,11 @@ const IntroVideoSplash = ({ onFinish }) => {
   };
 
   const handleContainerClick = () => {
+    // If still buffering, skip immediately
+    if (isBuffering) {
+      triggerFadeOut();
+      return;
+    }
     if (videoRef.current && videoRef.current.paused) {
       videoRef.current.muted = false;
       setIsMuted(false);
@@ -149,9 +204,8 @@ const IntroVideoSplash = ({ onFinish }) => {
         ref={videoRef}
         src="/gemini_generated_video_b10a9b8b.mp4"
         className="intro-video-element"
-        autoPlay
         playsInline
-        muted={isMuted}
+        muted
         preload="auto"
         onTimeUpdate={handleTimeUpdate}
         onEnded={triggerFadeOut}
@@ -163,6 +217,14 @@ const IntroVideoSplash = ({ onFinish }) => {
       />
 
       <div className="intro-gradient-overlay" />
+
+      {/* Loading Indicator — shown while buffering */}
+      {isBuffering && (
+        <div className="intro-loading-overlay">
+          <div className="intro-loading-spinner" />
+          <p className="intro-loading-text">Mempersiapkan video...</p>
+        </div>
+      )}
 
       {/* Top Header Bar */}
       <div className="intro-top-bar" onClick={(e) => e.stopPropagation()}>
@@ -204,7 +266,7 @@ const IntroVideoSplash = ({ onFinish }) => {
           Autonomous Cashflow Scenario Simulator & Dual-Mode Financial Operating System
         </p>
 
-        {isPaused && (
+        {isPaused && !isBuffering && (
           <button
             className="intro-play-overlay-btn"
             onClick={togglePlay}
