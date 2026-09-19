@@ -1,7 +1,7 @@
 /* =========================================================
-   FINORA — Login Page Redesign (DESIGN.MD)
+   FINORA — Login Page Redesign
    Design Tokens, Duality Split-Screen, Space Grotesk Typography
-   Enhanced Ultra-Modern Mobile Experience
+   3D Mascot Hero Stage (Mobile Reference Style & Desktop Showcase)
    ========================================================= */
 
 :root {
@@ -29,7 +29,7 @@
   font-family: var(--font-body);
 }
 
-/* Background Atmospheric Radial Mesh */
+/* Background Atmospheric Radial Glows */
 .login-page-wrapper::before {
   content: '';
   position: absolute;
@@ -89,7 +89,96 @@
 }
 
 /* =========================================================
-   LEFT PANEL — DARK HERO PANEL (NAVY + GRADIENT MESH)
+   MOBILE MASCOT HERO STAGE (IMAGE REFERENCE DESIGN)
+   ========================================================= */
+.mobile-mascot-hero-stage {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #4338ca 0%, #4f46e5 40%, #2563eb 75%, #06b6d4 100%);
+  padding: 1.25rem 1.25rem 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 270px;
+  border-radius: 20px 20px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.mascot-bg-mesh {
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  right: -40px;
+  bottom: -40px;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.25) 0%, transparent 60%),
+              radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.35) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Sparkle Stars */
+.mascot-sparkle {
+  position: absolute;
+  color: #ffffff;
+  font-size: 1rem;
+  pointer-events: none;
+  opacity: 0.7;
+  animation: sparkleTwinkle 3s ease-in-out infinite alternate;
+}
+
+.mascot-sparkle.s1 { top: 18%; left: 12%; font-size: 1.1rem; animation-delay: 0.2s; }
+.mascot-sparkle.s2 { top: 22%; right: 14%; font-size: 1.3rem; color: #a5f3fc; animation-delay: 0.8s; }
+.mascot-sparkle.s3 { bottom: 25%; left: 15%; font-size: 0.9rem; color: #c7d2fe; animation-delay: 1.4s; }
+.mascot-sparkle.s4 { bottom: 20%; right: 12%; font-size: 1rem; color: #67e8f9; animation-delay: 2s; }
+
+@keyframes sparkleTwinkle {
+  0% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(15deg); filter: drop-shadow(0 0 6px #fff); }
+  100% { opacity: 0.5; transform: scale(0.9) rotate(30deg); }
+}
+
+.mascot-top-header {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.mascot-visual-container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: -0.25rem;
+  margin-bottom: -0.5rem;
+}
+
+.mascot-character-img {
+  height: 195px;
+  width: auto;
+  max-width: 90%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(15, 23, 42, 0.45));
+  animation: mascotLevitate 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes mascotLevitate {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.2deg);
+  }
+  100% {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+}
+
+/* =========================================================
+   LEFT PANEL — DESKTOP HERO PANEL (NAVY + GRADIENT MESH)
    ========================================================= */
 .login-hero-panel {
   background: var(--finora-ink);
@@ -128,12 +217,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-mesh-bg {
-    animation: none;
-  }
-  .login-fade-in {
-    animation: none;
-  }
+  .hero-mesh-bg { animation: none; }
+  .login-fade-in { animation: none; }
+  .mascot-character-img { animation: none; }
+  .hero-mascot-desktop-img { animation: none; }
 }
 
 .hero-brand-header {
@@ -141,11 +228,35 @@
   z-index: 2;
 }
 
-.hero-content {
+.hero-desktop-showcase {
   position: relative;
   z-index: 2;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-mascot-desktop-badge {
+  width: 130px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-mascot-desktop-img {
+  width: 100%;
+  height: auto;
+  max-height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.4));
+  animation: mascotLevitate 4s ease-in-out infinite alternate;
 }
 
 .hero-headline {
@@ -275,10 +386,6 @@
   flex-direction: column;
   gap: 1.25rem;
   text-align: left;
-}
-
-.form-mobile-header {
-  display: none;
 }
 
 .form-title-group {
@@ -662,88 +769,34 @@
 
 @media (max-width: 768px) {
   .login-page-wrapper {
-    padding: 0.75rem;
+    padding: 0.75rem 0.5rem;
     align-items: center;
     justify-content: center;
   }
 
   .login-split-card {
     grid-template-columns: 1fr;
-    max-width: 440px;
+    max-width: 420px;
     margin: 0 auto;
     border-radius: 20px;
-    box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
   }
 
-  /* Compact Hero Panel for Mobile (< 38% height) */
-  .login-hero-panel {
-    padding: 1.5rem 1.35rem 1.15rem;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: linear-gradient(180deg, #0f172a 0%, #0d1527 100%);
+  /* Show Mascot Hero Stage on Mobile */
+  .mobile-mascot-hero-stage {
+    display: flex;
   }
 
-  .hero-content {
-    margin: 0.85rem 0 0.75rem;
-  }
-
-  .hero-headline {
-    font-size: 1.35rem;
-    line-height: 1.22;
-    margin-bottom: 0.35rem;
-  }
-
-  .hero-description {
-    font-size: 0.78rem;
-    line-height: 1.45;
-    color: #94a3b8;
-  }
-
-  /* Inline feature badges on mobile: modern glass pills */
-  .hero-features-list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .hero-feature-item {
-    gap: 0.35rem;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 3px 8px 3px 4px;
-    border-radius: 999px;
-  }
-
-  .feature-circle-badge {
-    width: 22px;
-    height: 22px;
-    font-size: 0.8rem;
-    margin-top: 0;
-    border: none;
-    background: transparent;
-    color: var(--finora-secondary);
-  }
-
-  .feature-desc {
-    display: none;
-  }
-
-  .feature-title {
-    font-size: 0.72rem;
-    color: #e2e8f0;
-    font-weight: 500;
-  }
-
-  .hero-security-strip {
+  /* Hide the Desktop Left Panel on Mobile */
+  .login-hero-panel.desktop-only {
     display: none;
   }
 
   .login-form-panel {
-    padding: 1.6rem 1.35rem;
-    border-radius: 0;
+    padding: 1.75rem 1.35rem 1.5rem;
+    border-radius: 0 0 20px 20px;
     border-left: none;
+    border-top: none;
     background: #111827;
   }
 
@@ -752,11 +805,11 @@
   }
 
   .form-title {
-    font-size: 1.35rem;
+    font-size: 1.4rem;
   }
 
   .form-subtitle {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
   }
 
   .persona-toggle-track {
@@ -764,25 +817,32 @@
   }
 
   .persona-toggle-btn {
-    padding: 0.55rem 0.5rem;
-    font-size: 0.8rem;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.82rem;
   }
 }
 
 @media (max-width: 480px) {
   .login-page-wrapper {
-    padding: 0.5rem;
+    padding: 0.4rem;
   }
   .login-split-card {
     border-radius: 18px;
+    max-width: 100%;
   }
-  .login-hero-panel {
-    padding: 1.25rem 1.15rem 1rem;
+  .mobile-mascot-hero-stage {
+    min-height: 250px;
+    padding: 1.15rem 1rem 0.4rem;
+    border-radius: 18px 18px 0 0;
   }
-  .hero-headline {
-    font-size: 1.25rem;
+  .mascot-character-img {
+    height: 175px;
   }
   .login-form-panel {
-    padding: 1.35rem 1.15rem;
+    padding: 1.5rem 1.15rem 1.25rem;
+    border-radius: 0 0 18px 18px;
+  }
+  .form-title {
+    font-size: 1.3rem;
   }
 }

@@ -65,8 +65,34 @@ const LoginPage = () => {
       )}
 
       <div className="login-split-card login-fade-in">
-        {/* Left Side: Dark Hero Panel (Navy + Gradient Mesh) */}
-        <section className="login-hero-panel">
+        {/* Mobile Mascot Hero Stage (Image Reference Style) */}
+        <section className="mobile-mascot-hero-stage mobile-only">
+          <div className="mascot-bg-mesh" />
+          <div className="mascot-sparkle s1">✦</div>
+          <div className="mascot-sparkle s2">✦</div>
+          <div className="mascot-sparkle s3">★</div>
+          <div className="mascot-sparkle s4">✦</div>
+
+          <div className="mascot-top-header">
+            <FinoraLogo
+              size="sm"
+              variant="white"
+              showTagline={true}
+              customTagline="Your Financial Intelligence"
+            />
+          </div>
+
+          <div className="mascot-visual-container">
+            <img
+              src="/MASKOT-FINORA.png"
+              alt="FINORA Mascot Robot"
+              className="mascot-character-img"
+            />
+          </div>
+        </section>
+
+        {/* Left Side: Desktop Hero Panel (Navy + Gradient Mesh + Features) */}
+        <section className="login-hero-panel desktop-only">
           <div className="hero-mesh-bg" />
 
           <div className="hero-brand-header">
@@ -78,13 +104,23 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="hero-content">
-            <h1 className="hero-headline">
-              Kelola keuangan bisnis & kuliah dengan terukur
-            </h1>
-            <p className="hero-description">
-              Autonomous Financial Intelligence untuk UMKM, Startup, dan Mahasiswa. Simulasi skenario runway, pemindai bon cerdas, dan AI Financial Advisor.
-            </p>
+          <div className="hero-desktop-showcase">
+            <div className="hero-content">
+              <h1 className="hero-headline">
+                Kelola keuangan bisnis & kuliah dengan terukur
+              </h1>
+              <p className="hero-description">
+                Autonomous Financial Intelligence untuk UMKM, Startup, dan Mahasiswa. Simulasi skenario runway, pemindai bon cerdas, dan AI Financial Advisor.
+              </p>
+            </div>
+
+            <div className="hero-mascot-desktop-badge">
+              <img
+                src="/MASKOT-FINORA.png"
+                alt="FINORA AI Assistant"
+                className="hero-mascot-desktop-img"
+              />
+            </div>
           </div>
 
           {/* Three Feature Highlights with circular subtle gradient badge */}
@@ -127,14 +163,9 @@ const LoginPage = () => {
           </div>
         </section>
 
-        {/* Right Side: Auth Form Panel (White Surface with Asymmetric Radius) */}
+        {/* Right Side: Auth Form Panel */}
         <section className="login-form-panel">
           <div className="form-card-inner">
-            {/* Mobile Header */}
-            <div className="form-mobile-header mobile-only">
-              <FinoraLogo size="sm" showTagline={true} customTagline="Your Financial Intelligence" />
-            </div>
-
             <div className="form-title-group">
               <h2 className="form-title">Masuk ke Dashboard</h2>
               <p className="form-subtitle">
