@@ -84,7 +84,7 @@ const IntroVideoSplash = ({ onFinish }) => {
             videoRef.current.muted = false;
             videoRef.current.volume = 1.0;
             setIsMuted(false);
-            videoRef.current.play().catch(() => {});
+            videoRef.current.play().catch(() => { });
           }
           window.removeEventListener('touchstart', handleFirstTouchUnmute);
           window.removeEventListener('click', handleFirstTouchUnmute);
@@ -155,7 +155,7 @@ const IntroVideoSplash = ({ onFinish }) => {
       setIsMuted(nextMuted);
       if (!nextMuted) {
         videoRef.current.volume = 1.0;
-        videoRef.current.play().catch(() => {});
+        videoRef.current.play().catch(() => { });
       }
     }
   };
@@ -169,7 +169,7 @@ const IntroVideoSplash = ({ onFinish }) => {
         videoRef.current
           .play()
           .then(() => setIsPaused(false))
-          .catch(() => {});
+          .catch(() => { });
       } else {
         videoRef.current.pause();
         setIsPaused(true);
