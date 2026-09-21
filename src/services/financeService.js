@@ -858,34 +858,46 @@ Instruksi:
 - Gunakan data keuangan riil di atas dalam kalkulasimu (jangan mengarang angka palsu).
 - Gunakan formatting Markdown yang rapi (bullet points, bold text). Jawab dengan padat dan to the point (maksimal 3-4 paragraf).`;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: `${systemPrompt}\n\nPertanyaan Pengguna: "${query}"` }],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 600,
-            },
-          }),
-        }
-      );
+      const candidateModels = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.5-flash-lite'];
 
-      if (response.ok) {
-        const json = await response.json();
-        const replyText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (replyText) {
-          return {
-            text: replyText,
-            suggestedAction: isStudent ? 'Buka Simulator Mahasiswa' : 'Buka Simulator Skenario',
-          };
+      for (const modelName of candidateModels) {
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined,
+              body: JSON.stringify({
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [{ text: `${systemPrompt}\n\nPertanyaan Pengguna: "${query}"` }],
+                  },
+                ],
+                generationConfig: {
+                  temperature: 0.7,
+                  maxOutputTokens: 1024,
+                },
+              }),
+            }
+          );
+
+          if (response.ok) {
+            const json = await response.json();
+            const replyText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (replyText) {
+              return {
+                text: replyText,
+                suggestedAction: isStudent ? 'Buka Simulator Mahasiswa' : 'Buka Simulator Skenario',
+              };
+            }
+          } else {
+            const errJson = await response.json().catch(() => ({}));
+            console.warn(`Gemini API model ${modelName} returned status ${response.status}:`, errJson);
+          }
+        } catch (mErr) {
+          console.warn(`Gemini API call error with model ${modelName}:`, mErr.message);
         }
       }
     } catch (err) {
