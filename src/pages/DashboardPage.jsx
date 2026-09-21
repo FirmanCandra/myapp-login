@@ -17,7 +17,6 @@ import {
   getStartingCash,
   calculateFinancialMetrics,
 } from '../services/financeService';
-import AdBanner from '../components/AdBanner';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -125,9 +124,6 @@ const DashboardPage = () => {
         onOpenRoleSelector={() => setIsRoleModalOpen(true)}
       />
 
-      {/* Ad Banner — Adsterra 728x90 (below navbar) */}
-      <AdBanner spacing="bottom" />
-
       {/* 2. Main Tab Viewport */}
       <main className="dashboard-main-viewport">
         <div className="main-content-limiter">
@@ -193,9 +189,6 @@ const DashboardPage = () => {
           )}
         </div>
       </main>
-
-      {/* Ad Banner — Adsterra 728x90 (below content) */}
-      <AdBanner compact spacing="top" />
 
       {/* Standalone Modals */}
       <ReceiptScannerModal
