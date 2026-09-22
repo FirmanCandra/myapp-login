@@ -15,6 +15,7 @@ import {
   saveTransaction,
   deleteTransaction,
   getStartingCash,
+  setStartingCash,
   calculateFinancialMetrics,
 } from '../services/financeService';
 import './DashboardPage.css';
@@ -95,10 +96,18 @@ const DashboardPage = () => {
   const handleSaveTransaction = async (tx) => {
     try {
       const saved = await saveTransaction(tx, user?.id, activeRole);
-      setTransactions((prev) => [saved, ...prev]);
+      setTransactions((prev) => [saved, ...prev.filter((t) => t.id !== saved.id)]);
+      return saved;
     } catch (e) {
       console.error(e);
+      return null;
     }
+  };
+
+  const handleUpdateStartingCash = (amount) => {
+    const num = Number(amount) || 0;
+    setStartingCash(num, activeRole);
+    setStartingCashState(num);
   };
 
   const handleDeleteTransaction = async (id) => {
@@ -169,6 +178,9 @@ const DashboardPage = () => {
                   metrics={metrics}
                   transactions={transactions}
                   role={activeRole}
+                  onSaveTransaction={handleSaveTransaction}
+                  onDeleteTransaction={handleDeleteTransaction}
+                  onUpdateStartingCash={handleUpdateStartingCash}
                   onNavigateTab={(tab) => {
                     if (tab === 'scanner') setIsScannerOpen(true);
                     else setActiveTab(tab);

@@ -841,6 +841,9 @@ export const askAiCfo = async (query, metrics, transactions, role = 'business') 
         .map((c) => `${c.name}: ${formatShortCurrency(c.value)} (${c.percentage}%)`)
         .join(', ');
 
+      const categories = isStudent ? STUDENT_CATEGORIES : BUSINESS_CATEGORIES;
+      const todayDate = new Date().toISOString().split('T')[0];
+
       const systemPrompt = `Kamu adalah ${isStudent ? 'AI Financial Mentor khusus Mahasiswa & Anak Kost' : 'Autonomous AI CFO FinTech untuk SME & Bisnis'}.
 Data Keuangan Pengguna Saat Ini:
 - Mode: ${isStudent ? 'Mahasiswa & Anak Kost 🎓' : 'Perusahaan & Bisnis 🏢'}
@@ -853,12 +856,48 @@ Data Keuangan Pengguna Saat Ini:
 - Total Transaksi Tercatat: ${transactions.length}
 - Pengeluaran Teratas: ${topCatSummary || 'Belum ada transaksi'}
 
-Instruksi:
-- Jawablah dengan ramah, cerdas, solutif, dan relevan dengan pertanyaan pengguna dalam Bahasa Indonesia yang santun dan modern.
-- Gunakan data keuangan riil di atas dalam kalkulasimu (jangan mengarang angka palsu).
-- Gunakan formatting Markdown yang rapi (bullet points, bold text). Jawab dengan padat dan to the point (maksimal 3-4 paragraf).`;
+KEMAMPUAN KHUSUS (AUTONOMOUS ACTIONS):
+Kamu memiliki kuasa penuh untuk langsung menerapkan aksi keuangan ke aplikasi FINORA!
+Jika pengguna menceritakan, menyebutkan, atau menginstruksikan pencatatan keuangan baru (misal: "dikasih uang 500rb", "tadi jajan bakso 15rb", "beli bensin 25rb", "dapet transferan freelance 1 juta", "uang saku mingguan 500 ribu untuk seminggu", "modal awal diset 5 juta"):
+1. Berikan jawaban yang ramah, santun, dan solutif (misal: sebutkan bahwa transaksi sudah otomatis dicatat, dan hitungkan dampaknya ke batas belanja harian pengguna).
+2. Di akhir jawabanmu, sertakan blok kode aksi JSON dengan tag \`\`\`action ... \`\`\`.
 
-      const candidateModels = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.5-flash-lite'];
+Format blok action:
+Untuk Transaksi (Pemasukan / Pengeluaran):
+\`\`\`action
+{
+  "type": "ADD_TRANSACTIONS",
+  "transactions": [
+    {
+      "type": "income",
+      "amount": 500000,
+      "title": "Uang Saku Mingguan dari Ibu",
+      "category": "Uang Saku & Kiriman Ortu",
+      "date": "${todayDate}",
+      "notes": "Dicatat otomatis oleh AI Finora"
+    }
+  ]
+}
+\`\`\`
+
+Untuk Mengatur Saldo Utama / Modal Awal:
+\`\`\`action
+{
+  "type": "SET_STARTING_CASH",
+  "amount": 500000,
+  "label": "Uang Saku / Saldo Awal"
+}
+\`\`\`
+
+Daftar Kategori yang Valid:
+${categories.map((c) => `- ${c}`).join('\n')}
+
+Instruksi Tambahan:
+- Nominal amount harus berupa angka integer murni (contoh: 500000, bukan "500k" atau 500.000).
+- Gunakan formatting Markdown yang rapi (bullet points, bold text). Jawab dengan padat dan to the point.
+- Jika pengguna hanya bertanya santai/konsultasi biasa tanpa ada mutasi keuangan (misal "gimana tips hemat?"), JANGAN sertakan blok action.`;
+
+      const candidateModels = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-3.8-flash'];
 
       for (const modelName of candidateModels) {
         try {
@@ -887,8 +926,21 @@ Instruksi:
             const json = await response.json();
             const replyText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
             if (replyText) {
+              let action = null;
+              let cleanText = replyText;
+              const actionMatch = replyText.match(/```(?:action|json:action)\s*([\s\S]*?)\s*```/);
+              if (actionMatch) {
+                try {
+                  action = JSON.parse(actionMatch[1]);
+                  cleanText = replyText.replace(/```(?:action|json:action)\s*[\s\S]*?\s*```/, '').trim();
+                } catch (e) {
+                  console.warn('Failed to parse AI action JSON:', e.message);
+                }
+              }
+
               return {
-                text: replyText,
+                text: cleanText,
+                action,
                 suggestedAction: isStudent ? 'Buka Simulator Mahasiswa' : 'Buka Simulator Skenario',
               };
             }
@@ -912,6 +964,78 @@ Instruksi:
   const categoryBreakdown = generateCategoryBreakdown(transactions);
   const expenseTx = transactions.filter((t) => t.type === 'expense');
   const incomeTx = transactions.filter((t) => t.type === 'income');
+
+  // =========================================================================
+  // Intent 0: Autonomous Action Intent (Fallback Local Engine)
+  // =========================================================================
+  const moneyMatch = q.match(/(\d+(?:[.,]\d+)?)\s*(?:ribu|rb|k|juta|jt)/i) || q.match(/rp\s*(\d+(?:[.,]\d+)?)/i);
+  let parsedAmount = 0;
+  if (moneyMatch) {
+    const rawVal = parseFloat(moneyMatch[1].replace(',', '.'));
+    if (/juta|jt/i.test(moneyMatch[0])) {
+      parsedAmount = Math.round(rawVal * 1000000);
+    } else {
+      parsedAmount = Math.round(rawVal * 1000);
+    }
+  }
+
+  if (parsedAmount > 0 && (q.includes('dikasih') || q.includes('kiriman') || q.includes('uang saku') || q.includes('gaji') || q.includes('freelance') || q.includes('transferan') || q.includes('dapet'))) {
+    const today = new Date().toISOString().split('T')[0];
+    const isWeekly = q.includes('minggu') || q.includes('seminggu');
+    const safeDaily = isWeekly ? Math.round(parsedAmount / 7) : Math.round(parsedAmount / 30);
+    return {
+      text: `Wah berkah banget! Uang masuk sebesar **${formatCurrency(parsedAmount)}** sudah otomatis aku catatkan ke buku kas Finora. ${isWeekly ? `Karena ini untuk jatah seminggu, batas jajan aman harianmu adalah sekitar **${formatCurrency(safeDaily)}/hari**.` : `Batas aman jajan harianmu ikut bertambah!`}\n\nTetap sisihkan sedikit buat tabungan darurat atau wishlist ya! 🚀`,
+      action: {
+        type: 'ADD_TRANSACTIONS',
+        transactions: [
+          {
+            type: 'income',
+            amount: parsedAmount,
+            title: isWeekly ? 'Uang Saku Mingguan dari Ibu' : 'Pemasukan / Uang Saku',
+            category: isStudent ? 'Uang Saku & Kiriman Ortu' : 'Revenue / Sales',
+            date: today,
+            notes: 'Dicatat otomatis oleh AI Finora',
+          },
+        ],
+      },
+      suggestedAction: isStudent ? 'Buka Simulator Mahasiswa' : 'Buka Simulator Skenario',
+    };
+  }
+
+  if (parsedAmount > 0 && (q.includes('beli') || q.includes('jajan') || q.includes('makan') || q.includes('bayar') || q.includes('bensin') || q.includes('kopi') || q.includes('nongkrong'))) {
+    const today = new Date().toISOString().split('T')[0];
+    let cat = isStudent ? 'Makan & Minum (Warteg/Kantin)' : 'Office & Utilities';
+    let title = 'Pengeluaran Jajan/Harian';
+    if (q.includes('bensin') || q.includes('transport') || q.includes('ojol')) {
+      cat = isStudent ? 'Transportasi & Bensin' : 'Miscellaneous';
+      title = 'Bensin & Transportasi';
+    } else if (q.includes('kost') || q.includes('listrik')) {
+      cat = isStudent ? 'Sewa Kost & Listrik' : 'Office & Utilities';
+      title = 'Sewa Kost / Listrik';
+    } else if (q.includes('kopi') || q.includes('nongkrong')) {
+      cat = isStudent ? 'Nongkrong, Kafe & Lifestyle' : 'Marketing & Ads';
+      title = 'Nongkrong & Kafe';
+    } else if (q.includes('bakso') || q.includes('makan') || q.includes('nasi') || q.includes('warteg')) {
+      title = 'Makan & Minum';
+    }
+    return {
+      text: `Siap! Pengeluaran sebesar **${formatCurrency(parsedAmount)}** (${title}) sudah langsung aku catatkan ke pembukuan. Sisa saldo kasmu akan otomatis disesuaikan. Tetap jaga ritme pengeluaranmu ya! 👍`,
+      action: {
+        type: 'ADD_TRANSACTIONS',
+        transactions: [
+          {
+            type: 'expense',
+            amount: parsedAmount,
+            title,
+            category: cat,
+            date: today,
+            notes: 'Dicatat otomatis oleh AI Finora',
+          },
+        ],
+      },
+      suggestedAction: isStudent ? 'Buka Simulator Mahasiswa' : 'Buka Simulator Skenario',
+    };
+  }
 
   // =========================================================================
   // Intent 1: Zero-State Handling

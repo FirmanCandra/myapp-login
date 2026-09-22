@@ -100,7 +100,15 @@ const FormattedMessage = ({ text }) => {
   );
 };
 
-const CfoAdvisorTab = ({ metrics, transactions, role = 'business', onNavigateTab }) => {
+const CfoAdvisorTab = ({
+  metrics,
+  transactions,
+  role = 'business',
+  onNavigateTab,
+  onSaveTransaction,
+  onDeleteTransaction,
+  onUpdateStartingCash,
+}) => {
   const isStudent = role === 'student';
   const quickPrompts = isStudent ? STUDENT_QUICK_PROMPTS : BUSINESS_QUICK_PROMPTS;
 
@@ -116,7 +124,7 @@ const CfoAdvisorTab = ({ metrics, transactions, role = 'business', onNavigateTab
 💡 **Langkah awal:**
 1. Mulai dengan mencatat kiriman uang saku dari orang tua atau hasil freelance (+ Pemasukan).
 2. Scan struk/nota warteg atau catat jajan kopi harianmu (- Pengeluaran).
-3. Setelah ada mutasi tercatat, aku akan otomatis menghitung **Batas Jajan Harian Aman** & **Skor Ketahanan Dompet** untukmu!
+3. **Tips Cerdas:** Kamu juga bisa langsung chat aku santai (misal: *"gua dikasih uang saku 500 ribu buat seminggu"* atau *"tadi jajan bakso 20rb"*), dan aku akan otomatis mencatatkannya ke aplikasi!
 
 Ada yang mau kamu tanyakan tentang tips hemat anak kost atau cara menabung UKT?`
         : `Halo sobat mahasiswa! 🎓 Ini ringkasan kondisi dompet & uang sakumu berdasarkan **${transactions.length} mutasi** yang tercatat:
@@ -126,16 +134,14 @@ Ada yang mau kamu tanyakan tentang tips hemat anak kost atau cara menabung UKT?`
 **Skor Ketahanan Dompet:** ${metrics.healthScore}/100
 **Sisa Waktu Bulan Ini:** ${metrics.daysRemaining} hari lagi
 
-Ada yang mau kamu tanyakan seputar jajan hemat, tips anak kost, atau strategi bayar UKT?`
+💡 *Mau catat transaksi tanpa form manual? Cukup ketik aja ke aku (contoh: "tadi makan warteg 15rb" atau "dapet kiriman 500rb"), langsung aku terapkan!*`
       : transactions.length === 0
       ? `Halo! Buku kas bisnis kamu saat ini masih kosong (**0 transaksi**, Saldo Kas: **Rp 0**).
 
 📊 **Langkah awal:**
 1. Catat modal awal atau pendapatan client pertama (+ Pemasukan).
 2. Scan invoice atau struk pengeluaran operasional (- Pengeluaran).
-3. Setelah data masuk, aku akan otomatis mendiagnosis **Runway Bisnis**, **Efisiensi OPEX**, dan **Peluang Penghematan Biaya**.
-
-Silakan tanyakan apa saja seputar strategi keuangan atau simulasi skenario bisnismu.`
+3. *Kamu juga bisa langsung menginstruksikan lewat chat (contoh: "modal awal diset 10 juta" atau "ada invoice cair 5 juta")!*`
       : `Halo! Ini ringkasan kondisi keuangan bisnis kamu berdasarkan **${transactions.length} transaksi** yang tercatat:
 
 **Saldo kas:** ${formatCurrency(metrics.totalBalance)}
@@ -143,7 +149,7 @@ Silakan tanyakan apa saja seputar strategi keuangan atau simulasi skenario bisni
 **Skor kesehatan:** ${metrics.healthScore}/100
 **Potensi penghematan:** ~Rp 6.8 Juta/bulan
 
-Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
+Silakan tanyakan apa saja atau instruksikan mutasi transaksi bisnis kamu.`,
     time: 'Baru saja',
   });
 
@@ -185,11 +191,45 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
     try {
       const reply = await askAiCfo(q, metrics, transactions, role);
       msgCounterRef.current += 1;
+
+      let executedActionInfo = null;
+
+      // Execute Autonomous Action if returned by AI
+      if (reply.action) {
+        if (reply.action.type === 'ADD_TRANSACTIONS' && Array.isArray(reply.action.transactions)) {
+          const createdItems = [];
+          for (const txData of reply.action.transactions) {
+            if (onSaveTransaction) {
+              const saved = await onSaveTransaction(txData);
+              if (saved) createdItems.push(saved);
+            }
+          }
+          if (createdItems.length > 0) {
+            executedActionInfo = {
+              type: 'ADD_TRANSACTIONS',
+              items: createdItems,
+            };
+            confetti({ particleCount: 45, spread: 65, origin: { y: 0.7 } });
+          }
+        } else if (reply.action.type === 'SET_STARTING_CASH' && reply.action.amount) {
+          if (onUpdateStartingCash) {
+            onUpdateStartingCash(reply.action.amount);
+            executedActionInfo = {
+              type: 'SET_STARTING_CASH',
+              amount: reply.action.amount,
+              label: reply.action.label || 'Uang Saku / Saldo Awal',
+            };
+            confetti({ particleCount: 45, spread: 65, origin: { y: 0.7 } });
+          }
+        }
+      }
+
       const cfoMsg = {
         id: `msg-${msgCounterRef.current}`,
         sender: 'cfo',
         text: reply.text,
         suggestedAction: reply.suggestedAction,
+        actionInfo: executedActionInfo,
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, cfoMsg]);
@@ -197,6 +237,22 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
       console.error(e);
     } finally {
       setIsThinking(false);
+    }
+  };
+
+  const handleUndoAction = async (msgId, actionInfo) => {
+    if (!actionInfo || actionInfo.isUndone) return;
+    if (actionInfo.type === 'ADD_TRANSACTIONS' && actionInfo.items?.length > 0) {
+      for (const item of actionInfo.items) {
+        if (onDeleteTransaction && item.id) {
+          await onDeleteTransaction(item.id);
+        }
+      }
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === msgId ? { ...m, actionInfo: { ...actionInfo, isUndone: true } } : m
+        )
+      );
     }
   };
 
@@ -508,6 +564,61 @@ Silakan tanyakan apa saja soal keuangan bisnis kamu.`,
                   )}
                   <div className="chat-bubble">
                     <FormattedMessage text={m.text} />
+
+                    {/* Autonomous Action Receipt Card */}
+                    {m.actionInfo && (
+                      <div className={`ai-action-receipt-card ${m.actionInfo.isUndone ? 'undone' : ''}`}>
+                        <div className="receipt-header">
+                          <div className="receipt-tag">
+                            <HiOutlineSparkles className="receipt-sparkle-icon" />
+                            <span>Aksi Otomatis FINORA</span>
+                          </div>
+                          {m.actionInfo.isUndone ? (
+                            <span className="badge-undone">Dibatalkan</span>
+                          ) : (
+                            <button
+                              className="btn-receipt-undo"
+                              onClick={() => handleUndoAction(m.id, m.actionInfo)}
+                              title="Batalkan mutasi ini"
+                            >
+                              Batalkan (Undo)
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="receipt-items-list">
+                          {m.actionInfo.type === 'ADD_TRANSACTIONS' && m.actionInfo.items?.map((item, itIdx) => (
+                            <div key={itIdx} className="receipt-item-row">
+                              <div className="receipt-item-left">
+                                <span className={`receipt-type-dot ${item.type}`} />
+                                <div>
+                                  <span className="receipt-item-title">{item.title}</span>
+                                  <span className="receipt-item-cat">{item.category} • {item.date}</span>
+                                </div>
+                              </div>
+                              <span className={`receipt-item-amount ${item.type}`}>
+                                {item.type === 'income' ? '+' : '-'}{formatCurrency(item.amount)}
+                              </span>
+                            </div>
+                          ))}
+
+                          {m.actionInfo.type === 'SET_STARTING_CASH' && (
+                            <div className="receipt-item-row">
+                              <div className="receipt-item-left">
+                                <span className="receipt-type-dot income" />
+                                <div>
+                                  <span className="receipt-item-title">{m.actionInfo.label || 'Uang Saku / Saldo Kas'}</span>
+                                  <span className="receipt-item-cat">Update Saldo Langsung</span>
+                                </div>
+                              </div>
+                              <span className="receipt-item-amount income">
+                                {formatCurrency(m.actionInfo.amount)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {m.suggestedAction && (
                       <div className="bubble-action-row">
