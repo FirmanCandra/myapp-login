@@ -1,6 +1,6 @@
 # Desain.md — Redesign Login Page FINORA
 
-## 0. Diagnosis: Kenapa Terasa Monoton
+# 0. Diagnosis: Kenapa Terasa Monoton
 
 Membandingkan halaman login saat ini dengan brand kit FINORA, ada gap yang jelas:
 
